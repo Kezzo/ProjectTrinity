@@ -41,6 +41,11 @@ public class Player : MonoBehaviour
 			transform.position = Vector3.MoveTowards(transform.position, m_realPosition, 10 * Time.deltaTime);
 		}
 
+		if(this.m_commandCallback == null)
+		{
+			return;
+		}
+
 		if(Input.GetKeyDown(KeyCode.UpArrow)) 
 		{
 			this.m_commandCallback("UP");
