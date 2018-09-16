@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
 
 	private Vector3 m_realPosition = new Vector3();
 
+	private Dictionary<int, Vector3> m_positionBuffer = new Dictionary<int, Vector3>();
+
 	public void SetCommandSentCallback(Action<string> callback) 
 	{
 		m_commandCallback = callback;
@@ -29,9 +31,40 @@ public class Player : MonoBehaviour
         m_renderer.SetPropertyBlock(m_materialPropertyBlock);
 	}
 
-	public void SetPosition(Vector3 position)
+	public void SetPosition(Vector3 position, int counter)
 	{
-		m_realPosition = position;
+		Vector3 bufferedPosition;
+		if(!m_positionBuffer.TryGetValue(counter, out bufferedPosition) || bufferedPosition != position) {
+			Debug.Log("Got counter: " + counter + " position: " + position + " bufferedPosition: " + bufferedPosition);
+			m_realPosition = position;
+		}
+	}
+
+	public void AddLocalPosition(Command command)
+	{
+		Vector3 localPosition;
+
+		switch(command.command)
+		{
+			case "UP":
+				localPosition = m_realPosition + new Vector3(0, 0, 1);
+				break;
+			case "DOWN":
+				localPosition = m_realPosition + new Vector3(0, 0, -1);
+				break;
+			case "RIGHT":
+				localPosition = m_realPosition + new Vector3(1, 0, 0);
+				break;
+			case "LEFT":
+				localPosition = m_realPosition + new Vector3(-1, 0, 0);
+				break;
+			default: 
+				return;
+		}
+		
+		m_realPosition = localPosition;
+		Debug.Log("Counter: " + command.counter + " localPosition: " + localPosition);
+		m_positionBuffer[command.counter] = localPosition;
 	}
 
 	private void Update() 
@@ -49,28 +82,24 @@ public class Player : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.UpArrow)) 
 		{
 			this.m_commandCallback("UP");
-			m_realPosition += new Vector3(0, 0, 1);
 			return;
 		}
 		
 		if(Input.GetKeyDown(KeyCode.DownArrow)) 
 		{
 			this.m_commandCallback("DOWN");
-			m_realPosition += new Vector3(0, 0, -1);
 			return;
 		}
 
 		if(Input.GetKeyDown(KeyCode.LeftArrow)) 
 		{
 			this.m_commandCallback("LEFT");
-			m_realPosition += new Vector3(-1, 0, 0);
 			return;
 		}
 
 		if(Input.GetKeyDown(KeyCode.RightArrow)) 
 		{
 			this.m_commandCallback("RIGHT");
-			m_realPosition += new Vector3(1, 0, 0);
 			return;
 		}
 	}

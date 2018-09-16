@@ -15,15 +15,7 @@ public class Lobby : MonoBehaviour
 
 	private bool m_localPlayerJoined;
 
-	public class Command {
-		public string playerId;
-		public string command;
-
-		public Command (string playerId, string command) {
-			this.playerId = playerId;
-			this.command = command;
-		}
-	}
+	private Player m_localPlayer;
 
 	[Serializable]
 	public class PlayerPositionUpdates {
@@ -40,6 +32,8 @@ public class Lobby : MonoBehaviour
 		public string xPosition;
 
 		public string zPosition;
+
+		public int counter;
 
 		public PlayerPositionUpdate (string playerId, string xPosition, string zPosition) {
 			this.playerId = playerId;
@@ -71,7 +65,9 @@ public class Lobby : MonoBehaviour
 		List<string> channels = new List<string>{ "world" };
 		m_pubNubClient.SusbcribeCallback += OnMessageReceived;
 		m_pubNubClient.Subscribe().Channels(channels).Execute();
-		m_pubNubClient.Publish().Channel("world").Message(JsonUtility.ToJson(new Command(m_localPlayerId, "JOIN"))).PublishAsIs(true)
+
+		Command joinCommand = new Command(m_localPlayerId, "JOIN");
+		m_pubNubClient.Publish().Channel("world").Message(JsonUtility.ToJson(joinCommand)).PublishAsIs(true)
 		.Async((result, status) => {
 			Debug.Log("JOIN Command sent");
 		});
@@ -92,15 +88,18 @@ public class Lobby : MonoBehaviour
 			GameObject localPlayerObject = Instantiate(m_playerPrefab) as GameObject;
 			m_playerObjects[m_localPlayerId] = localPlayerObject;
 
-			Player player = localPlayerObject.GetComponent<Player>();
+			m_localPlayer = localPlayerObject.GetComponent<Player>();
 
-			if(player != null) 
+			if(m_localPlayer != null) 
 			{
-				player.SetCommandSentCallback((command) => {
-				m_pubNubClient.Publish().Channel("world").Message(JsonUtility.ToJson(new Command(m_localPlayerId, command))).PublishAsIs(true)
-				.Async((result, status) => {
-						Debug.Log(command + " Command sent");
-					});
+				m_localPlayer.SetCommandSentCallback((command) => {
+
+					Command commandToSend = new Command(m_localPlayerId, command);
+					m_pubNubClient.Publish().Channel("world").Message(JsonUtility.ToJson(commandToSend)).PublishAsIs(true)
+					.Async((result, status) => {
+							Debug.Log(command + " Command sent");
+						});
+					m_localPlayer.AddLocalPosition(commandToSend);
 				});
 			}
 
@@ -131,7 +130,7 @@ public class Lobby : MonoBehaviour
 
 						Player player = playerObject.GetComponent<Player>();
 						if(player != null) {
-							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition));
+							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition), playerPositionUpdate.counter);
 						}
 					} 
 					else 
@@ -147,7 +146,7 @@ public class Lobby : MonoBehaviour
 
 						Player player = createdPlayerObject.GetComponent<Player>();
 						if(player != null) {
-							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition));
+							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition), playerPositionUpdate.counter);
 						}
 					}
 				}
