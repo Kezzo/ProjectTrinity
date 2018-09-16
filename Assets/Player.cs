@@ -49,24 +49,28 @@ public class Player : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.UpArrow)) 
 		{
 			this.m_commandCallback("UP");
+			m_realPosition += new Vector3(0, 0, 1);
 			return;
 		}
 		
 		if(Input.GetKeyDown(KeyCode.DownArrow)) 
 		{
 			this.m_commandCallback("DOWN");
+			m_realPosition += new Vector3(0, 0, -1);
 			return;
 		}
 
 		if(Input.GetKeyDown(KeyCode.LeftArrow)) 
 		{
 			this.m_commandCallback("LEFT");
+			m_realPosition += new Vector3(-1, 0, 0);
 			return;
 		}
 
 		if(Input.GetKeyDown(KeyCode.RightArrow)) 
 		{
 			this.m_commandCallback("RIGHT");
+			m_realPosition += new Vector3(1, 0, 0);
 			return;
 		}
 	}
