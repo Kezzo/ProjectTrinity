@@ -31,11 +31,11 @@ public class Player : MonoBehaviour
         m_renderer.SetPropertyBlock(m_materialPropertyBlock);
 	}
 
-	public void SetPosition(Vector3 position, int counter)
+	public void SetPosition(Vector3 position, int sequence)
 	{
 		Vector3 bufferedPosition;
-		if(!m_positionBuffer.TryGetValue(counter, out bufferedPosition) || bufferedPosition != position) {
-			Debug.Log("Got counter: " + counter + " position: " + position + " bufferedPosition: " + bufferedPosition);
+		if(!m_positionBuffer.TryGetValue(sequence, out bufferedPosition) || bufferedPosition != position) {
+			Debug.Log("Corrected Position: Got sequence: " + sequence + " position: " + position + " bufferedPosition: " + bufferedPosition);
 			m_realPosition = position;
 		}
 	}
@@ -63,8 +63,8 @@ public class Player : MonoBehaviour
 		}
 		
 		m_realPosition = localPosition;
-		Debug.Log("Counter: " + command.counter + " localPosition: " + localPosition);
-		m_positionBuffer[command.counter] = localPosition;
+		Debug.Log("Sequence: " + command.sequence + " localPosition: " + localPosition);
+		m_positionBuffer[command.sequence] = localPosition;
 	}
 
 	private void Update() 

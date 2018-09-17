@@ -33,7 +33,7 @@ public class Lobby : MonoBehaviour
 
 		public string zPosition;
 
-		public int counter;
+		public int sequence;
 
 		public PlayerPositionUpdate (string playerId, string xPosition, string zPosition) {
 			this.playerId = playerId;
@@ -66,8 +66,8 @@ public class Lobby : MonoBehaviour
 		m_pubNubClient.SusbcribeCallback += OnMessageReceived;
 		m_pubNubClient.Subscribe().Channels(channels).Execute();
 
-		Command joinCommand = new Command(m_localPlayerId, "JOIN");
-		m_pubNubClient.Publish().Channel("world").Message(JsonUtility.ToJson(joinCommand)).PublishAsIs(true)
+		Command joinCommand = new Command(m_localPlayerId, "JOIN", false);
+		m_pubNubClient.Publish().Channel("world").Message(joinCommand)
 		.Async((result, status) => {
 			Debug.Log("JOIN Command sent");
 		});
@@ -130,7 +130,7 @@ public class Lobby : MonoBehaviour
 
 						Player player = playerObject.GetComponent<Player>();
 						if(player != null) {
-							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition), playerPositionUpdate.counter);
+							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition), playerPositionUpdate.sequence);
 						}
 					} 
 					else 
@@ -146,7 +146,7 @@ public class Lobby : MonoBehaviour
 
 						Player player = createdPlayerObject.GetComponent<Player>();
 						if(player != null) {
-							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition), playerPositionUpdate.counter);
+							player.SetPosition(new Vector3(xPosition, 0.5f, zPosition), playerPositionUpdate.sequence);
 						}
 					}
 				}
