@@ -40,7 +40,7 @@ public class NetworkClient : MonoBehaviour {
     IPAddress broadcast = IPAddress.Parse ("127.0.0.1");
 
     byte[] sendbuf = Encoding.ASCII.GetBytes ("HALLO");
-    IPEndPoint ep = new IPEndPoint (broadcast, 1337);
+    IPEndPoint ep = new IPEndPoint (broadcast, 2448);
     while (true) {
       s.SendTo (sendbuf, ep);
       Debug.LogFormat ("Message sent to the broadcast address");
