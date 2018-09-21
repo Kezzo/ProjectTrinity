@@ -33,12 +33,12 @@ public class NetworkTimeService
 		}
 	}
 
-	public void Synch (IPAddress ip, int port = 123, Action onTimeSynched = null) 
+	public void Synch (IPAddress ip, int port = 123, int receivePort = 0, Action onTimeSynched = null) 
 	{
 		Task.Run (() => {
 			TimeSpan offsetBuffer = new TimeSpan();
 			
-			using (var ntp = new NtpClient(ip, port)) {
+			using (var ntp = new NtpClient(ip, port, receivePort)) {
 				// doing it three times for more accurate result.
 				for (int i = 0; i < 3; i++)
 				{
@@ -56,8 +56,8 @@ public class NetworkTimeService
 		});
 	}
 
-	public void Synch (string synchHost, Action onTimeSynched = null) 
+	public void Synch (string synchHost, int receivePort = 0, Action onTimeSynched = null) 
 	{
-		Synch(Dns.GetHostAddresses(synchHost)[0], 123, onTimeSynched);
+		Synch(Dns.GetHostAddresses(synchHost)[0], 123, receivePort, onTimeSynched);
 	}
 }

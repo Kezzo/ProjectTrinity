@@ -10,7 +10,7 @@ public class NetworkClient : MonoBehaviour {
   void Start () {
 
     var networkTimeService = new NetworkTimeService();
-    networkTimeService.Synch("pool.ntp.org", () => {
+    networkTimeService.Synch(IPAddress.Parse ("127.0.0.1"), 2448, 1337, () => {
       
     });
 

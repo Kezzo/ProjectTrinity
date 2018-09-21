@@ -53,11 +53,15 @@ namespace GuerrillaNtp
         /// <param name="endpoint">Endpoint of the remote SNTP server.</param>
         /// <seealso cref="M:GuerrillaNtp.NtpClient.#ctor(System.Net.IPAddress,System.Int32)" />
         /// <seealso cref="M:GuerrillaNtp.NtpClient.Dispose" />
-        public NtpClient(IPEndPoint endpoint)
+        public NtpClient(IPEndPoint endpoint, int receivePort)
         {
             socket = new Socket(endpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             try
             {
+                if(receivePort > 0) {
+                    socket.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), receivePort));
+                }
+                
                 socket.ReceiveTimeout = 1000;
                 socket.Connect(endpoint);
             }
@@ -75,7 +79,7 @@ namespace GuerrillaNtp
         /// <param name="port">Port of remote SNTP server. Default is 123 (standard NTP port).</param>
         /// <seealso cref="M:GuerrillaNtp.NtpClient.#ctor(System.Net.IPEndPoint)" />
         /// <seealso cref="M:GuerrillaNtp.NtpClient.Dispose" />
-        public NtpClient(IPAddress address, int port = 123) : this(new IPEndPoint(address, port)) { }
+        public NtpClient(IPAddress address, int port = 123, int receivePort = 0) : this(new IPEndPoint(address, port), receivePort) { }
 
         /// <summary>
         /// Releases all resources held by <see cref="T:GuerrillaNtp.NtpClient" />.
