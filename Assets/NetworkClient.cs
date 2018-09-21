@@ -18,38 +18,50 @@ public class NetworkClient : MonoBehaviour {
       IPEndPoint ep = new IPEndPoint (IPAddress.Parse ("127.0.0.1"), 2448);
       s.SendTo (Encoding.ASCII.GetBytes ("Start"), ep);
 
-      StartCoroutine (ListenForMessages (s));
-      StartCoroutine (SendMessages (s));
+      StartCoroutine (SendMessages (s, broadcast));
 
     } catch (Exception e) {
       Debug.Log (e.ToString ());
     }
   }
 
-  private IEnumerator ListenForMessages (Socket s) {
-    Debug.Log ("Waiting for broadcast");
-    while (true) {
-      byte[] b = new byte[100];
-      int k = s.Receive (b);
-      string szReceived = Encoding.ASCII.GetString (b, 0, k);
+  private void ListenForMessages (Socket s) {
+    Debug.Log ("Listening for messages");
+
+    byte[] buffer = new byte[100];
+    SocketAsyncEventArgs socketAsyncEventArgs = new SocketAsyncEventArgs();
+    socketAsyncEventArgs.SetBuffer(buffer, 0, 100);
+
+    socketAsyncEventArgs.Completed += (o, eventArgs) => {
+      string szReceived = Encoding.ASCII.GetString (eventArgs.Buffer, 0, eventArgs.BytesTransferred);
       Debug.LogFormat (szReceived);
-      yield return new WaitForSeconds (1f);
-    }
+
+      // listen for next packet
+      s.ReceiveAsync(socketAsyncEventArgs);
+    };
+    
+    // kick-off listening chain
+    s.ReceiveAsync(socketAsyncEventArgs);
   }
-  private IEnumerator SendMessages (Socket s) {
-    IPAddress broadcast = IPAddress.Parse ("127.0.0.1");
-    IPEndPoint ep = new IPEndPoint (broadcast, 2448); // endpoint where server is listening
+
+  private IEnumerator SendMessages (Socket s, IPAddress ip) {
+    IPEndPoint ep = new IPEndPoint (ip, 2448); // endpoint where server is listening
     //client.Connect(ep);
     byte[] sendbuf = Encoding.ASCII.GetBytes ("HALLO");
-    while (true) {
-      s.SendTo (sendbuf, ep);
-      Debug.LogFormat ("Message sent to the broadcast address");
-      yield return new WaitForSeconds (1f);
-    }
-  }
+    SocketAsyncEventArgs socketAsyncEventArgs = new SocketAsyncEventArgs();
+    socketAsyncEventArgs.RemoteEndPoint = ep;
+    socketAsyncEventArgs.SetBuffer(sendbuf, 0, sendbuf.Length);
 
-  // Update is called once per frame
-  void Update () {
+    socketAsyncEventArgs.Completed += (o, eventArgs) => {
+        Debug.LogFormat ("Message sent to the broadcast address");
+      };
 
+      for (int i = 0; i < 5; i++)
+      {
+        s.SendToAsync (socketAsyncEventArgs);
+        yield return new WaitForSeconds (1f);
+      }
+
+      ListenForMessages(s);
   }
 }
