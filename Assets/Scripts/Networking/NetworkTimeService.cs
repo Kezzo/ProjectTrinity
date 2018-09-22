@@ -55,16 +55,16 @@ namespace ProjectTrinity.Networking
 
         private void SendTimeSynchMessage() 
         {
-            Int64 currentTickTimestamp;
             byte[] timeSynchBuffer = new byte[25];
             timeSynchBuffer[0] = MessageId.TIME_SYNCH_REQUEST;
 
-            currentTickTimestamp = (DateTime.UtcNow - UtcStartDateTime).Ticks;
+            Int64 currentTickTimestamp = (DateTime.UtcNow - UtcStartDateTime).Ticks;
             // 1 byte = message id
             // 8 bytes = transmission timestamp
             // 8 bytes = server reception timestamp
             // 8 bytes = server transmission timestamp
-            Array.Copy(BitConverter.GetBytes(currentTickTimestamp), 0, timeSynchBuffer, 1, 8);
+            byte[] currentTimestampInBytes = BitConverter.GetBytes(currentTickTimestamp);
+            Array.Copy(currentTimestampInBytes, 0, timeSynchBuffer, 1, 8);
 
             udpClient.SendMessage(timeSynchBuffer);
         }
