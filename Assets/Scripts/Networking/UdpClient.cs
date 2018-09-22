@@ -1,8 +1,7 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using UnityEngine;
 
 namespace ProjectTrinity.Networking
@@ -38,10 +37,13 @@ namespace ProjectTrinity.Networking
             messageSendQueue = new Queue<byte[]>();
 
             listeners = new Dictionary<byte, IUdpMessageListener>();
+
+            StartListening();
         }
 
-        ~UdpClient() {
-          sendSocketEventArgs.Dispose();
+        ~UdpClient()
+        {
+            sendSocketEventArgs.Dispose();
         }
 
 
@@ -51,33 +53,34 @@ namespace ProjectTrinity.Networking
             listeners[messageId] = listener;
         }
 
-        public void StartListening(Socket s)
+        private void StartListening()
         {
             Debug.Log("UdpClient: Start listening for messages");
 
             byte[] buffer = new byte[100];
-            using(SocketAsyncEventArgs socketAsyncEventArgs = new SocketAsyncEventArgs()) {
-              socketAsyncEventArgs.SetBuffer(buffer, 0, buffer.Length);
+            using (SocketAsyncEventArgs socketAsyncEventArgs = new SocketAsyncEventArgs())
+            {
+                socketAsyncEventArgs.SetBuffer(buffer, 0, buffer.Length);
 
-              socketAsyncEventArgs.Completed += (o, eventArgs) =>
-              {
-                  Debug.LogFormat("UdpClient: Received message of size: {0} with messageId: {1}", eventArgs.BytesTransferred, eventArgs.Buffer[0]);
+                socketAsyncEventArgs.Completed += (o, eventArgs) =>
+                {
+                    Debug.LogFormat("UdpClient: Received message of size: {0} with messageId: {1}", eventArgs.BytesTransferred, eventArgs.Buffer[0]);
 
-                  if (listeners.ContainsKey(eventArgs.Buffer[0]))
-                  {
-                      listeners[eventArgs.Buffer[0]].OnMessageReceived(eventArgs.Buffer);
-                  }
+                    if (listeners.ContainsKey(eventArgs.Buffer[0]))
+                    {
+                        listeners[eventArgs.Buffer[0]].OnMessageReceived(eventArgs.Buffer);
+                    }
 
-                  // listen for next packet
-                  s.ReceiveAsync(socketAsyncEventArgs);
-              };
+                    // listen for next packet
+                    socket.ReceiveAsync(socketAsyncEventArgs);
+                };
 
-              // kick-off listening chain
-              s.ReceiveAsync(socketAsyncEventArgs);
+                // kick-off listening chain
+                socket.ReceiveAsync(socketAsyncEventArgs);
             }
         }
 
-        private void SendMessage(byte[] messageToSend)
+        public void SendMessage(byte[] messageToSend, Action onMessageSent = null)
         {
             if (messageSendingInProgress)
             {
