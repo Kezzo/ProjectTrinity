@@ -48,7 +48,7 @@ namespace ProjectTrinity.Networking
             responsesReceived = 0;
 
             this.udpClient = udpClient;
-            udpClient.RegisterListener(MessageId.TIME_SYNCH_RESPONSE, this);
+            udpClient.RegisterListener(MessageId.TIME_RESP, this);
 
             SendTimeSynchMessage();
         }
@@ -56,7 +56,7 @@ namespace ProjectTrinity.Networking
         private void SendTimeSynchMessage() 
         {
             byte[] timeSynchBuffer = new byte[25];
-            timeSynchBuffer[0] = MessageId.TIME_SYNCH_REQUEST;
+            timeSynchBuffer[0] = MessageId.TIME_REQ;
 
             Int64 currentTickTimestamp = (DateTime.UtcNow - UtcStartDateTime).Ticks;
             // 1 byte = message id
