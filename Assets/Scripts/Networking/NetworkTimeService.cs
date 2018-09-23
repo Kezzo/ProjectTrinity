@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using ProjectTrinity.Networking.Messages;
 
 namespace ProjectTrinity.Networking
 {
@@ -52,18 +53,8 @@ namespace ProjectTrinity.Networking
 
         private void SendTimeSynchMessage() 
         {
-            byte[] timeSynchBuffer = new byte[25];
-            timeSynchBuffer[0] = MessageId.TIME_REQ;
-
-            Int64 currentTickTimestamp = (DateTime.UtcNow - UtcStartDateTime).Ticks;
-            // 1 byte = message id
-            // 8 bytes = transmission timestamp
-            // 8 bytes = server reception timestamp
-            // 8 bytes = server transmission timestamp
-            byte[] currentTimestampInBytes = BitConverter.GetBytes(currentTickTimestamp);
-            Array.Copy(currentTimestampInBytes, 0, timeSynchBuffer, 1, 8);
-
-            udpClient.SendMessage(timeSynchBuffer);
+            var timeSynchRequest = new TimeSynchRequestMessage((DateTime.UtcNow - UtcStartDateTime).Ticks);
+            udpClient.SendMessage(timeSynchRequest.GetBytes());
         }
 
         public void OnMessageReceived(byte[] message)
@@ -80,7 +71,7 @@ namespace ProjectTrinity.Networking
                 offset = new TimeSpan();
             }
 
-            receivedOffSets.Add(GetOffsetFromMessage(message));
+            receivedOffSets.Add(new TimeSynchResponseMessage(message).GetServerTimeOffset());
             responsesReceived++;
             
             for (int i = 0; i < receivedOffSets.Count; i++)
@@ -106,22 +97,6 @@ namespace ProjectTrinity.Networking
             {
                 SendTimeSynchMessage();
             }
-        }
-
-        private TimeSpan GetOffsetFromMessage(byte[] message)
-        {
-            // 1 byte = message id
-            // 8 bytes = transmission timestamp
-            // 8 bytes = server reception timestamp
-            // 8 bytes = server transmission timestamp
-            long transmissionTimestamp = BitConverter.ToInt64(message, 1);
-
-            long serverReceptionTimestamp = BitConverter.ToInt64(message, 9);
-            long serverTransmissionTimestamp = BitConverter.ToInt64(message, 17);
-
-            long receptionTimestamp = (DateTime.UtcNow - UtcStartDateTime).Ticks;
-
-            return TimeSpan.FromTicks(((serverReceptionTimestamp - transmissionTimestamp) + (serverTransmissionTimestamp - receptionTimestamp)) / 2);
         }
     }
 }
