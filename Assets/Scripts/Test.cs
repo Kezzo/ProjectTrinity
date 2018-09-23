@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using ProjectTrinity.Networking;
+﻿using ProjectTrinity.Networking;
 using UnityEngine;
 
 public class Test : MonoBehaviour {

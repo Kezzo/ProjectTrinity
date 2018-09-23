@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using GuerrillaNtp;
 using UnityEngine;
 
 namespace ProjectTrinity.Networking
@@ -10,7 +7,7 @@ namespace ProjectTrinity.Networking
     public class NetworkTimeService : IUdpMessageListener
     {
         private TimeSpan offset;
-        private List<TimeSpan> receivedOffSets;
+        private List<TimeSpan> receivedOffSets = new List<TimeSpan>();
         private readonly DateTime UtcStartDateTime = new DateTime(1970, 1, 1);
 
         private Action currentOnTimeSynchedCallback;
@@ -83,7 +80,7 @@ namespace ProjectTrinity.Networking
                 offset = new TimeSpan();
             }
 
-            receivedOffSets[responsesReceived] = GetOffsetFromMessage(message);
+            receivedOffSets.Add(GetOffsetFromMessage(message));
             responsesReceived++;
             
             for (int i = 0; i < receivedOffSets.Count; i++)
@@ -102,7 +99,7 @@ namespace ProjectTrinity.Networking
 
             if(responsesReceived >= 3 && currentOnTimeSynchedCallback != null) 
             {
-                Debug.LogFormat("Server synched time is: {0} offset was: {1}", NetworkDateTime.ToString(), offset.ToString());
+                Debug.LogFormat("Server synched time is: {0} offset was: {1} ms", NetworkDateTime.ToString(), offset.TotalMilliseconds.ToString());
                 currentOnTimeSynchedCallback();
             } 
             else 
