@@ -2,14 +2,14 @@
 {
     public struct InputMessage
     {
-        public readonly byte UnitId;
+        public readonly byte PlayerId;
         public readonly byte Translation;
         public readonly byte Rotation;
         public readonly byte Frame;
 
         public InputMessage(byte[] buffer)
         {
-            UnitId = buffer[1];
+            PlayerId = buffer[1];
             Translation = buffer[2];
             Rotation = buffer[3];
             Frame = buffer[4];
@@ -17,14 +17,14 @@
 
         public InputMessage(byte unitId, byte translation, byte rotation, byte frame)
         {
-            UnitId = unitId;
+            PlayerId = unitId;
             Translation = translation;
             Rotation = rotation;
             Frame = frame;
         }
 
         public byte[] GetBytes() {
-            return new byte[] { MessageId.INPUT, UnitId, Translation, Rotation, Frame };
+            return new byte[] { MessageId.INPUT, PlayerId, Translation, Rotation, Frame };
         }
     }
 }
