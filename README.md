@@ -1,2 +1,2 @@
-# kroetclient
-Client project for the game state and position synchronization library kroetnet
+# Project Trinity
+Client for the trinity project
