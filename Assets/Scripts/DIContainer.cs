@@ -9,7 +9,7 @@ namespace ProjectTrinity.Root
         {
             get
             {
-                return udpClient != null ? udpClient : (udpClient = new UdpClient("34.253.150.89", 2448, 1337));
+                return udpClient != null ? udpClient : (udpClient = new UdpClient("127.0.0.1", 2448, 1337));
             }
         }
 
