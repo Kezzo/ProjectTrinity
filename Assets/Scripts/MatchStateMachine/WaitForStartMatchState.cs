@@ -36,7 +36,7 @@ namespace ProjectTrinity.MatchStateMachine
             }
 
             // match starts
-            if(DIContainer.NetworkTimeService.NetworkTimestampMs <= receivedMatchStartTimestamp) 
+            if(DIContainer.NetworkTimeService.NetworkTimestampMs >= receivedMatchStartTimestamp) 
             {
                 Debug.Log("Match start wait time is over. Switching to RunningMatchState");
                 matchStateMachine.ChangeMatchState(new RunningMatchState());
