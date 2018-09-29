@@ -83,6 +83,8 @@ namespace ProjectTrinity.Networking
 
         public void SendMessage(byte[] messageToSend, Action onMessageSent = null)
         {
+            Debug.LogFormat("UdpClient: Sending message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]);
+
             if (messageSendingInProgress)
             {
                 messageSendQueue.Enqueue(messageToSend);
