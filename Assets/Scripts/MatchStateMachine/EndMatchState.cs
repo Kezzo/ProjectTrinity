@@ -1,15 +1,29 @@
-﻿namespace ProjectTrinity.MatchStateMachine
+﻿using ProjectTrinity.Networking.Messages;
+using ProjectTrinity.Root;
+using UnityEngine;
+
+namespace ProjectTrinity.MatchStateMachine
 {
     public class EndMatchState : IMatchState
     {
-        public void HandleMessage(byte[] message)
-        {
+        private byte sendMatchEndAckMessages;
+        private byte[] matchEndAckMessageToSend;
 
+        public void Initialize(MatchStateMachine matchStateMachine)
+        {
+            matchEndAckMessageToSend = new MatchEndAckMessage(matchStateMachine.LocalPlayerId).GetBytes();
         }
 
-        public void OnSimulationFrame()
+        public void OnFixedUpdateTick()
         {
+            if(sendMatchEndAckMessages < 3)
+            {
+                DIContainer.UDPClient.SendMessage(matchEndAckMessageToSend);
+                return;
+            }
 
+            Debug.Log("3 MatchEndAckMessages have been sent. Match is done!");
+            // TODO: match ended
         }
     }
 }

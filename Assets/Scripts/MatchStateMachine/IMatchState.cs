@@ -2,7 +2,7 @@
 {
     public interface IMatchState
     {
-        void OnSimulationFrame();
-        void HandleMessage(byte[] message);
+        void Initialize(MatchStateMachine matchStateMachine);
+        void OnFixedUpdateTick();
     }
 }

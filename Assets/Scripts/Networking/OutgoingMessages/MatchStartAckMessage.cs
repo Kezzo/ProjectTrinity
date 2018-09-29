@@ -1,13 +1,8 @@
 ﻿namespace ProjectTrinity.Networking.Messages
 {
-    public struct MatchStartAckMessage
+    public struct MatchStartAckMessage : IOutgoingMessage
     {
         public readonly byte PlayerId;
-
-        public MatchStartAckMessage(byte[] buffer)
-        {
-            PlayerId = buffer[1];
-        }
 
         public MatchStartAckMessage(byte playerId)
         {

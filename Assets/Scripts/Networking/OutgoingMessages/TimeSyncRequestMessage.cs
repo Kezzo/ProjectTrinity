@@ -2,14 +2,9 @@
 
 namespace ProjectTrinity.Networking.Messages
 {
-    public struct TimeSynchRequestMessage
+    public struct TimeSynchRequestMessage : IOutgoingMessage
     {
         public readonly Int64 TransmissionTimestamp;
-
-        public TimeSynchRequestMessage(byte[] buffer)
-        {
-            TransmissionTimestamp = BitConverter.ToInt64(buffer, 1);
-        }
 
         public TimeSynchRequestMessage(Int64 transmissionTimestamp)
         {
