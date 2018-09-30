@@ -41,8 +41,8 @@ namespace ProjectTrinity.Simulation
                 MatchSimulationUnit unitToUpdate;
                 if (!simulationUnits.TryGetValue(unitStateMessage.UnitId, out unitToUpdate))
                 {
-                    DIContainer.Logger.Warn(string.Format("Received UnitStateMessage for unit that doesn't exist in the simulation. UnitID: {0}", unitStateMessage.UnitId));
-                    continue;
+                    unitToUpdate = new MatchSimulationUnit(unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame);
+                    simulationUnits.Add(unitStateMessage.UnitId, unitToUpdate);
                 }
 
                 unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition, 
