@@ -34,7 +34,7 @@ namespace ProjectTrinity.Simulation
 
         public Vector3 GetUnityPosition()
         {
-            return new Vector3(XPosition / positionDivisor, YPosition / positionDivisor);
+            return new Vector3(XPosition / positionDivisor, 0f, YPosition / positionDivisor);
         }
 
         public Vector3 GetUnityRotation()
