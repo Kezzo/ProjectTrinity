@@ -62,6 +62,8 @@ namespace ProjectTrinity.Simulation
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(), 
                                                              inputProvider.GetSimulationYTranslation(), inputProvider.GetSimulationRotation(), currentSimulationFrame);
 
+                inputProvider.Reset();
+
                 DIContainer.UDPClient.SendMessage(inputMessage.GetBytes());
             }
 
