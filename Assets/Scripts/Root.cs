@@ -7,6 +7,12 @@ public class Root : MonoBehaviour
     [SerializeField]
     private GameObject player;
 
+    [SerializeField]
+    private GameObject player2;
+
+    [SerializeField]
+    private GameObject player3;
+
     private MatchStateMachine matchStateMachine;
 
     private void Start()
@@ -16,6 +22,18 @@ public class Root : MonoBehaviour
         {
             Vector3 position = unitState.GetUnityPosition();
             player.transform.position = position;
+        });
+
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, (unitState) =>
+        {
+            Vector3 position = unitState.GetUnityPosition();
+            player2.transform.position = position;
+        });
+
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, (unitState) =>
+        {
+            Vector3 position = unitState.GetUnityPosition();
+            player3.transform.position = position;
         });
     }
 
