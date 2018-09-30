@@ -1,4 +1,5 @@
-﻿using ProjectTrinity.Networking;
+﻿using ProjectTrinity.Helper;
+using ProjectTrinity.Networking;
 
 namespace ProjectTrinity.Root
 {

@@ -19,5 +19,7 @@
 
         public static readonly byte MATCH_END = 10;
         public static readonly byte MATCH_END_ACK = 11;
+
+        public static readonly byte POSITION_CONFIRMATION = 12;
     }
 }

@@ -1,17 +1,20 @@
 ﻿using System;
 
-public static class UtcTimestampHelper 
+namespace ProjectTrinity.Helper
 {
-    private static readonly DateTime UtcStartDateTime = new DateTime(1970, 1, 1);
-
-
-    public static Int64 GetCurrentUtcTimestamp()
+    public static class UtcTimestampHelper
     {
-        return DateTime.UtcNow.Subtract(UtcStartDateTime).Seconds;
-    }
+        private static readonly DateTime UtcStartDateTime = new DateTime(1970, 1, 1);
 
-    public static Int64 GetCurrentUtcMsTimestamp()
-    {
-        return DateTime.UtcNow.Subtract(UtcStartDateTime).Milliseconds;
+
+        public static Int64 GetCurrentUtcTimestamp()
+        {
+            return DateTime.UtcNow.Subtract(UtcStartDateTime).Seconds;
+        }
+
+        public static Int64 GetCurrentUtcMsTimestamp()
+        {
+            return DateTime.UtcNow.Subtract(UtcStartDateTime).Milliseconds;
+        }
     }
 }

@@ -6,9 +6,11 @@ namespace ProjectTrinity.MatchStateMachine
     {
         private IMatchState currentMatchState;
         public byte LocalPlayerId { get; set; }
+        public MatchInputProvider MatchInputProvider { get; private set; }
 
         public MatchStateMachine()
         {
+            MatchInputProvider = new MatchInputProvider();
             ChangeMatchState(new TimeSyncMatchState());
         }
 

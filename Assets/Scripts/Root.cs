@@ -5,10 +5,12 @@ using UnityEngine;
 public class Root : MonoBehaviour 
 {
     private MatchStateMachine matchStateMachine;
+    
 
     private void Start()
     {
         matchStateMachine = new MatchStateMachine();
+
     }
 
     private void FixedUpdate()

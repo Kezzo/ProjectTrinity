@@ -1,17 +1,20 @@
-﻿public class UnityLogger : ILogger
+﻿namespace ProjectTrinity.Helper
 {
-    public void Debug(string logMessage)
+    public class UnityLogger : ILogger
     {
-        UnityEngine.Debug.Log(logMessage);
-    }
+        public void Debug(string logMessage)
+        {
+            UnityEngine.Debug.Log(logMessage);
+        }
 
-    public void Warn(string logMessage)
-    {
-        UnityEngine.Debug.LogWarning(logMessage);
-    }
+        public void Warn(string logMessage)
+        {
+            UnityEngine.Debug.LogWarning(logMessage);
+        }
 
-    public void Error(string logMessage)
-    {
-        UnityEngine.Debug.LogError(logMessage);
+        public void Error(string logMessage)
+        {
+            UnityEngine.Debug.LogError(logMessage);
+        }
     }
 }

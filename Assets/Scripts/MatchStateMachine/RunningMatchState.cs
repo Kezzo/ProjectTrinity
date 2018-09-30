@@ -1,4 +1,5 @@
-﻿using ProjectTrinity.Networking;
+﻿using System.Collections.Generic;
+using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
@@ -10,18 +11,25 @@ namespace ProjectTrinity.MatchStateMachine
         private MatchStateMachine matchStateMachine;
         private MatchSimulation matchSimulation;
 
+        private List<UnitStateMessage> unitStateMessageBuffer = new List<UnitStateMessage>();
+        private List<PositionConfirmationMessage> positionConfirmationMessageBuffer = new List<PositionConfirmationMessage>();
+
         public void Initialize(MatchStateMachine matchStateMachine)
         {
             this.matchStateMachine = matchStateMachine;
             DIContainer.UDPClient.RegisterListener(MessageId.MATCH_END, this);
             DIContainer.UDPClient.RegisterListener(MessageId.UNIT_STATE, this);
+            DIContainer.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
 
-            matchSimulation = new MatchSimulation();
+            //TODO: Add other players/units
+            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchInputProvider);
         }
 
         public void OnFixedUpdateTick()
         {
-            matchSimulation.OnSimulationFrame();
+            matchSimulation.OnSimulationFrame(unitStateMessageBuffer, positionConfirmationMessageBuffer);
+            unitStateMessageBuffer.Clear();
+            positionConfirmationMessageBuffer.Clear();
         }
 
         public void OnMessageReceived(byte[] message)
@@ -35,12 +43,26 @@ namespace ProjectTrinity.MatchStateMachine
 
             if(message[0] == MessageId.UNIT_STATE)
             {
-                //TODO: put all message into FIFO buffer and feed into simulation on next tick.
                 UnitStateMessage unitStateMessage = new UnitStateMessage(message);
                 DIContainer.Logger.Debug(string.Format(
                     "Received unit state message = UnitId: '{0}' XPosition: '{1}' YPosition: '{2}' Rotation: '{3}' Frame: '{4}'",
                     unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame));
 
+                unitStateMessageBuffer.Add(unitStateMessage);
+            }
+
+            if(message[0] == MessageId.POSITION_CONFIRMATION)
+            {
+                PositionConfirmationMessage positionConfirmationMessage = new PositionConfirmationMessage(message);
+
+                if(positionConfirmationMessageBuffer.Count == 0)
+                {
+                    positionConfirmationMessageBuffer.Add(positionConfirmationMessage);
+                }
+                else if(positionConfirmationMessageBuffer.Count > 0 && positionConfirmationMessage.Frame > positionConfirmationMessageBuffer[0].Frame)
+                {
+                    positionConfirmationMessageBuffer[0] = positionConfirmationMessage;
+                }
             }
         }
     }

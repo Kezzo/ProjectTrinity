@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ProjectTrinity.Helper;
+using UnityEngine;
 
 namespace ProjectTrinity.Simulation
 {
@@ -8,9 +9,6 @@ namespace ProjectTrinity.Simulation
         public int XPosition { get; protected set; }
         public int YPosition { get; protected set; }
         public byte Rotation { get; protected set; }
-
-        private static readonly int positionDivisor = 1000;
-        private static readonly int rotationFactor = 360 / 255; // real rotation max value divided by byte max value
 
         private byte LastConfirmedFrame;
 
@@ -34,12 +32,12 @@ namespace ProjectTrinity.Simulation
 
         public Vector3 GetUnityPosition()
         {
-            return new Vector3(XPosition / positionDivisor, 0f, YPosition / positionDivisor);
+            return new Vector3(UnitValueConverter.ToUnityPosition(XPosition), 0f, UnitValueConverter.ToUnityPosition(YPosition));
         }
 
         public Vector3 GetUnityRotation()
         {
-            return new Vector3(0f, Rotation * rotationFactor, 0f);
+            return new Vector3(0f, UnitValueConverter.ToUnityRotation(Rotation), 0f);
         }
 
         protected bool IsFrameInFutureOrPresent(byte frame, byte presentFrame)

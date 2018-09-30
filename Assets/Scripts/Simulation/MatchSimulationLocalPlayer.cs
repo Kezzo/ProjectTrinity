@@ -1,4 +1,6 @@
-﻿namespace ProjectTrinity.Simulation
+﻿using ProjectTrinity.Helper;
+
+namespace ProjectTrinity.Simulation
 {
     public class MatchSimulationLocalPlayer : MatchSimulationUnit
     {
@@ -36,7 +38,7 @@
             {
                 XPositionBase = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
                 YPositionBase = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
-                RotationBase = (byte) ((localPlayerFrameState.RotationBase + localPlayerFrameState.RotationDelta) % byte.MaxValue);
+                RotationBase = (byte) MathHelper.Modulo((localPlayerFrameState.RotationBase + localPlayerFrameState.RotationDelta), byte.MaxValue);
 
                 XPositionDelta = 0;
                 YPositionDelta = 0;
@@ -71,7 +73,7 @@
             localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].UpdatePositionBase(xPosition, yPosition, rotation);
             lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
 
-            nextLocalPlayerFrameIndex = (nextLocalPlayerFrameIndex + 1) % localPlayerFrameStateBuffer.Length;
+            nextLocalPlayerFrameIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
         }
 
         // should be called when a unit state message for the player was received.
@@ -80,13 +82,15 @@
             // oldest frame state
             int cursor = nextLocalPlayerFrameIndex;
             // just so it has a value, set to latest state, should never be used anyway.
-            LocalPlayerFrameState lastUpdateFrameState = localPlayerFrameStateBuffer[(nextLocalPlayerFrameIndex - 1) % localPlayerFrameStateBuffer.Length];
+
+            int lastestIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex - 1), localPlayerFrameStateBuffer.Length);
+            LocalPlayerFrameState lastUpdateFrameState = localPlayerFrameStateBuffer[lastestIndex];
 
             // iterate to local present
             while (!Equals(localPlayerFrameStateBuffer[cursor], lastLocalPlayerFrameState)) {
 
                 LocalPlayerFrameState nextFrameState = localPlayerFrameStateBuffer[cursor];
-                cursor = (nextLocalPlayerFrameIndex + 1) % localPlayerFrameStateBuffer.Length;
+                cursor = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
 
                 if (!IsFrameInFutureOrPresent(nextFrameState.Frame, frame) || nextFrameState.Obsolete)
                 {
@@ -119,7 +123,7 @@
             UpdateCurrentState(localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex]);
 
             // ring buffer
-            nextLocalPlayerFrameIndex = (nextLocalPlayerFrameIndex + 1) % localPlayerFrameStateBuffer.Length;
+            nextLocalPlayerFrameIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
             lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
         }
 
