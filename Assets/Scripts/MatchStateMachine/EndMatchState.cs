@@ -22,7 +22,7 @@ namespace ProjectTrinity.MatchStateMachine
                 return;
             }
 
-            Debug.Log("3 MatchEndAckMessages have been sent. Match is done!");
+            DIContainer.Logger.Debug("3 MatchEndAckMessages have been sent. Match is done!");
             // TODO: match ended
         }
     }

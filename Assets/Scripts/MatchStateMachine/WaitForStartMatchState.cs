@@ -2,7 +2,6 @@
 using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
-using UnityEngine;
 
 namespace ProjectTrinity.MatchStateMachine
 {
@@ -38,7 +37,7 @@ namespace ProjectTrinity.MatchStateMachine
             // match starts
             if(DIContainer.NetworkTimeService.NetworkTimestampMs >= receivedMatchStartTimestamp) 
             {
-                Debug.Log("Match start wait time is over. Switching to RunningMatchState");
+                DIContainer.Logger.Debug("Match start wait time is over. Switching to RunningMatchState");
                 matchStateMachine.ChangeMatchState(new RunningMatchState());
             }
         }
@@ -54,7 +53,7 @@ namespace ProjectTrinity.MatchStateMachine
             receivedMatchStartTimestamp = receivedMessage.MatchStartTimestamp;
 
             ackMessageToSend = new MatchStartAckMessage(this.matchStateMachine.LocalPlayerId).GetBytes();
-            Debug.Log(string.Format("MatchStartMessage received. MatchStartTimestamp is: {0}", receivedMatchStartTimestamp));
+            DIContainer.Logger.Debug(string.Format("MatchStartMessage received. MatchStartTimestamp is: {0}", receivedMatchStartTimestamp));
         }
     }
 }

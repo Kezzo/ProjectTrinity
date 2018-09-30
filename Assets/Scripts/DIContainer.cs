@@ -30,6 +30,15 @@ namespace ProjectTrinity.Root
                 return ackedMessageHelper != null ? ackedMessageHelper : (ackedMessageHelper = new AckedMessageHelper());
             }
         }
+
+        private static ILogger logger;
+        public static ILogger Logger
+        {
+            get
+            {
+                return logger != null ? logger : (logger = new UnityLogger());
+            }
+        }
     }
 }
 

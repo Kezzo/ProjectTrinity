@@ -2,9 +2,8 @@
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
-using UnityEngine;
 
-namespace ProjectTrinity.MatchStateMachine 
+namespace ProjectTrinity.MatchStateMachine
 {
     public class RunningMatchState : IMatchState, IUdpMessageListener
     {
@@ -29,7 +28,7 @@ namespace ProjectTrinity.MatchStateMachine
         {
             if(message[0] == MessageId.MATCH_END) 
             {
-                Debug.Log("Match end message received, switching to MatchEndState");
+                DIContainer.Logger.Debug("Match end message received, switching to MatchEndState");
                 this.matchStateMachine.ChangeMatchState(new EndMatchState());
                 return;
             }
@@ -38,7 +37,7 @@ namespace ProjectTrinity.MatchStateMachine
             {
                 //TODO: put all message into FIFO buffer and feed into simulation on next tick.
                 UnitStateMessage unitStateMessage = new UnitStateMessage(message);
-                Debug.Log(string.Format(
+                DIContainer.Logger.Debug(string.Format(
                     "Received unit state message = UnitId: '{0}' XPosition: '{1}' YPosition: '{2}' Rotation: '{3}' Frame: '{4}'",
                     unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame));
 

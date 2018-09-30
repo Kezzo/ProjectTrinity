@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using ProjectTrinity.Root;
 
 namespace ProjectTrinity.MatchStateMachine
 {
@@ -14,7 +14,7 @@ namespace ProjectTrinity.MatchStateMachine
 
         public void ChangeMatchState(IMatchState matchState)
         {
-            Debug.Log(string.Format("Switching to {0}", matchState.GetType()));
+            DIContainer.Logger.Debug(string.Format("Switching to {0}", matchState.GetType()));
 
             currentMatchState = matchState;
             currentMatchState.Initialize(this);

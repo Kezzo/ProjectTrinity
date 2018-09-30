@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
+using ProjectTrinity.Root;
 
 namespace ProjectTrinity.Networking
 {
@@ -58,7 +58,7 @@ namespace ProjectTrinity.Networking
 
         private void StartListening()
         {
-            Debug.Log("UdpClient: Start listening for messages");
+            DIContainer.Logger.Debug("UdpClient: Start listening for messages");
 
             byte[] buffer = new byte[100];
             receiveSocketEventArgs = new SocketAsyncEventArgs();
@@ -66,7 +66,7 @@ namespace ProjectTrinity.Networking
 
             receiveSocketEventArgs.Completed += (o, eventArgs) =>
             {
-                Debug.LogFormat("UdpClient: Received message of size: {0} with messageId: {1}", eventArgs.BytesTransferred, eventArgs.Buffer[0]);
+                DIContainer.Logger.Debug(string.Format("UdpClient: Received message of size: {0} with messageId: {1}", eventArgs.BytesTransferred, eventArgs.Buffer[0]));
 
                 if (listeners.ContainsKey(eventArgs.Buffer[0]))
                 {
@@ -83,7 +83,7 @@ namespace ProjectTrinity.Networking
 
         public void SendMessage(byte[] messageToSend, Action onMessageSent = null)
         {
-            Debug.LogFormat("UdpClient: Sending message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]);
+            DIContainer.Logger.Debug(string.Format("UdpClient: Sending message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]));
 
             if (messageSendingInProgress)
             {
