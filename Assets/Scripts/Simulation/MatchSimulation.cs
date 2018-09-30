@@ -12,14 +12,16 @@ namespace ProjectTrinity.Simulation
         private MatchSimulationLocalPlayer localPlayer;
 
         private MatchInputProvider inputProvider;
+        private MatchEventProvider eventProvider;
         private byte currentSimulationFrame;
 
         private static readonly int playerMaxFrameSpeed = 100;
 
-        public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, MatchInputProvider matchInputProvider)
+        public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, MatchInputProvider matchInputProvider, MatchEventProvider matchEventProvider)
         {
             localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, 0, 0, 0, 0);
-            this.inputProvider = matchInputProvider;
+            inputProvider = matchInputProvider;
+            eventProvider = matchEventProvider;
 
             foreach (byte matchUnitID in matchUnitIDs)
             {
@@ -45,6 +47,8 @@ namespace ProjectTrinity.Simulation
 
                 unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition, 
                                                unitStateMessage.Rotation, unitStateMessage.Frame);
+
+                eventProvider.OnUnitStateUpdate(unitToUpdate);
             }
 
             foreach (var positionConfirmationMessage in receivedPositionConfirmationMessagesSinceLastFrame)
@@ -53,11 +57,14 @@ namespace ProjectTrinity.Simulation
                                               positionConfirmationMessage.Rotation, positionConfirmationMessage.Frame);
             }
 
+            DIContainer.Logger.Debug(string.Format("XTranslation: {0} YTranslation: {1}", inputProvider.XTranslation, inputProvider.YTranslation));
             localPlayer.SetLocalFrameInput((int) (playerMaxFrameSpeed * inputProvider.XTranslation),
                                            (int) (playerMaxFrameSpeed * inputProvider.YTranslation),
                                            inputProvider.GetSimulationRotation(), currentSimulationFrame);
 
-            if(inputProvider.InputReceived)
+            eventProvider.OnUnitStateUpdate(localPlayer);
+
+            if (inputProvider.InputReceived)
             {
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(), 
                                                              inputProvider.GetSimulationYTranslation(), inputProvider.GetSimulationRotation(), currentSimulationFrame);

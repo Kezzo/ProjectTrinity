@@ -130,8 +130,8 @@ namespace ProjectTrinity.Simulation
         private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState)
         {
             this.XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
-            this.XPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
-            this.XPosition = localPlayerFrameState.RotationBase + localPlayerFrameState.RotationDelta;
+            this.YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+            this.Rotation = (byte)MathHelper.Modulo(localPlayerFrameState.RotationBase + localPlayerFrameState.RotationDelta, byte.MaxValue);
         }
     }
 }

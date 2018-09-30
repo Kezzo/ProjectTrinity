@@ -3,7 +3,7 @@
     public static class UnitValueConverter
     {
         //TODO: make sense configurable
-        private static readonly int positionDivisor = 1000;
+        private static readonly float positionDivisor = 1000;
         private static readonly int toUnityRotationFactor = 360 / byte.MaxValue;
         private static readonly int toSimulationRotationFactor = byte.MaxValue / 360;
 
@@ -19,7 +19,7 @@
 
         public static int ToSimulationPosition(float unityPosition)
         {
-            return (int) unityPosition * positionDivisor;
+            return (int) (unityPosition * positionDivisor);
         }
 
         public static byte ToSimulationRotation(float unityRotation)

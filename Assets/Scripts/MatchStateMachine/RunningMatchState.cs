@@ -22,7 +22,7 @@ namespace ProjectTrinity.MatchStateMachine
             DIContainer.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
 
             //TODO: Add other players/units
-            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchInputProvider);
+            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchInputProvider, matchStateMachine.MatchEventProvider);
         }
 
         public void OnFixedUpdateTick()
