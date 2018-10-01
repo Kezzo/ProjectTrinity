@@ -30,17 +30,17 @@ namespace ProjectTrinity.MatchStateMachine
 
         public byte GetSimulationXTranslation()
         {
-            return (byte) Mathf.InverseLerp(0, 255, Mathf.InverseLerp(-1, 1f, XTranslation));
+            return (byte) Mathf.Lerp(0, 255, Mathf.InverseLerp(-1, 1f, XTranslation));
         }
 
         public byte GetSimulationYTranslation()
         {
-            return (byte)Mathf.InverseLerp(0, 255, Mathf.InverseLerp(-1, 1f, YTranslation));
+            return (byte)Mathf.Lerp(0, 255, Mathf.InverseLerp(-1, 1f, YTranslation));
         }
 
         public byte GetSimulationRotation()
         {
-            return (byte)Mathf.InverseLerp(0, 255, Mathf.InverseLerp(-1, 1f, Rotation));
+            return (byte)Mathf.Lerp(0, 255, Mathf.InverseLerp(-1, 1f, Rotation));
         }
 
         // should be called in every simulation frame so inputs in next update can be registered.
