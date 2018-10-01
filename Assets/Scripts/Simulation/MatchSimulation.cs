@@ -54,7 +54,7 @@ namespace ProjectTrinity.Simulation
             foreach (var positionConfirmationMessage in receivedPositionConfirmationMessagesSinceLastFrame)
             {
                 localPlayer.SetConfirmedState(positionConfirmationMessage.XPosition, positionConfirmationMessage.YPosition, 
-                                              positionConfirmationMessage.Rotation, positionConfirmationMessage.Frame);
+                                              0, positionConfirmationMessage.Frame);
             }
 
             localPlayer.SetLocalFrameInput((int) (playerMaxFrameSpeed * inputProvider.XTranslation),

@@ -47,7 +47,6 @@ public class Root : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.W))
         {
-            Debug.Log("W");
             matchStateMachine.MatchInputProvider.AddYTranslation(1f);
         } 
         else if(Input.GetKey(KeyCode.S))

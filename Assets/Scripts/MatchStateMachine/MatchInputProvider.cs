@@ -40,7 +40,7 @@ namespace ProjectTrinity.MatchStateMachine
 
         public byte GetSimulationRotation()
         {
-            return (byte)Mathf.Lerp(0, 255, Mathf.InverseLerp(-1, 1f, Rotation));
+            return (byte)Mathf.Lerp(0, 255, Mathf.InverseLerp(0, 360f, MathHelper.Modulo(Rotation, 360)));
         }
 
         // should be called in every simulation frame so inputs in next update can be registered.

@@ -10,26 +10,22 @@ namespace ProjectTrinity.Simulation
 
             public int XPositionBase { get; private set; }
             public int YPositionBase { get; private set; }
-            public byte RotationBase { get; private set; }
 
             public int XPositionDelta { get; private set; }
             public int YPositionDelta { get; private set; }
-            public byte RotationDelta { get; private set; }
 
             public bool Confirmed { get; private set; }
 
             public bool Obsolete { get; set; }
 
-            public void UpdatePositionBase(int xPosition, int yPosition, byte rotation)
+            public void UpdateBaseValues(int xPosition, int yPosition, byte rotation)
             {
                 XPositionBase = xPosition;
                 YPositionBase = yPosition;
-                RotationBase = rotation;
 
                 XPositionDelta = 0;
                 YPositionDelta = 0;
-                RotationDelta = 0;
-
+                
                 Confirmed = false;
                 Obsolete = false;
             }
@@ -38,24 +34,21 @@ namespace ProjectTrinity.Simulation
             {
                 XPositionBase = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
                 YPositionBase = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
-                RotationBase = (byte) MathHelper.Modulo((localPlayerFrameState.RotationBase + localPlayerFrameState.RotationDelta), byte.MaxValue);
 
                 if(!keepDeltas)
                 {
                     XPositionDelta = 0;
                     YPositionDelta = 0;
-                    RotationDelta = 0;
                 }
 
                 Confirmed = false;
                 Obsolete = false;
             }
 
-            public void SetDeltas(int xPositionDelta, int yPositionDelta, byte rotationDelta, byte frame)
+            public void SetDeltas(int xPositionDelta, int yPositionDelta, byte frame)
             {
                 XPositionDelta = xPositionDelta;
                 YPositionDelta = yPositionDelta;
-                RotationDelta = rotationDelta;
                 Frame = frame;
             }
 
@@ -73,7 +66,7 @@ namespace ProjectTrinity.Simulation
         public MatchSimulationLocalPlayer(byte unitId, int xPosition, int yPosition, byte rotation, byte frame) 
             : base(unitId, xPosition, yPosition, rotation, frame)
         {
-            localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].UpdatePositionBase(xPosition, yPosition, rotation);
+            localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].UpdateBaseValues(xPosition, yPosition, rotation);
             lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
 
             nextLocalPlayerFrameIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
@@ -103,7 +96,7 @@ namespace ProjectTrinity.Simulation
 
                 if (nextFrameState.Frame == frame)
                 {
-                    nextFrameState.UpdatePositionBase(xPosition, yPosition, rotation);
+                    nextFrameState.UpdateBaseValues(xPosition, yPosition, rotation);
                     nextFrameState.Confirm();
                     lastUpdateFrameState = nextFrameState;
                     continue;
@@ -118,12 +111,12 @@ namespace ProjectTrinity.Simulation
         }
 
         // has to be called every local simulation frame, even when no input was done.
-        public void SetLocalFrameInput(int xPositionDelta, int yPositionDelta, byte rotationDelta, byte frame)
+        public void SetLocalFrameInput(int xPositionDelta, int yPositionDelta, byte rotation, byte frame)
         {
             localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].UpdatePositionBase(lastLocalPlayerFrameState, false);
-            localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].SetDeltas(xPositionDelta, yPositionDelta, rotationDelta, frame);
+            localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].SetDeltas(xPositionDelta, yPositionDelta, frame);
 
-            UpdateCurrentState(localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex]);
+            UpdateCurrentState(localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex], rotation);
 
             lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
 
@@ -131,11 +124,17 @@ namespace ProjectTrinity.Simulation
             nextLocalPlayerFrameIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
         }
 
+        private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState, byte rotation)
+        {
+            this.XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
+            this.YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+            this.Rotation = (byte)MathHelper.Modulo(rotation, byte.MaxValue);
+        }
+
         private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState)
         {
             this.XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
             this.YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
-            this.Rotation = (byte)MathHelper.Modulo(localPlayerFrameState.RotationBase + localPlayerFrameState.RotationDelta, byte.MaxValue);
         }
     }
 }

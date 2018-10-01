@@ -7,7 +7,6 @@ namespace ProjectTrinity.Networking.Messages
         public readonly byte UnitId;
         public readonly int XPosition;
         public readonly int YPosition;
-        public readonly byte Rotation;
         public readonly byte Frame;
 
         public PositionConfirmationMessage(byte[] buffer) 
@@ -15,8 +14,7 @@ namespace ProjectTrinity.Networking.Messages
             UnitId = buffer[1];
             XPosition = BitConverter.ToInt32(buffer, 2);
             YPosition = BitConverter.ToInt32(buffer, 6);
-            Rotation = buffer[10];
-            Frame = buffer[11];
+            Frame = buffer[10];
         }
     }
 }
