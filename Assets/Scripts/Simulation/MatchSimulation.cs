@@ -57,7 +57,6 @@ namespace ProjectTrinity.Simulation
                                               positionConfirmationMessage.Rotation, positionConfirmationMessage.Frame);
             }
 
-            DIContainer.Logger.Debug(string.Format("XTranslation: {0} YTranslation: {1}", inputProvider.XTranslation, inputProvider.YTranslation));
             localPlayer.SetLocalFrameInput((int) (playerMaxFrameSpeed * inputProvider.XTranslation),
                                            (int) (playerMaxFrameSpeed * inputProvider.YTranslation),
                                            inputProvider.GetSimulationRotation(), currentSimulationFrame);
@@ -66,6 +65,8 @@ namespace ProjectTrinity.Simulation
 
             if (inputProvider.InputReceived)
             {
+                DIContainer.Logger.Debug(string.Format("XTranslation: {0} YTranslation: {1}", inputProvider.XTranslation, inputProvider.YTranslation));
+
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(), 
                                                              inputProvider.GetSimulationYTranslation(), inputProvider.GetSimulationRotation(), currentSimulationFrame);
 
