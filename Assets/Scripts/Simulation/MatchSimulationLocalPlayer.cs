@@ -40,9 +40,12 @@ namespace ProjectTrinity.Simulation
                 YPositionBase = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
                 RotationBase = (byte) MathHelper.Modulo((localPlayerFrameState.RotationBase + localPlayerFrameState.RotationDelta), byte.MaxValue);
 
-                XPositionDelta = 0;
-                YPositionDelta = 0;
-                RotationDelta = 0;
+                if(!keepDeltas)
+                {
+                    XPositionDelta = 0;
+                    YPositionDelta = 0;
+                    RotationDelta = 0;
+                }
 
                 Confirmed = false;
                 Obsolete = false;
