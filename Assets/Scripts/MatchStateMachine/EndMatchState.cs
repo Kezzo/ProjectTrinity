@@ -19,6 +19,7 @@ namespace ProjectTrinity.MatchStateMachine
             if(sendMatchEndAckMessages < 3)
             {
                 DIContainer.UDPClient.SendMessage(matchEndAckMessageToSend);
+                sendMatchEndAckMessages++;
                 return;
             }
 
