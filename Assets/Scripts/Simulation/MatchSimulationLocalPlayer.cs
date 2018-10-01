@@ -125,9 +125,10 @@ namespace ProjectTrinity.Simulation
 
             UpdateCurrentState(localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex]);
 
+            lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
+
             // ring buffer
             nextLocalPlayerFrameIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
-            lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
         }
 
         private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState)
