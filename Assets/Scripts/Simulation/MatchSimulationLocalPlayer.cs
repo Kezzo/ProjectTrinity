@@ -86,7 +86,7 @@ namespace ProjectTrinity.Simulation
             while (!Equals(localPlayerFrameStateBuffer[cursor], lastLocalPlayerFrameState)) {
 
                 LocalPlayerFrameState nextFrameState = localPlayerFrameStateBuffer[cursor];
-                cursor = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
+                cursor = MathHelper.Modulo(cursor + 1, localPlayerFrameStateBuffer.Length);
 
                 if (!IsFrameInFutureOrPresent(nextFrameState.Frame, frame) || nextFrameState.Obsolete)
                 {
