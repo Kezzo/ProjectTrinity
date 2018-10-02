@@ -6,7 +6,7 @@ namespace ProjectTrinity.MatchStateMachine
 {
     public class TimeSyncMatchState : IMatchState
     {
-        public void Initialize(MatchStateMachine matchStateMachine)
+        public void OnActivate(MatchStateMachine matchStateMachine)
         {
             DIContainer.NetworkTimeService.Synch(DIContainer.UDPClient, () =>
             {
@@ -18,6 +18,11 @@ namespace ProjectTrinity.MatchStateMachine
                     matchStateMachine.ChangeMatchState(new WaitForStartMatchState());
                 });
             });
+        }
+
+        public void OnDeactivate()
+        {
+
         }
 
         public void OnFixedUpdateTick()

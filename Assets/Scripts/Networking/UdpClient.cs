@@ -49,11 +49,23 @@ namespace ProjectTrinity.Networking
 
         }
 
-
         // will forward messages with the given message id to that listener
         public void RegisterListener(byte messageId, IUdpMessageListener listener)
         {
             listeners[messageId] = listener;
+        }
+
+        public void DeregisterListener(byte messageId, IUdpMessageListener listener)
+        {
+            // only remove when the given listener is the current
+            IUdpMessageListener currentListener;
+            if(listeners.TryGetValue(messageId, out currentListener))
+            {
+                if(currentListener.Equals(listener))
+                {
+                    listeners[messageId] = null;
+                }
+            }
         }
 
         private void StartListening()
@@ -68,7 +80,7 @@ namespace ProjectTrinity.Networking
             {
                 DIContainer.Logger.Debug(string.Format("UdpClient: Received message of size: {0} with messageId: {1}", eventArgs.BytesTransferred, eventArgs.Buffer[0]));
 
-                if (listeners.ContainsKey(eventArgs.Buffer[0]))
+                if (listeners.ContainsKey(eventArgs.Buffer[0]) && listeners[eventArgs.Buffer[0]] != null)
                 {
                     listeners[eventArgs.Buffer[0]].OnMessageReceived(eventArgs.Buffer);
                 }

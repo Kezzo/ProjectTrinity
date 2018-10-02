@@ -14,7 +14,7 @@ namespace ProjectTrinity.MatchStateMachine
         private List<UnitStateMessage> unitStateMessageBuffer = new List<UnitStateMessage>();
         private List<PositionConfirmationMessage> positionConfirmationMessageBuffer = new List<PositionConfirmationMessage>();
 
-        public void Initialize(MatchStateMachine matchStateMachine)
+        public void OnActivate(MatchStateMachine matchStateMachine)
         {
             this.matchStateMachine = matchStateMachine;
             DIContainer.UDPClient.RegisterListener(MessageId.MATCH_END, this);
@@ -23,6 +23,13 @@ namespace ProjectTrinity.MatchStateMachine
 
             //TODO: Add other players/units
             matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchInputProvider, matchStateMachine.MatchEventProvider);
+        }
+
+        public void OnDeactivate()
+        {
+            DIContainer.UDPClient.DeregisterListener(MessageId.MATCH_END, this);
+            DIContainer.UDPClient.DeregisterListener(MessageId.UNIT_STATE, this);
+            DIContainer.UDPClient.DeregisterListener(MessageId.POSITION_CONFIRMATION, this);
         }
 
         public void OnFixedUpdateTick()

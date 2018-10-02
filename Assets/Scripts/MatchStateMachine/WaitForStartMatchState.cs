@@ -14,10 +14,15 @@ namespace ProjectTrinity.MatchStateMachine
 
         private MatchStateMachine matchStateMachine;
 
-        public void Initialize(MatchStateMachine matchStateMachine)
+        public void OnActivate(MatchStateMachine matchStateMachine)
         {
             DIContainer.UDPClient.RegisterListener(MessageId.MATCH_START, this);
             this.matchStateMachine = matchStateMachine;
+        }
+
+        public void OnDeactivate()
+        {
+            DIContainer.UDPClient.DeregisterListener(MessageId.MATCH_START, this);
         }
 
         public void OnFixedUpdateTick()

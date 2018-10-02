@@ -20,8 +20,13 @@ namespace ProjectTrinity.MatchStateMachine
         {
             DIContainer.Logger.Debug(string.Format("Switching to {0}", matchState.GetType()));
 
+            if(currentMatchState != null)
+            {
+                currentMatchState.OnDeactivate();
+            }
+
             currentMatchState = matchState;
-            currentMatchState.Initialize(this);
+            currentMatchState.OnActivate(this);
         }
 
         public void OnFixedUpdateTick() 

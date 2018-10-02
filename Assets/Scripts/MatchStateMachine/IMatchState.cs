@@ -2,7 +2,8 @@
 {
     public interface IMatchState
     {
-        void Initialize(MatchStateMachine matchStateMachine);
+        void OnActivate(MatchStateMachine matchStateMachine);
+        void OnDeactivate();
         void OnFixedUpdateTick();
     }
 }

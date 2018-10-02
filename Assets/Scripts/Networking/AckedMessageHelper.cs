@@ -55,9 +55,11 @@ namespace ProjectTrinity.Networking
                 if (pendingAckMessages[i].AckMessageId == message[0])
                 {
                     AckMessageAwaitData ackedData = pendingAckMessages[i];
+
+                    DIContainer.UDPClient.DeregisterListener(pendingAckMessages[i].AckMessageId, this);
                     pendingAckMessages.Remove(ackedData);
 
-                    if(ackedData.OnAckMessageReceivedCalback != null) 
+                    if (ackedData.OnAckMessageReceivedCalback != null) 
                     {
                         ackedData.OnAckMessageReceivedCalback(message);
                     }

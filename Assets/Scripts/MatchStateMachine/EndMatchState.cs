@@ -1,6 +1,5 @@
 ﻿using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
-using UnityEngine;
 
 namespace ProjectTrinity.MatchStateMachine
 {
@@ -9,9 +8,14 @@ namespace ProjectTrinity.MatchStateMachine
         private byte sendMatchEndAckMessages;
         private byte[] matchEndAckMessageToSend;
 
-        public void Initialize(MatchStateMachine matchStateMachine)
+        public void OnActivate(MatchStateMachine matchStateMachine)
         {
             matchEndAckMessageToSend = new MatchEndAckMessage(matchStateMachine.LocalPlayerId).GetBytes();
+        }
+
+        public void OnDeactivate()
+        {
+           
         }
 
         public void OnFixedUpdateTick()
