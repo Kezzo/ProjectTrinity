@@ -42,7 +42,7 @@ namespace ProjectTrinity.Simulation
 
         protected bool IsFrameInFutureOrPresent(byte frame, byte presentFrame)
         {
-            return frame >= presentFrame || (frame > 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30);
+            return true; //frame >= presentFrame || (frame > 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30);
         }
     }
 }
