@@ -8,9 +8,9 @@ namespace ProjectTrinity.Root
         private static IUdpClient udpClient;
         public static IUdpClient UDPClient
         {
-            get
+            get//"127.0.0.1
             {
-                return udpClient != null ? udpClient : (udpClient = new UdpClient("127.0.0.1", 2448, 1337));
+                return udpClient != null ? udpClient : (udpClient = new UdpClient("ec2-34-248-140-154.eu-west-1.compute.amazonaws.com", 2448, 1337));
             }
         }
 
