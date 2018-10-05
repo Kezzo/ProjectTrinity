@@ -59,6 +59,10 @@ namespace ProjectTrinity.Simulation
                 eventProvider.OnUnitStateUpdate(unitToUpdate);
             }
 
+            localPlayer.SetLocalFrameInput((int)(playerMaxFrameSpeed * inputProvider.XTranslation),
+                                           (int)(playerMaxFrameSpeed * inputProvider.YTranslation),
+                                           inputProvider.GetSimulationRotation(), currentSimulationFrame);
+
             for (int i = 0; i < receivedPositionConfirmationMessagesSinceLastFrame.Count; i++)
             {
                 PositionConfirmationMessage positionConfirmationMessage = receivedPositionConfirmationMessagesSinceLastFrame[i];
@@ -66,10 +70,6 @@ namespace ProjectTrinity.Simulation
                 localPlayer.SetConfirmedState(positionConfirmationMessage.XPosition, positionConfirmationMessage.YPosition, 
                                               0, positionConfirmationMessage.Frame);
             }
-
-            localPlayer.SetLocalFrameInput((int) (playerMaxFrameSpeed * inputProvider.XTranslation),
-                                           (int) (playerMaxFrameSpeed * inputProvider.YTranslation),
-                                           inputProvider.GetSimulationRotation(), currentSimulationFrame);
 
             eventProvider.OnUnitStateUpdate(localPlayer);
 
