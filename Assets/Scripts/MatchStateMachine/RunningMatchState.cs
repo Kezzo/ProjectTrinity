@@ -11,18 +11,32 @@ namespace ProjectTrinity.MatchStateMachine
         private MatchStateMachine matchStateMachine;
         private MatchSimulation matchSimulation;
 
-        private List<UnitStateMessage> unitStateMessageBuffer = new List<UnitStateMessage>();
-        private List<PositionConfirmationMessage> positionConfirmationMessageBuffer = new List<PositionConfirmationMessage>();
+        private int bufferCursor;
+        private List<UnitStateMessage>[] unitStateMessageBuffer = new List<UnitStateMessage>[2];
+        private List<PositionConfirmationMessage>[] PCMBuffer = new List<PositionConfirmationMessage>[2];
 
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
             this.matchStateMachine = matchStateMachine;
+
+            // this is done to change the list we add new message to while we process a list
+            // to one list will always be the one receiving message, while the other will be the one processed in that frame
+            // we switch to the other list at the beginning of the frame
+            // This also avoids having to do list copy etc. which can lead to memory fragmentation
+            unitStateMessageBuffer[0] = new List<UnitStateMessage>();
+            unitStateMessageBuffer[1] = new List<UnitStateMessage>();
+
+            PCMBuffer[0] = new List<PositionConfirmationMessage>();
+            PCMBuffer[1] = new List<PositionConfirmationMessage>();
+
             DIContainer.UDPClient.RegisterListener(MessageId.MATCH_END, this);
             DIContainer.UDPClient.RegisterListener(MessageId.UNIT_STATE, this);
             DIContainer.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
 
             //TODO: Add other players/units
-            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchInputProvider, matchStateMachine.MatchEventProvider);
+            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], 
+                                                  matchStateMachine.MatchStartTimestamp, matchStateMachine.MatchInputProvider, 
+                                                  matchStateMachine.MatchEventProvider);
         }
 
         public void OnDeactivate()
@@ -34,9 +48,12 @@ namespace ProjectTrinity.MatchStateMachine
 
         public void OnFixedUpdateTick()
         {
-            matchSimulation.OnSimulationFrame(unitStateMessageBuffer, positionConfirmationMessageBuffer);
-            unitStateMessageBuffer.Clear();
-            positionConfirmationMessageBuffer.Clear();
+            int currentBufferCursor = bufferCursor;
+            bufferCursor = (bufferCursor + 1) % 2; // 0 -> 1 -> 0 -> 1
+
+            matchSimulation.OnSimulationFrame(unitStateMessageBuffer[currentBufferCursor], PCMBuffer[currentBufferCursor]);
+            unitStateMessageBuffer[currentBufferCursor].Clear();
+            PCMBuffer[currentBufferCursor].Clear();
         }
 
         public void OnMessageReceived(byte[] message)
@@ -51,24 +68,25 @@ namespace ProjectTrinity.MatchStateMachine
             if(message[0] == MessageId.UNIT_STATE)
             {
                 UnitStateMessage unitStateMessage = new UnitStateMessage(message);
-                DIContainer.Logger.Debug(string.Format(
+                /*DIContainer.Logger.Debug(string.Format(
                     "Received unit state message = UnitId: '{0}' XPosition: '{1}' YPosition: '{2}' Rotation: '{3}' Frame: '{4}'",
-                    unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame));
+                    unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame));*/
 
-                unitStateMessageBuffer.Add(unitStateMessage);
+                unitStateMessageBuffer[bufferCursor].Add(unitStateMessage);
             }
 
             if(message[0] == MessageId.POSITION_CONFIRMATION)
             {
                 PositionConfirmationMessage positionConfirmationMessage = new PositionConfirmationMessage(message);
 
-                if(positionConfirmationMessageBuffer.Count == 0)
+                if(PCMBuffer[bufferCursor].Count == 0)
                 {
-                    positionConfirmationMessageBuffer.Add(positionConfirmationMessage);
+                    PCMBuffer[bufferCursor].Add(positionConfirmationMessage);
                 }
-                else if(positionConfirmationMessageBuffer.Count > 0 && positionConfirmationMessage.Frame > positionConfirmationMessageBuffer[0].Frame)
+                else if(PCMBuffer[bufferCursor].Count > 0 && 
+                        positionConfirmationMessage.Frame > PCMBuffer[bufferCursor][0].Frame)
                 {
-                    positionConfirmationMessageBuffer[0] = positionConfirmationMessage;
+                    PCMBuffer[bufferCursor][0] = positionConfirmationMessage;
                 }
             }
         }

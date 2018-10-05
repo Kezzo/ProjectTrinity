@@ -57,6 +57,8 @@ namespace ProjectTrinity.MatchStateMachine
             MatchStartMessage receivedMessage = new MatchStartMessage(message);
             receivedMatchStartTimestamp = receivedMessage.MatchStartTimestamp;
 
+            matchStateMachine.MatchStartTimestamp = receivedMessage.MatchStartTimestamp;
+
             ackMessageToSend = new MatchStartAckMessage(this.matchStateMachine.LocalPlayerId).GetBytes();
             DIContainer.Logger.Debug(string.Format("MatchStartMessage received. MatchStartTimestamp is: {0}", receivedMatchStartTimestamp));
         }

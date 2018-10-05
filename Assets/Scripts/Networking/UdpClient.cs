@@ -32,7 +32,7 @@ namespace ProjectTrinity.Networking
 
                         byte[] messageToSend = messageSendQueue.Dequeue();
 
-                        DIContainer.Logger.Debug(string.Format("UdpClient: Sending message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]));
+                        //DIContainer.Logger.Debug(string.Format("UdpClient: Sending message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]));
                         int bytesSent = await udpClient.SendAsync(messageToSend, messageToSend.Length, host, hostPort);
                     }
                 });
@@ -77,7 +77,7 @@ namespace ProjectTrinity.Networking
                 {
                     UdpReceiveResult result = await udpClient.ReceiveAsync();
 
-                    DIContainer.Logger.Debug(string.Format("UdpClient: Received message of size: {0} with messageId: {1}", result.Buffer.Length, result.Buffer[0]));
+                    //DIContainer.Logger.Debug(string.Format("UdpClient: Received message of size: {0} with messageId: {1}", result.Buffer.Length, result.Buffer[0]));
 
                     if (listeners.ContainsKey(result.Buffer[0]) && listeners[result.Buffer[0]] != null)
                     {

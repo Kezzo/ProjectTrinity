@@ -15,7 +15,10 @@ namespace ProjectTrinity.Simulation
         public MatchSimulationUnit(byte unitId, int xPosition, int yPosition, byte rotation, byte frame)
         {
             UnitId = unitId;
-            SetConfirmedState(xPosition, yPosition, rotation, frame);
+            XPosition = xPosition;
+            YPosition = yPosition;
+            Rotation = rotation;
+            LastConfirmedFrame = frame;
         }
 
         public virtual void SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
@@ -43,6 +46,11 @@ namespace ProjectTrinity.Simulation
         protected bool IsFrameInFutureOrPresent(byte frame, byte presentFrame)
         {
             return true; //frame >= presentFrame || (frame > 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30);
+        }
+
+        protected bool IsFrameInFuture(byte frame, byte presentFrame)
+        {
+            return frame > presentFrame || (frame > 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30); // cut off after 30 frames
         }
     }
 }

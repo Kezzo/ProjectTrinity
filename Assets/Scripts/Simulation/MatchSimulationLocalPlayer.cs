@@ -4,7 +4,7 @@ namespace ProjectTrinity.Simulation
 {
     public class MatchSimulationLocalPlayer : MatchSimulationUnit
     {
-        private struct LocalPlayerFrameState
+        private class LocalPlayerFrameState
         {
             public byte Frame { get; private set; }
 
@@ -66,6 +66,11 @@ namespace ProjectTrinity.Simulation
         public MatchSimulationLocalPlayer(byte unitId, int xPosition, int yPosition, byte rotation, byte frame) 
             : base(unitId, xPosition, yPosition, rotation, frame)
         {
+            for (int i = 0; i < localPlayerFrameStateBuffer.Length; i++)
+            {
+                localPlayerFrameStateBuffer[i] = new LocalPlayerFrameState();
+            }
+
             localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].UpdateBaseValues(xPosition, yPosition, rotation);
             lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
 
@@ -82,32 +87,31 @@ namespace ProjectTrinity.Simulation
             int lastestIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex - 1), localPlayerFrameStateBuffer.Length);
             LocalPlayerFrameState lastUpdateFrameState = localPlayerFrameStateBuffer[lastestIndex];
 
-            // iterate to local present
-            while (!Equals(localPlayerFrameStateBuffer[cursor], lastLocalPlayerFrameState)) {
+            // iterate from old stored frame to local present frame
+            // update confirmed frame and all following frames to correct current position
+            while (true) {
+                // should be oldest and first frame that is updated here.
+                if (localPlayerFrameStateBuffer[cursor].Frame == frame)
+                {
+                    localPlayerFrameStateBuffer[cursor].UpdateBaseValues(xPosition, yPosition, rotation);
+                    localPlayerFrameStateBuffer[cursor].Confirm();
+                    lastUpdateFrameState = localPlayerFrameStateBuffer[cursor];
+                }
+                else if (IsFrameInFuture(localPlayerFrameStateBuffer[cursor].Frame, frame))
+                {
+                    localPlayerFrameStateBuffer[cursor].UpdatePositionBase(lastUpdateFrameState, true);
+                    lastUpdateFrameState = localPlayerFrameStateBuffer[cursor];
+                }
 
-                LocalPlayerFrameState nextFrameState = localPlayerFrameStateBuffer[cursor];
+                if(localPlayerFrameStateBuffer[cursor].Frame == lastLocalPlayerFrameState.Frame) {
+                    break;
+                }
+
                 cursor = MathHelper.Modulo(cursor + 1, localPlayerFrameStateBuffer.Length);
-
-                if (!IsFrameInFutureOrPresent(nextFrameState.Frame, frame) || nextFrameState.Obsolete)
-                {
-                    nextFrameState.Obsolete = true;
-                    continue;
-                }
-
-                if (nextFrameState.Frame == frame)
-                {
-                    nextFrameState.UpdateBaseValues(xPosition, yPosition, rotation);
-                    nextFrameState.Confirm();
-                    lastUpdateFrameState = nextFrameState;
-                    continue;
-                }
-
-                nextFrameState.UpdatePositionBase(lastUpdateFrameState, true);
-                lastUpdateFrameState = nextFrameState;
             }
 
             // update current position and rotation
-            UpdateCurrentState(lastUpdateFrameState);
+            UpdateCurrentState(localPlayerFrameStateBuffer[cursor]);
         }
 
         // has to be called every local simulation frame, even when no input was done.

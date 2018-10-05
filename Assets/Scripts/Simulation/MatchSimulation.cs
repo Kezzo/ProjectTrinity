@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ProjectTrinity.Helper;
 using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Networking.Messages;
@@ -17,9 +18,12 @@ namespace ProjectTrinity.Simulation
 
         private static readonly int playerMaxFrameSpeed = 100;
 
-        public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, MatchInputProvider matchInputProvider, MatchEventProvider matchEventProvider)
+        private Int64 matchStartTimestamp;
+
+        public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, Int64 matchStartTimestamp, MatchInputProvider matchInputProvider, MatchEventProvider matchEventProvider)
         {
             localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, 0, 0, 0, 0);
+            this.matchStartTimestamp = matchStartTimestamp;
             inputProvider = matchInputProvider;
             eventProvider = matchEventProvider;
 
@@ -36,8 +40,12 @@ namespace ProjectTrinity.Simulation
 
         public void OnSimulationFrame(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame, List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame)
         {
-            foreach (UnitStateMessage unitStateMessage in receivedUnitStateMessagesSinceLastFrame)
+            currentSimulationFrame = (byte)MathHelper.Modulo((DIContainer.NetworkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
+
+            for (int i = 0; i < receivedUnitStateMessagesSinceLastFrame.Count; i++)
             {
+                UnitStateMessage unitStateMessage = receivedUnitStateMessagesSinceLastFrame[i];
+
                 MatchSimulationUnit unitToUpdate;
                 if (!simulationUnits.TryGetValue(unitStateMessage.UnitId, out unitToUpdate))
                 {
@@ -51,8 +59,10 @@ namespace ProjectTrinity.Simulation
                 eventProvider.OnUnitStateUpdate(unitToUpdate);
             }
 
-            foreach (var positionConfirmationMessage in receivedPositionConfirmationMessagesSinceLastFrame)
+            for (int i = 0; i < receivedPositionConfirmationMessagesSinceLastFrame.Count; i++)
             {
+                PositionConfirmationMessage positionConfirmationMessage = receivedPositionConfirmationMessagesSinceLastFrame[i];
+
                 localPlayer.SetConfirmedState(positionConfirmationMessage.XPosition, positionConfirmationMessage.YPosition, 
                                               0, positionConfirmationMessage.Frame);
             }
@@ -65,7 +75,7 @@ namespace ProjectTrinity.Simulation
 
             if (inputProvider.InputReceived)
             {
-                DIContainer.Logger.Debug(string.Format("XTranslation: {0} YTranslation: {1}", inputProvider.XTranslation, inputProvider.YTranslation));
+                //DIContainer.Logger.Debug(string.Format("XTranslation: {0} YTranslation: {1}", inputProvider.XTranslation, inputProvider.YTranslation));
 
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(), 
                                                              inputProvider.GetSimulationYTranslation(), inputProvider.GetSimulationRotation(), currentSimulationFrame);
@@ -74,8 +84,6 @@ namespace ProjectTrinity.Simulation
 
                 DIContainer.UDPClient.SendMessage(inputMessage.GetBytes());
             }
-
-            currentSimulationFrame = (byte) MathHelper.Modulo((currentSimulationFrame + 1), byte.MaxValue);
         }
     }
 }

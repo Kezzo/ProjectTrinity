@@ -1,4 +1,5 @@
-﻿using ProjectTrinity.Root;
+﻿using System;
+using ProjectTrinity.Root;
 
 namespace ProjectTrinity.MatchStateMachine
 {
@@ -6,6 +7,7 @@ namespace ProjectTrinity.MatchStateMachine
     {
         private IMatchState currentMatchState;
         public byte LocalPlayerId { get; set; }
+        public Int64 MatchStartTimestamp { get; set; }
         public MatchInputProvider MatchInputProvider { get; private set; }
         public MatchEventProvider MatchEventProvider { get; private set; }
 
