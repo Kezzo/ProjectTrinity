@@ -63,5 +63,17 @@ public class Root : MonoBehaviour
         {
             matchStateMachine.MatchInputProvider.AddXTranslation(1f);
         }
+
+        if(EnvironmentHelper.DebugAIEnabled)
+        {
+            if(Random.Range(0, 2) == 0)
+            {
+                matchStateMachine.MatchInputProvider.AddYTranslation(Random.Range(-1f, 1f));
+            }
+            else
+            {
+                matchStateMachine.MatchInputProvider.AddXTranslation(Random.Range(-1f, 1f));
+            }
+        }
     }
 }
