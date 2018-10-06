@@ -93,7 +93,7 @@ namespace ProjectTrinity.Simulation
                 //DIContainer.Logger.Debug(string.Format("XTranslation: {0} YTranslation: {1}", inputProvider.XTranslation, inputProvider.YTranslation));
 
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(), 
-                                                             inputProvider.GetSimulationYTranslation(), inputProvider.GetSimulationRotation(), currentSimulationFrame);
+                                                             inputProvider.GetSimulationYTranslation(), localPlayer.Rotation, currentSimulationFrame);
 
                 inputProvider.Reset();
 

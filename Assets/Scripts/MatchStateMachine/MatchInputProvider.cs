@@ -48,7 +48,6 @@ namespace ProjectTrinity.MatchStateMachine
         {
             XTranslation = 0f;
             YTranslation = 0f;
-            Rotation = 0f;
             InputReceived = false;
         }
     }

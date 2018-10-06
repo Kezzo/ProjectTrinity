@@ -22,18 +22,27 @@ public class Root : MonoBehaviour
         {
             Vector3 position = unitState.GetUnityPosition();
             player.transform.position = position;
+
+            Vector3 rotation = unitState.GetUnityRotation();
+            player.transform.rotation = Quaternion.Euler(rotation);
         });
 
         matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, (unitState) =>
         {
             Vector3 position = unitState.GetUnityPosition();
             player2.transform.position = position;
+
+            Vector3 rotation = unitState.GetUnityRotation();
+            player2.transform.rotation = Quaternion.Euler(rotation);
         });
 
         matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, (unitState) =>
         {
             Vector3 position = unitState.GetUnityPosition();
             player3.transform.position = position;
+
+            Vector3 rotation = unitState.GetUnityRotation();
+            player3.transform.rotation = Quaternion.Euler(rotation);
         });
     }
 
@@ -61,6 +70,14 @@ public class Root : MonoBehaviour
         else if (Input.GetKey(KeyCode.D))
         {
             matchStateMachine.MatchInputProvider.AddXTranslation(1f);
+        }
+
+        if(Mathf.Abs(matchStateMachine.MatchInputProvider.XTranslation) > 0f || Mathf.Abs(matchStateMachine.MatchInputProvider.YTranslation) > 0f) {
+            Quaternion rotation = Quaternion.LookRotation(
+            new Vector3(matchStateMachine.MatchInputProvider.XTranslation, 0f,
+                        matchStateMachine.MatchInputProvider.YTranslation), Vector3.up);
+
+            matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
         }
 
         if(EnvironmentHelper.DebugAIEnabled)

@@ -1,4 +1,6 @@
-﻿namespace ProjectTrinity.Helper
+﻿using UnityEngine;
+
+namespace ProjectTrinity.Helper
 {
     public static class UnitValueConverter
     {
@@ -14,7 +16,7 @@
 
         public static float ToUnityRotation(byte simulationRotation)
         {
-            return simulationRotation * toUnityRotationFactor;
+            return Mathf.InverseLerp(0, byte.MaxValue, simulationRotation) * 360;
         }
 
         public static int ToSimulationPosition(float unityPosition)
