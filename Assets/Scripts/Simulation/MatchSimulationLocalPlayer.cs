@@ -18,7 +18,7 @@ namespace ProjectTrinity.Simulation
 
             public bool Obsolete { get; set; }
 
-            public void UpdateBaseValues(int xPosition, int yPosition, byte rotation)
+            public void UpdateBaseValues(int xPosition, int yPosition)
             {
                 XPositionBase = xPosition;
                 YPositionBase = yPosition;
@@ -71,7 +71,7 @@ namespace ProjectTrinity.Simulation
                 localPlayerFrameStateBuffer[i] = new LocalPlayerFrameState();
             }
 
-            localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].UpdateBaseValues(xPosition, yPosition, rotation);
+            localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex].UpdateBaseValues(xPosition, yPosition);
             lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
 
             nextLocalPlayerFrameIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
@@ -93,7 +93,7 @@ namespace ProjectTrinity.Simulation
                 // should be oldest and first frame that is updated here.
                 if (localPlayerFrameStateBuffer[cursor].Frame == frame)
                 {
-                    localPlayerFrameStateBuffer[cursor].UpdateBaseValues(xPosition, yPosition, rotation);
+                    localPlayerFrameStateBuffer[cursor].UpdateBaseValues(xPosition, yPosition);
                     localPlayerFrameStateBuffer[cursor].Confirm();
                     lastUpdateFrameState = localPlayerFrameStateBuffer[cursor];
                 }
