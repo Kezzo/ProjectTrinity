@@ -12,14 +12,14 @@ namespace ProjectTrinity.Networking
         private readonly Dictionary<byte, IUdpMessageListener> listeners;
         System.Net.Sockets.UdpClient udpClient;
 
-        public UdpClient(string host, int hostPort, int listenPort)
+        public UdpClient(string host, int hostPort)
         {
             messageSendQueue = new Queue<byte[]>();
             listeners = new Dictionary<byte, IUdpMessageListener>();
 
             try
             {
-                udpClient = new System.Net.Sockets.UdpClient(listenPort);
+                udpClient = new System.Net.Sockets.UdpClient();
                 StartListening();
                 Task.Run(async () =>
                 {
@@ -33,7 +33,7 @@ namespace ProjectTrinity.Networking
                         byte[] messageToSend = messageSendQueue.Dequeue();
 
                         //DIContainer.Logger.Debug(string.Format("UdpClient: Sending message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]));
-                        int bytesSent = await udpClient.SendAsync(messageToSend, messageToSend.Length, host, hostPort);
+                        await udpClient.SendAsync(messageToSend, messageToSend.Length, host, hostPort);
                     }
                 });
             }
