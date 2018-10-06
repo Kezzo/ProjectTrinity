@@ -78,16 +78,7 @@ namespace ProjectTrinity.MatchStateMachine
             if(message[0] == MessageId.POSITION_CONFIRMATION)
             {
                 PositionConfirmationMessage positionConfirmationMessage = new PositionConfirmationMessage(message);
-
-                if(PCMBuffer[bufferCursor].Count == 0)
-                {
-                    PCMBuffer[bufferCursor].Add(positionConfirmationMessage);
-                }
-                else if(PCMBuffer[bufferCursor].Count > 0 && 
-                        positionConfirmationMessage.Frame > PCMBuffer[bufferCursor][0].Frame)
-                {
-                    PCMBuffer[bufferCursor][0] = positionConfirmationMessage;
-                }
+                PCMBuffer[bufferCursor].Add(positionConfirmationMessage);
             }
         }
     }

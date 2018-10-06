@@ -48,9 +48,9 @@ namespace ProjectTrinity.Simulation
             return true; //frame >= presentFrame || (frame > 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30);
         }
 
-        protected bool IsFrameInFuture(byte frame, byte presentFrame)
+        public static bool IsFrameInFuture(byte frame, byte presentFrame)
         {
-            return frame > presentFrame || (frame > 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30); // cut off after 30 frames
+            return frame > presentFrame || (frame >= 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30); // cut off after 30 frames
         }
     }
 }

@@ -42,6 +42,12 @@ namespace ProjectTrinity.Simulation
         {
             currentSimulationFrame = (byte)MathHelper.Modulo((DIContainer.NetworkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
 
+            // sort by oldest frame to newest frame
+            receivedUnitStateMessagesSinceLastFrame.Sort((message1, message2) =>
+            {
+                return message1.Frame == message2.Frame ? 0 : MatchSimulationUnit.IsFrameInFuture(message1.Frame, message2.Frame) ? 1 : -1;
+            });
+
             for (int i = 0; i < receivedUnitStateMessagesSinceLastFrame.Count; i++)
             {
                 UnitStateMessage unitStateMessage = receivedUnitStateMessagesSinceLastFrame[i];
@@ -62,6 +68,12 @@ namespace ProjectTrinity.Simulation
             localPlayer.SetLocalFrameInput((int)(playerMaxFrameSpeed * inputProvider.XTranslation),
                                            (int)(playerMaxFrameSpeed * inputProvider.YTranslation),
                                            inputProvider.GetSimulationRotation(), currentSimulationFrame);
+
+            // sort by oldest frame to newest frame
+            receivedPositionConfirmationMessagesSinceLastFrame.Sort((message1, message2) =>
+            {
+                return message1.Frame == message2.Frame ? 0 : MatchSimulationUnit.IsFrameInFuture(message1.Frame, message2.Frame) ? 1 : -1;
+            });
 
             for (int i = 0; i < receivedPositionConfirmationMessagesSinceLastFrame.Count; i++)
             {
