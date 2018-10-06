@@ -1,22 +1,24 @@
-﻿using System;
+﻿using ProjectTrinity.Root;
+using System;
 using System.Collections.Generic;
 using ProjectTrinity.Helper;
 using ProjectTrinity.Networking.Messages;
-using ProjectTrinity.Root;
 
-namespace ProjectTrinity.Networking
-{
-    public class AckedMessageHelper : IUdpMessageListener
+namespace ProjectTrinity.Networking 
+{    
+    public class AckedMessageHelper : IUdpMessageListener 
     {
         private struct AckMessageAwaitData
         {
-            public byte AckMessageId;
-            public Action<byte[]> OnAckMessageReceivedCalback;
-            private Int64 LastMessageToAckSendTimestamp;
+            public byte AckMessageId { get; private set; }
+            public IOutgoingMessage MessageToSend { get; private set; }
+            public Action<byte[]> OnAckMessageReceivedCalback { get; private set; }
+            public Int64 LastMessageToAckSendTimestamp { get; private set; }
 
-            public AckMessageAwaitData (byte ackMessageId, Action<byte[]> onAckMessageReceivedCalback)
+            public AckMessageAwaitData(byte ackMessageId, IOutgoingMessage messageToSend, Action<byte[]> onAckMessageReceivedCalback)
             {
                 this.AckMessageId = ackMessageId;
+                this.MessageToSend = messageToSend;
                 this.OnAckMessageReceivedCalback = onAckMessageReceivedCalback;
                 this.LastMessageToAckSendTimestamp = UtcTimestampHelper.GetCurrentUtcMsTimestamp();
             }
@@ -31,25 +33,15 @@ namespace ProjectTrinity.Networking
 
         // An acked messages expects an ack to be sent from the server, if the ack message is not received in time the message will be sent again.
         // optimize wait time by only sending message again when waiting time > rtt
-        public void SendAckedMessage(IOutgoingMessage messageToSend, byte messageAckIdToWaitFor, Action<byte[]> onAckMessageReceivedCallback) 
+        public void SendAckedMessage(IOutgoingMessage messageToSend, byte messageAckIdToWaitFor, Action<byte[]> onAckMessageReceivedCallback)
         {
-            pendingAckMessages.Add(new AckMessageAwaitData(messageAckIdToWaitFor, onAckMessageReceivedCallback));
+            pendingAckMessages.Add(new AckMessageAwaitData(messageAckIdToWaitFor, messageToSend, onAckMessageReceivedCallback));
             DIContainer.UDPClient.RegisterListener(messageAckIdToWaitFor, this);
             DIContainer.UDPClient.SendMessage(messageToSend.GetBytes());
         }
 
         public void OnMessageReceived(byte[] message)
         {
-            AckMessageAwaitData completedAck;
-
-            foreach (var pendingAckMessage in pendingAckMessages)
-            {
-                if(pendingAckMessage.AckMessageId == message[0]) {
-                    completedAck = pendingAckMessage;
-                    break;
-                }
-            }
-
             for (int i = pendingAckMessages.Count - 1; i >= 0; i--)
             {
                 if (pendingAckMessages[i].AckMessageId == message[0])
@@ -59,7 +51,7 @@ namespace ProjectTrinity.Networking
                     DIContainer.UDPClient.DeregisterListener(pendingAckMessages[i].AckMessageId, this);
                     pendingAckMessages.Remove(ackedData);
 
-                    if (ackedData.OnAckMessageReceivedCalback != null) 
+                    if (ackedData.OnAckMessageReceivedCalback != null)
                     {
                         ackedData.OnAckMessageReceivedCalback(message);
                     }
@@ -71,7 +63,14 @@ namespace ProjectTrinity.Networking
 
         public void OnFixedUpdateTick()
         {
-
+            for (int i = 0; i < pendingAckMessages.Count; i++)
+            {
+                if((UtcTimestampHelper.GetCurrentUtcMsTimestamp() - pendingAckMessages[i].LastMessageToAckSendTimestamp) >= 100)
+                {
+                    DIContainer.UDPClient.SendMessage(pendingAckMessages[i].MessageToSend.GetBytes());
+                    pendingAckMessages[i].RefreshSendTime();
+                }
+            }
         }
     }
 }
