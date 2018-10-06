@@ -16,7 +16,7 @@ namespace ProjectTrinity.Simulation
         private MatchEventProvider eventProvider;
         private byte currentSimulationFrame;
 
-        private static readonly int playerMaxFrameSpeed = 100;
+        private static readonly int playerMaxFrameSpeed = 400;
 
         private Int64 matchStartTimestamp;
 
