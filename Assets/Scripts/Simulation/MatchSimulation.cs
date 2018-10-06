@@ -65,8 +65,11 @@ namespace ProjectTrinity.Simulation
                 eventProvider.OnUnitStateUpdate(unitToUpdate);
             }
 
-            localPlayer.SetLocalFrameInput((int)(playerMaxFrameSpeed * inputProvider.XTranslation),
-                                           (int)(playerMaxFrameSpeed * inputProvider.YTranslation),
+            // so combined translation is max 1, so diagonal movement isn't faster.
+            float[] cappedTranslations = MathHelper.GetCappedTranslations(inputProvider.XTranslation, inputProvider.YTranslation);
+
+            localPlayer.SetLocalFrameInput((int)(playerMaxFrameSpeed * cappedTranslations[0]),
+                                           (int)(playerMaxFrameSpeed * cappedTranslations[1]),
                                            inputProvider.GetSimulationRotation(), currentSimulationFrame);
 
             // sort by oldest frame to newest frame
