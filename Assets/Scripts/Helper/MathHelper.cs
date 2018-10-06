@@ -44,5 +44,29 @@ namespace ProjectTrinity.Helper
                 yTranslation
             };
         }
+
+        public static int LimitValue(int value, int limit)
+        {
+            if(Mathf.Abs(value) <= limit)
+            {
+                return value;
+            }
+
+            return value > 0 ? limit : -limit;
+        }
+
+        public static int LimitValueDelta(int value, int delta, int limit)
+        {
+            int appliedDeltaValue = value + delta;
+
+            if (Mathf.Abs(appliedDeltaValue) <= limit)
+            {
+                return delta;
+            }
+
+            int maxDelta = limit - Mathf.Abs(value);
+
+            return delta > 0 ? maxDelta : -maxDelta;
+        }
     }
 }

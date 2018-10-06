@@ -47,8 +47,8 @@ namespace ProjectTrinity.Simulation
 
             public void SetDeltas(int xPositionDelta, int yPositionDelta, byte frame)
             {
-                XPositionDelta = xPositionDelta;
-                YPositionDelta = yPositionDelta;
+                XPositionDelta = MathHelper.LimitValueDelta(XPositionBase, xPositionDelta, 24000);
+                YPositionDelta = MathHelper.LimitValueDelta(YPositionBase, yPositionDelta, 24000);
                 Frame = frame;
             }
 
@@ -130,15 +130,16 @@ namespace ProjectTrinity.Simulation
 
         private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState, byte rotation)
         {
-            this.XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
-            this.YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
-            this.Rotation = (byte)MathHelper.Modulo(rotation, byte.MaxValue);
+            XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
+            YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+
+            Rotation = (byte)MathHelper.Modulo(rotation, byte.MaxValue);
         }
 
         private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState)
         {
-            this.XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
-            this.YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+            XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
+            YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
         }
     }
 }
