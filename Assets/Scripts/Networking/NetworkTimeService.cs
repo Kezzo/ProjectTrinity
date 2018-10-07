@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using ProjectTrinity.Networking.Messages;
+using ProjectTrinity.Root;
 
 namespace ProjectTrinity.Networking
 {
@@ -90,7 +90,8 @@ namespace ProjectTrinity.Networking
 
             if(responsesReceived >= 3 && currentOnTimeSynchedCallback != null) 
             {
-                Debug.LogFormat("Server synched time is: {0} offset was: {1} ms", NetworkDateTime.ToString(), offset.TotalMilliseconds.ToString());
+                udpClient.DeregisterListener(MessageId.TIME_RESP, this);
+                DIContainer.Logger.Debug(string.Format("Server synched time is: {0} offset was: {1} ms", NetworkDateTime.ToString(), offset.TotalMilliseconds.ToString()));
                 currentOnTimeSynchedCallback();
             } 
             else 

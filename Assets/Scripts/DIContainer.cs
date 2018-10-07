@@ -1,4 +1,5 @@
-﻿using ProjectTrinity.Networking;
+﻿using ProjectTrinity.Helper;
+using ProjectTrinity.Networking;
 
 namespace ProjectTrinity.Root
 {
@@ -9,7 +10,7 @@ namespace ProjectTrinity.Root
         {
             get
             {
-                return udpClient != null ? udpClient : (udpClient = new UdpClient("127.0.0.1", 2448, 1337));
+                return udpClient != null ? udpClient : (udpClient = new UdpClient(EnvironmentHelper.ServerUrl, 2448));
             }
         }
 
@@ -22,6 +23,15 @@ namespace ProjectTrinity.Root
             }
         }
 
+        private static RoundTripTimeService roundTripTimeService;
+        public static RoundTripTimeService RoundTripTimeService
+        {
+            get
+            {
+                return roundTripTimeService != null ? roundTripTimeService : (roundTripTimeService = new RoundTripTimeService());
+            }
+        }
+
         private static AckedMessageHelper ackedMessageHelper;
         public static AckedMessageHelper AckedMessageHelper
         {
@@ -30,6 +40,14 @@ namespace ProjectTrinity.Root
                 return ackedMessageHelper != null ? ackedMessageHelper : (ackedMessageHelper = new AckedMessageHelper());
             }
         }
+
+        private static ILogger logger;
+        public static ILogger Logger
+        {
+            get
+            {
+                return logger != null ? logger : (logger = new UnityLogger());
+            }
+        }
     }
 }
-
