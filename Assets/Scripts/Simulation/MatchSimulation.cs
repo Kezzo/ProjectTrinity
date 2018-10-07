@@ -59,10 +59,13 @@ namespace ProjectTrinity.Simulation
                     simulationUnits.Add(unitStateMessage.UnitId, unitToUpdate);
                 }
 
-                unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition, 
+                bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition, 
                                                unitStateMessage.Rotation, unitStateMessage.Frame);
 
-                eventProvider.OnUnitStateUpdate(unitToUpdate);
+                if (positionChanged)
+                {
+                    eventProvider.OnUnitStateUpdate(unitToUpdate);
+                }
             }
 
             // so combined translation is max 1, so diagonal movement isn't faster.
@@ -86,7 +89,7 @@ namespace ProjectTrinity.Simulation
                                               0, positionConfirmationMessage.Frame);
             }
 
-            eventProvider.OnUnitStateUpdate(localPlayer);
+            eventProvider.OnUnitStateUpdate(localPlayer, false);
 
             if (inputProvider.InputReceived)
             {

@@ -78,7 +78,7 @@ namespace ProjectTrinity.Simulation
         }
 
         // should be called when a unit state message for the player was received.
-        public override void SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame)
+        public override bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame)
         {
             // oldest frame state
             int cursor = nextLocalPlayerFrameIndex;
@@ -112,6 +112,7 @@ namespace ProjectTrinity.Simulation
 
             // update current position and rotation
             UpdateCurrentState(localPlayerFrameStateBuffer[cursor]);
+            return true;
         }
 
         // has to be called every local simulation frame, even when no input was done.

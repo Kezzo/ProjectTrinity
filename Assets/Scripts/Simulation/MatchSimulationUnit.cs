@@ -21,7 +21,7 @@ namespace ProjectTrinity.Simulation
             LastConfirmedFrame = frame;
         }
 
-        public virtual void SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
+        public virtual bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
         {
             // don't update to old state. || account for frame wrap around
             if(IsFrameInFuture(frame, LastConfirmedFrame))
@@ -30,7 +30,10 @@ namespace ProjectTrinity.Simulation
                 YPosition = yPosition;
                 Rotation = rotation;
                 LastConfirmedFrame = frame;
+                return true;
             }
+
+            return false;
         }
 
         public Vector3 GetUnityPosition()
