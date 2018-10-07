@@ -17,6 +17,12 @@ public class Root : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI rttText;
 
+    [SerializeField]
+    private GameObject lookingForMatchUI;
+
+    [SerializeField]
+    private GameObject matchEndedUI;
+
     private MatchStateMachine matchStateMachine;
 
     private void Start()
@@ -60,6 +66,9 @@ public class Root : MonoBehaviour
     private void Update()
     {
         rttText.text = string.Format("RTT: {0}ms", DIContainer.RoundTripTimeService.LastPing);
+
+        lookingForMatchUI.SetActive(matchStateMachine.CurrentMatchState is TimeSyncMatchState || matchStateMachine.CurrentMatchState is WaitForStartMatchState);
+        matchEndedUI.SetActive(matchStateMachine.CurrentMatchState is EndMatchState);
 
         if (Input.GetKey(KeyCode.W))
         {

@@ -24,10 +24,15 @@ namespace ProjectTrinity.MatchStateMachine
             {
                 DIContainer.UDPClient.SendMessage(matchEndAckMessageToSend);
                 sendMatchEndAckMessages++;
+
+                if (sendMatchEndAckMessages == 3)
+                {
+                    DIContainer.Logger.Debug("3 MatchEndAckMessages have been sent. Match is done!");
+                }
+
                 return;
             }
 
-            DIContainer.Logger.Debug("3 MatchEndAckMessages have been sent. Match is done!");
             // TODO: match ended
         }
     }
