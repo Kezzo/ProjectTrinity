@@ -226,6 +226,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1096160377640874, guid: a6ef820a41d18c041996de48a04dca75,
     type: 2}
   m_PrefabInternal: {fileID: 184777498}
+--- !u!114 &184777500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 184777499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eb7839eff7b745dd8c44afc1dca8bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &214976208
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,6 +439,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1761435395861888, guid: 33245e80b0484b148933c23c133704f5,
     type: 2}
   m_PrefabInternal: {fileID: 259705439}
+--- !u!114 &259705441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 259705440}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eb7839eff7b745dd8c44afc1dca8bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &372017294
 GameObject:
   m_ObjectHideFlags: 0
@@ -1314,9 +1336,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1403da1b8f8cb4ccf8965cedc838b81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 259705440}
-  player2: {fileID: 1821630840}
-  player3: {fileID: 184777499}
+  player: {fileID: 259705441}
+  player2: {fileID: 1821630841}
+  player3: {fileID: 184777500}
   rttText: {fileID: 214976210}
   lookingForMatchUI: {fileID: 778105988}
   matchEndedUI: {fileID: 1104618625}
@@ -1345,7 +1367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d655bd134b0844e4c84f9ceb84273d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  environment: 0
+  environment: 1
   enabledDebugAI: 0
 --- !u!1 &1676107420
 GameObject:
@@ -1560,3 +1582,14 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1566278455226062, guid: d5e8efbc811b21346afd105e86d646b4,
     type: 2}
   m_PrefabInternal: {fileID: 1821630839}
+--- !u!114 &1821630841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1821630840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eb7839eff7b745dd8c44afc1dca8bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -6,20 +6,20 @@ namespace ProjectTrinity.MatchStateMachine
 {
     public class MatchEventProvider
     {
-        private Dictionary<byte, Action<MatchSimulationUnit>> listener = new Dictionary<byte, Action<MatchSimulationUnit>>();
+        private Dictionary<byte, Action<MatchSimulationUnit, bool>> listener = new Dictionary<byte, Action<MatchSimulationUnit, bool>>();
 
-        public void AddUnitStateUpdateListener(byte unitID, Action<MatchSimulationUnit> callback)
+        public void AddUnitStateUpdateListener(byte unitID, Action<MatchSimulationUnit, bool> callback)
         {
             listener[unitID] = callback;
         }
 
-        public void OnUnitStateUpdate(MatchSimulationUnit unitState)
+        public void OnUnitStateUpdate(MatchSimulationUnit unitState, bool lerpToState = true)
         {
-            Action<MatchSimulationUnit> callback;
+            Action<MatchSimulationUnit, bool> callback;
 
             if (listener.TryGetValue(unitState.UnitId, out callback))
             {
-                callback(unitState);
+                callback(unitState, lerpToState);
             }
         }
     }

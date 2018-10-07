@@ -6,13 +6,13 @@ using UnityEngine;
 public class Root : MonoBehaviour 
 {
     [SerializeField]
-    private GameObject player;
+    private MatchSimulationViewUnit player;
 
     [SerializeField]
-    private GameObject player2;
+    private MatchSimulationViewUnit player2;
 
     [SerializeField]
-    private GameObject player3;
+    private MatchSimulationViewUnit player3;
 
     [SerializeField]
     private TextMeshProUGUI rttText;
@@ -34,32 +34,9 @@ public class Root : MonoBehaviour
     private void Start()
     {
         matchStateMachine = new MatchStateMachine();
-        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(0, (unitState) =>
-        {
-            Vector3 position = unitState.GetUnityPosition();
-            player.transform.position = position;
-
-            Vector3 rotation = unitState.GetUnityRotation();
-            player.transform.rotation = Quaternion.Euler(rotation);
-        });
-
-        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, (unitState) =>
-        {
-            Vector3 position = unitState.GetUnityPosition();
-            player2.transform.position = position;
-
-            Vector3 rotation = unitState.GetUnityRotation();
-            player2.transform.rotation = Quaternion.Euler(rotation);
-        });
-
-        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, (unitState) =>
-        {
-            Vector3 position = unitState.GetUnityPosition();
-            player3.transform.position = position;
-
-            Vector3 rotation = unitState.GetUnityRotation();
-            player3.transform.rotation = Quaternion.Euler(rotation);
-        });
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(0, player.OnUnitStateUpdate);
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, player2.OnUnitStateUpdate);
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, player3.OnUnitStateUpdate);
     }
 
     private void FixedUpdate()
