@@ -25,6 +25,12 @@ public class Root : MonoBehaviour
 
     private MatchStateMachine matchStateMachine;
 
+    private void Awake()
+    {
+        Application.targetFrameRate = 30;
+        QualitySettings.vSyncCount = 0;
+    }
+
     private void Start()
     {
         matchStateMachine = new MatchStateMachine();
