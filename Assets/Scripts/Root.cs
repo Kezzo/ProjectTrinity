@@ -1,5 +1,6 @@
 ﻿using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Root;
+using TMPro;
 using UnityEngine;
 
 public class Root : MonoBehaviour 
@@ -12,6 +13,9 @@ public class Root : MonoBehaviour
 
     [SerializeField]
     private GameObject player3;
+
+    [SerializeField]
+    private TextMeshProUGUI rttText;
 
     private MatchStateMachine matchStateMachine;
 
@@ -50,11 +54,14 @@ public class Root : MonoBehaviour
     {
         matchStateMachine.OnFixedUpdateTick();
         DIContainer.AckedMessageHelper.OnFixedUpdateTick();
+        DIContainer.RoundTripTimeService.OnFixedUpdateTick();
     }
 
     private void Update()
     {
-        if(Input.GetKey(KeyCode.W))
+        rttText.text = string.Format("RTT: {0}ms", DIContainer.RoundTripTimeService.LastPing);
+
+        if (Input.GetKey(KeyCode.W))
         {
             matchStateMachine.MatchInputProvider.AddYTranslation(1f);
         } 

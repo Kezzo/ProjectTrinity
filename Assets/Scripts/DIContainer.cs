@@ -23,6 +23,15 @@ namespace ProjectTrinity.Root
             }
         }
 
+        private static RoundTripTimeService roundTripTimeService;
+        public static RoundTripTimeService RoundTripTimeService
+        {
+            get
+            {
+                return roundTripTimeService != null ? roundTripTimeService : (roundTripTimeService = new RoundTripTimeService());
+            }
+        }
+
         private static AckedMessageHelper ackedMessageHelper;
         public static AckedMessageHelper AckedMessageHelper
         {
