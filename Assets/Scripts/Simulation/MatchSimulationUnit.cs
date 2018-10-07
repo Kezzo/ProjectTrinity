@@ -24,7 +24,7 @@ namespace ProjectTrinity.Simulation
         public virtual void SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
         {
             // don't update to old state. || account for frame wrap around
-            if(IsFrameInFutureOrPresent(frame, LastConfirmedFrame))
+            if(IsFrameInFuture(frame, LastConfirmedFrame))
             {
                 XPosition = xPosition;
                 YPosition = yPosition;
@@ -41,11 +41,6 @@ namespace ProjectTrinity.Simulation
         public Vector3 GetUnityRotation()
         {
             return new Vector3(0f, UnitValueConverter.ToUnityRotation(Rotation), 0f);
-        }
-
-        protected bool IsFrameInFutureOrPresent(byte frame, byte presentFrame)
-        {
-            return true; //frame >= presentFrame || (frame > 0 && frame < 30 && (byte.MaxValue - presentFrame) < 30);
         }
 
         public static bool IsFrameInFuture(byte frame, byte presentFrame)
