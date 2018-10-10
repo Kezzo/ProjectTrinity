@@ -1,4 +1,5 @@
 ﻿using ProjectTrinity.Helper;
+using ProjectTrinity.Root;
 
 namespace ProjectTrinity.Simulation
 {
@@ -93,6 +94,17 @@ namespace ProjectTrinity.Simulation
                 // should be oldest and first frame that is updated here.
                 if (localPlayerFrameStateBuffer[cursor].Frame == frame)
                 {
+                    if (localPlayerFrameStateBuffer[cursor].XPositionBase + localPlayerFrameStateBuffer[cursor].XPositionDelta != xPosition ||
+                       localPlayerFrameStateBuffer[cursor].YPositionBase + localPlayerFrameStateBuffer[cursor].YPositionDelta != yPosition)
+                    { 
+                        DIContainer.Logger.Warn(string.Format("Position inconsistency at frame: {0}. Local: X:{1}, Y:{2} Remote: X:{3} Y:{4}", 
+                                                               frame, 
+                                                               localPlayerFrameStateBuffer[cursor].XPositionBase + localPlayerFrameStateBuffer[cursor].XPositionDelta, 
+                                                               localPlayerFrameStateBuffer[cursor].YPositionBase + localPlayerFrameStateBuffer[cursor].YPositionDelta,
+                                                               xPosition,
+                                                               yPosition));
+                    }
+
                     localPlayerFrameStateBuffer[cursor].UpdateBaseValues(xPosition, yPosition);
                     localPlayerFrameStateBuffer[cursor].Confirm();
                     lastUpdateFrameState = localPlayerFrameStateBuffer[cursor];
