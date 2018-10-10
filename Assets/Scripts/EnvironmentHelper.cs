@@ -32,7 +32,7 @@ public class EnvironmentHelper : MonoBehaviour
                 case Environment.LOCAL:
                     return "127.0.0.1";
                 case Environment.DEV:
-                    return "ec2-34-248-140-154.eu-west-1.compute.amazonaws.com";
+                    return "34.254.60.219";
                 default:
                     return "";
             }
