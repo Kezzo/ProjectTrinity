@@ -85,8 +85,11 @@ namespace ProjectTrinity.Simulation
             {
                 PositionConfirmationMessage positionConfirmationMessage = receivedPositionConfirmationMessagesSinceLastFrame[i];
 
-                localPlayer.SetConfirmedState(positionConfirmationMessage.XPosition, positionConfirmationMessage.YPosition, 
+                if (positionConfirmationMessage.UnitId == localPlayer.UnitId)
+                {
+                    localPlayer.SetConfirmedState(positionConfirmationMessage.XPosition, positionConfirmationMessage.YPosition,
                                               0, positionConfirmationMessage.Frame);
+                }
             }
 
             eventProvider.OnUnitStateUpdate(localPlayer, false);
