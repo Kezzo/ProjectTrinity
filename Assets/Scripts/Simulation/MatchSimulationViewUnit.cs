@@ -23,7 +23,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
         nextLerpTargetTime = lerpToState ? currentTimestamp + PositionLerpTime : currentTimestamp;
         networkPosition = updatedUnitState.GetUnityPosition();
-        networkRotation = Quaternion.Euler(updatedUnitState.GetUnityRotation());
+        networkRotation = updatedUnitState.GetUnityRotation();
     }
 
     private void Update()

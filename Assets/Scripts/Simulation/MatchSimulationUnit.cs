@@ -41,9 +41,9 @@ namespace ProjectTrinity.Simulation
             return new Vector3(UnitValueConverter.ToUnityPosition(XPosition), 0f, UnitValueConverter.ToUnityPosition(YPosition));
         }
 
-        public Vector3 GetUnityRotation()
+        public Quaternion GetUnityRotation()
         {
-            return new Vector3(0f, UnitValueConverter.ToUnityRotation(Rotation), 0f);
+            return Quaternion.Euler(0f, UnitValueConverter.ToUnityRotation(Rotation), 0f);
         }
 
         public static bool IsFrameInFuture(byte frame, byte presentFrame)
