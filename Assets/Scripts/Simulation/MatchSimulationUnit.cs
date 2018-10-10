@@ -23,8 +23,8 @@ namespace ProjectTrinity.Simulation
 
         public virtual bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
         {
-            // don't update to old state. || account for frame wrap around
-            if(IsFrameInFuture(frame, LastConfirmedFrame))
+            // don't update to old state. || account for frame wrap around || just accept bigger differences
+            if(IsFrameInFuture(frame, LastConfirmedFrame) || (LastConfirmedFrame > frame ? LastConfirmedFrame - frame : frame - LastConfirmedFrame) >= 30)
             {
                 XPosition = xPosition;
                 YPosition = yPosition;
