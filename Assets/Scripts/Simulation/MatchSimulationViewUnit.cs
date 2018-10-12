@@ -40,7 +40,5 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
         transform.position = Vector3.Lerp(lastNetworkPosition, networkPosition, interpolant);
         transform.rotation = Quaternion.Lerp(lastNetworkRotation, networkRotation, interpolant);
-
-        DIContainer.Logger.Debug("Interpolant: " + interpolant);
     }
 }
