@@ -40,9 +40,9 @@ namespace ProjectTrinity.Simulation
                 {
                     XPositionDelta = 0;
                     YPositionDelta = 0;
+                    Confirmed = false;
                 }
 
-                Confirmed = false;
                 Obsolete = false;
             }
 
