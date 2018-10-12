@@ -57,6 +57,12 @@ namespace ProjectTrinity.Simulation
             {
                 Confirmed = true;
             }
+
+            public override string ToString()
+            {
+                return string.Format("Frame: {0} X-Base: {1} Y-Base: {2} X-Delta {3} Y-Delta: {4} Confirmed: {5}", 
+                                     Frame, XPositionBase, YPositionBase, XPositionDelta, YPositionDelta, Confirmed);
+            }
         }
 
         private readonly LocalPlayerFrameState[] localPlayerFrameStateBuffer = new LocalPlayerFrameState[30];
@@ -103,6 +109,7 @@ namespace ProjectTrinity.Simulation
                                                                localPlayerFrameStateBuffer[cursor].YPositionBase + localPlayerFrameStateBuffer[cursor].YPositionDelta,
                                                                xPosition,
                                                                yPosition));
+                        DIContainer.Logger.Warn("Current buffer is: \n" + string.Join("\n", (object[])localPlayerFrameStateBuffer));
                     }
 
                     localPlayerFrameStateBuffer[cursor].UpdateBaseValues(xPosition, yPosition);
