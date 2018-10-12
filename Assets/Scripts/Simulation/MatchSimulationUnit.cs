@@ -10,7 +10,7 @@ namespace ProjectTrinity.Simulation
         public int YPosition { get; protected set; }
         public byte Rotation { get; protected set; }
 
-        private byte LastConfirmedFrame;
+        protected byte LastConfirmedFrame;
 
         public MatchSimulationUnit(byte unitId, int xPosition, int yPosition, byte rotation, byte frame)
         {

@@ -87,6 +87,14 @@ namespace ProjectTrinity.Simulation
         // should be called when a unit state message for the player was received.
         public override bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame)
         {
+            bool validPosition = IsFrameInFuture(frame, LastConfirmedFrame) || (LastConfirmedFrame > frame ? LastConfirmedFrame - frame : frame - LastConfirmedFrame) >= 30;
+
+            // we already received more recent frame
+            if (!validPosition)
+            {
+                return true;
+            }
+
             // oldest frame state
             int cursor = nextLocalPlayerFrameIndex;
             // just so it has a value, set to latest state, should never be used anyway.
@@ -129,6 +137,7 @@ namespace ProjectTrinity.Simulation
                 cursor = MathHelper.Modulo(cursor + 1, localPlayerFrameStateBuffer.Length);
             }
 
+            LastConfirmedFrame = frame;
             // update current position and rotation
             UpdateCurrentState(localPlayerFrameStateBuffer[cursor]);
             return true;
