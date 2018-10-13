@@ -20,6 +20,11 @@ namespace ProjectTrinity.Helper
             return (value % modulo + modulo) % modulo;
         }
 
+        public static int Abs(int value)
+        {
+            return Mathf.Abs(value);
+        }
+
         public static float[] GetCappedTranslations(float xTranslation, float yTranslation)
         {
             float combinedTranslation = Mathf.Abs(xTranslation) + Mathf.Abs(yTranslation);

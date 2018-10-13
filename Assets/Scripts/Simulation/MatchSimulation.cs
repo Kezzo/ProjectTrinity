@@ -78,8 +78,9 @@ namespace ProjectTrinity.Simulation
             float[] cappedTranslations = MathHelper.GetCappedTranslations(inputProvider.XTranslation, inputProvider.YTranslation);
 
             byte inputFrame = (byte)MathHelper.Modulo(currentSimulationFrame + 1, byte.MaxValue);
-            localPlayer.SetLocalFrameInput((int)(playerMaxFrameSpeed * cappedTranslations[0]),
-                                           (int)(playerMaxFrameSpeed * cappedTranslations[1]),
+
+            localPlayer.SetLocalFrameInput((int) Math.Round(playerMaxFrameSpeed * cappedTranslations[0]),
+                                           (int) Math.Round(playerMaxFrameSpeed * cappedTranslations[1]),
                                            inputProvider.GetSimulationRotation(), inputFrame);
 
             byte frameToProcess = inputFrame;
