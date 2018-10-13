@@ -64,7 +64,7 @@ namespace ProjectTrinity.Simulation
 
                 if (positionChanged)
                 {
-                    eventProvider.OnUnitStateUpdate(unitToUpdate);
+                    eventProvider.OnUnitStateUpdate(unitToUpdate, true);
                 }
             }
 
