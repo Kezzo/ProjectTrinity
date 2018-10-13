@@ -108,8 +108,12 @@ namespace ProjectTrinity.Simulation
                 // should be oldest and first frame that is updated here.
                 if (localPlayerFrameStateBuffer[cursor].Frame == frame)
                 {
-                    if (localPlayerFrameStateBuffer[cursor].XPositionBase + localPlayerFrameStateBuffer[cursor].XPositionDelta != xPosition ||
-                       localPlayerFrameStateBuffer[cursor].YPositionBase + localPlayerFrameStateBuffer[cursor].YPositionDelta != yPosition)
+                    int xPositionDifference = MathHelper.Abs(MathHelper.Abs(localPlayerFrameStateBuffer[cursor].XPositionBase + 
+                                                                           localPlayerFrameStateBuffer[cursor].XPositionDelta) - MathHelper.Abs(xPosition));
+
+                    int yPositionDifference = MathHelper.Abs(MathHelper.Abs(localPlayerFrameStateBuffer[cursor].YPositionBase +
+                                                                           localPlayerFrameStateBuffer[cursor].YPositionDelta) - MathHelper.Abs(yPosition));
+                    if (xPositionDifference > 6 || yPositionDifference > 6)
                     { 
                         DIContainer.Logger.Warn(string.Format("Position inconsistency at frame: {0}. Local: X:{1}, Y:{2} Remote: X:{3} Y:{4}", 
                                                                frame, 
