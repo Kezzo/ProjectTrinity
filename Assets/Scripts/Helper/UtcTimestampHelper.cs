@@ -6,15 +6,14 @@ namespace ProjectTrinity.Helper
     {
         private static readonly DateTime UtcStartDateTime = new DateTime(1970, 1, 1);
 
-
         public static Int64 GetCurrentUtcTimestamp()
         {
-            return DateTime.UtcNow.Subtract(UtcStartDateTime).Seconds;
+            return (long) DateTime.UtcNow.Subtract(UtcStartDateTime).TotalSeconds;
         }
 
         public static Int64 GetCurrentUtcMsTimestamp()
         {
-            return DateTime.UtcNow.Subtract(UtcStartDateTime).Milliseconds;
+            return (long) DateTime.UtcNow.Subtract(UtcStartDateTime).TotalMilliseconds;
         }
     }
 }
