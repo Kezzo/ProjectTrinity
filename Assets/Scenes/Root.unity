@@ -502,7 +502,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4775775842538076, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -52
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 4775775842538076, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
       propertyPath: m_LocalPosition.z
@@ -1303,7 +1303,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4775775842538076, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -52
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 4775775842538076, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
       propertyPath: m_LocalPosition.z
@@ -1442,7 +1442,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d655bd134b0844e4c84f9ceb84273d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  environment: 1
+  environment: 0
   enabledDebugAI: 0
 --- !u!1001 &1661620197
 Prefab:
@@ -1457,7 +1457,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4775775842538076, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -52
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 4775775842538076, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
       propertyPath: m_LocalPosition.z
