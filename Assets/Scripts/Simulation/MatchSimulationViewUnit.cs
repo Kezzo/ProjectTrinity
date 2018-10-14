@@ -1,22 +1,25 @@
 ﻿using System.Collections.Generic;
 using ProjectTrinity.Helper;
+using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
 using UnityEngine;
 
 public class MatchSimulationViewUnit : MonoBehaviour
 {
-    private static readonly int PositionLerpTime = 200;
+    private static readonly int PositionLerpTime = 150;
 
     private class InterpolationState
     {
-        public Vector3 Position;
-        public Quaternion Rotation;
+        public Vector3 TargetPosition;
+        public Quaternion TargetRotation;
         public long TargetTime;
 
-        public InterpolationState(Vector3 position, Quaternion rotation, long targetTime)
+        public Vector3 StartPosition;
+
+        public InterpolationState(Vector3 targetPosition, Quaternion targetRotation, long targetTime)
         {
-            Position = position;
-            Rotation = rotation;
+            TargetPosition = targetPosition;
+            TargetRotation = targetRotation;
             TargetTime = targetTime;
         }
     }
@@ -44,7 +47,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
         this.lerpToState = lerpToState;
         if (!lerpToState)
         {
-            UpdatePosition(updatedUnitState.GetUnityPosition());
+            UpdatePosition(updatedUnitState.GetUnityPosition(), 1f);
             transform.rotation = updatedUnitState.GetUnityRotation();
             return;
         }
@@ -67,6 +70,8 @@ public class MatchSimulationViewUnit : MonoBehaviour
         if (interpolationQueue.Count > 0 && (currentTime + PositionLerpTime) >= interpolationQueue.Peek().TargetTime)
         {
             currentState = interpolationQueue.Dequeue();
+            currentState.StartPosition = transform.position;
+
             lastUpdateTime = currentTime;
         }
 
@@ -77,15 +82,16 @@ public class MatchSimulationViewUnit : MonoBehaviour
             float value = (currentTime + 33) - startTime;
             float interpolant = Mathf.InverseLerp(start, end, value);
 
-            UpdatePosition(Vector3.Lerp(transform.position, currentState.Position, interpolant));
-            transform.rotation = Quaternion.Lerp(transform.rotation, currentState.Rotation, interpolant);
+            UpdatePosition(Vector3.Lerp(currentState.StartPosition, currentState.TargetPosition, interpolant), interpolant);
+            transform.rotation = currentState.TargetRotation;
         }
     }
 
-    private void UpdatePosition(Vector3 position)
+    private void UpdatePosition(Vector3 position, float interpolant)
     {
         float positionDiff = Vector3.Distance(transform.position, position);
-        animator.SetBool("Running", positionDiff > 0);
+        bool running = positionDiff > 0 || interpolant < 1;
+        animator.SetBool("Running", running);
         transform.position = position;
     }
 }
