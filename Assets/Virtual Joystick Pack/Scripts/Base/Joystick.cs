@@ -10,6 +10,8 @@ public class Joystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointer
     protected Vector2 inputVector = Vector2.zero;
 
     [Header("Components")]
+    
+    public RectTransform container;
     public RectTransform background;
     public RectTransform handle;
 
