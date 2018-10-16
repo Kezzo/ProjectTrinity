@@ -10,7 +10,7 @@ namespace ProjectTrinity.Simulation
         public int YPosition { get; protected set; }
         public byte Rotation { get; protected set; }
 
-        private byte LastConfirmedFrame;
+        protected byte LastConfirmedFrame;
 
         public MatchSimulationUnit(byte unitId, int xPosition, int yPosition, byte rotation, byte frame)
         {
@@ -21,16 +21,19 @@ namespace ProjectTrinity.Simulation
             LastConfirmedFrame = frame;
         }
 
-        public virtual void SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
+        public virtual bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
         {
-            // don't update to old state. || account for frame wrap around
-            if(IsFrameInFuture(frame, LastConfirmedFrame))
+            // don't update to old state. || account for frame wrap around || just accept bigger differences
+            if(IsFrameInFuture(frame, LastConfirmedFrame) || (LastConfirmedFrame > frame ? LastConfirmedFrame - frame : frame - LastConfirmedFrame) >= 30)
             {
                 XPosition = xPosition;
                 YPosition = yPosition;
                 Rotation = rotation;
                 LastConfirmedFrame = frame;
+                return true;
             }
+
+            return false;
         }
 
         public Vector3 GetUnityPosition()
@@ -38,9 +41,9 @@ namespace ProjectTrinity.Simulation
             return new Vector3(UnitValueConverter.ToUnityPosition(XPosition), 0f, UnitValueConverter.ToUnityPosition(YPosition));
         }
 
-        public Vector3 GetUnityRotation()
+        public Quaternion GetUnityRotation()
         {
-            return new Vector3(0f, UnitValueConverter.ToUnityRotation(Rotation), 0f);
+            return Quaternion.Euler(0f, UnitValueConverter.ToUnityRotation(Rotation), 0f);
         }
 
         public static bool IsFrameInFuture(byte frame, byte presentFrame)

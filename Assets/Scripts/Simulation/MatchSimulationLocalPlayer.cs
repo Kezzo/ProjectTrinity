@@ -1,4 +1,5 @@
 ﻿using ProjectTrinity.Helper;
+using ProjectTrinity.Root;
 
 namespace ProjectTrinity.Simulation
 {
@@ -39,9 +40,9 @@ namespace ProjectTrinity.Simulation
                 {
                     XPositionDelta = 0;
                     YPositionDelta = 0;
+                    Confirmed = false;
                 }
 
-                Confirmed = false;
                 Obsolete = false;
             }
 
@@ -55,6 +56,12 @@ namespace ProjectTrinity.Simulation
             public void Confirm()
             {
                 Confirmed = true;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("Frame: {0} X-Base: {1} Y-Base: {2} X-Delta {3} Y-Delta: {4} Confirmed: {5}", 
+                                     Frame, XPositionBase, YPositionBase, XPositionDelta, YPositionDelta, Confirmed);
             }
         }
 
@@ -78,8 +85,16 @@ namespace ProjectTrinity.Simulation
         }
 
         // should be called when a unit state message for the player was received.
-        public override void SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame)
+        public override bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame)
         {
+            bool validPosition = IsFrameInFuture(frame, LastConfirmedFrame) || (LastConfirmedFrame > frame ? LastConfirmedFrame - frame : frame - LastConfirmedFrame) >= 30;
+
+            // we already received more recent frame
+            if (!validPosition)
+            {
+                return true;
+            }
+
             // oldest frame state
             int cursor = nextLocalPlayerFrameIndex;
             // just so it has a value, set to latest state, should never be used anyway.
@@ -93,6 +108,22 @@ namespace ProjectTrinity.Simulation
                 // should be oldest and first frame that is updated here.
                 if (localPlayerFrameStateBuffer[cursor].Frame == frame)
                 {
+                    int xPositionDifference = MathHelper.Abs(MathHelper.Abs(localPlayerFrameStateBuffer[cursor].XPositionBase + 
+                                                                           localPlayerFrameStateBuffer[cursor].XPositionDelta) - MathHelper.Abs(xPosition));
+
+                    int yPositionDifference = MathHelper.Abs(MathHelper.Abs(localPlayerFrameStateBuffer[cursor].YPositionBase +
+                                                                           localPlayerFrameStateBuffer[cursor].YPositionDelta) - MathHelper.Abs(yPosition));
+                    if (xPositionDifference > 6 || yPositionDifference > 6)
+                    { 
+                        DIContainer.Logger.Warn(string.Format("Position inconsistency at frame: {0}. Local: X:{1}, Y:{2} Remote: X:{3} Y:{4}", 
+                                                               frame, 
+                                                               localPlayerFrameStateBuffer[cursor].XPositionBase + localPlayerFrameStateBuffer[cursor].XPositionDelta, 
+                                                               localPlayerFrameStateBuffer[cursor].YPositionBase + localPlayerFrameStateBuffer[cursor].YPositionDelta,
+                                                               xPosition,
+                                                               yPosition));
+                        DIContainer.Logger.Warn("Current buffer is: \n" + string.Join("\n", (object[])localPlayerFrameStateBuffer));
+                    }
+
                     localPlayerFrameStateBuffer[cursor].UpdateBaseValues(xPosition, yPosition);
                     localPlayerFrameStateBuffer[cursor].Confirm();
                     lastUpdateFrameState = localPlayerFrameStateBuffer[cursor];
@@ -110,8 +141,10 @@ namespace ProjectTrinity.Simulation
                 cursor = MathHelper.Modulo(cursor + 1, localPlayerFrameStateBuffer.Length);
             }
 
+            LastConfirmedFrame = frame;
             // update current position and rotation
             UpdateCurrentState(localPlayerFrameStateBuffer[cursor]);
+            return true;
         }
 
         // has to be called every local simulation frame, even when no input was done.
