@@ -15,6 +15,10 @@ public class FloatingJoystick : Joystick
 			.Where(_ => joystickActive)
 			.Subscribe(_ =>
 			           {
+				           /*
+				            * Needs to snap to the center, so if the player drags and stops, so should the controller
+				            * Needs to unsnap from sides, so if it hits the outer limits, if the vector is negative, it would move backwards
+				            */
 				           var xBound = background.localPosition.x < 600 && background.localPosition.x > 0;
 				           var yBound = background.localPosition.y < 900 && background.localPosition.y > 200;
 				           var movement = new Vector2();
