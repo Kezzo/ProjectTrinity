@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+using ProjectTrinity.Helper;
 public class EnvironmentHelper : MonoBehaviour 
 {
     public enum Environment
@@ -17,10 +17,13 @@ public class EnvironmentHelper : MonoBehaviour
     private bool enabledDebugAI;
     public static bool DebugAIEnabled { get; private set; }
 
+    private static JoinMatchHelper joinMatchHelper;
+
     private void Awake()
     {
         staticEnvironment = environment;
         DebugAIEnabled = enabledDebugAI;
+        joinMatchHelper = new JoinMatchHelper();
     }
 
     public static string ServerUrl 
@@ -32,7 +35,8 @@ public class EnvironmentHelper : MonoBehaviour
                 case Environment.LOCAL:
                     return "127.0.0.1";
                 case Environment.DEV:
-                    return "34.254.60.219";
+                    return joinMatchHelper.GetMatchServerAddress();
+                    // return "34.254.60.219";
                 default:
                     return "";
             }
