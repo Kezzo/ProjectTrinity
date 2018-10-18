@@ -22,7 +22,7 @@ public class EnvironmentHelper : MonoBehaviour
     {
         // jm = FindObjectOfType(typeof(JoinMatchHelper)) as JoinMatchHelper;
         // string URL = jm.GetURL();
-        // Debug.Log(URL);
+        // sDebug.Log(URL);
         staticEnvironment = environment;
         DebugAIEnabled = enabledDebugAI;
     }
