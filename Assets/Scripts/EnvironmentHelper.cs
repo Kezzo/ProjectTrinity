@@ -11,18 +11,17 @@ public class EnvironmentHelper : MonoBehaviour
 
     [SerializeField]
     private Environment environment;
-    private static JoinMatchHelper jm;
     private static Environment staticEnvironment;
 
     [SerializeField]
     private bool enabledDebugAI;
     public static bool DebugAIEnabled { get; private set; }
 
+    public bool foundServer = false;
+
     private void Awake()
     {
-        // jm = FindObjectOfType(typeof(JoinMatchHelper)) as JoinMatchHelper;
-        // string URL = jm.GetURL();
-        // sDebug.Log(URL);
+        StartCoroutine(JoinMatchHelper.GetEndpointData());
         staticEnvironment = environment;
         DebugAIEnabled = enabledDebugAI;
     }
@@ -39,6 +38,22 @@ public class EnvironmentHelper : MonoBehaviour
                     return "34.254.60.219";
                 default:
                     return "";
+            }
+        }
+    }
+
+    public static int Port
+    {
+        get
+        {
+            switch(staticEnvironment)
+            {
+                case Environment.LOCAL:
+                    return 61856;
+                case Environment.DEV:
+                    return 0;
+                default:
+                    return 0;
             }
         }
     }
