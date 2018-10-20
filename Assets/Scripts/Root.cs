@@ -31,7 +31,11 @@ public class Root : MonoBehaviour
     [SerializeField]
     private VirtualJoystick aimingJoyStick;
 
+    [SerializeField]
+    private GameObject cameraRoot;
+
     private MatchStateMachine matchStateMachine;
+    private bool parentedPlayerCamera;
 
     private void Awake()
     {
@@ -60,6 +64,28 @@ public class Root : MonoBehaviour
 
         lookingForMatchUI.SetActive(matchStateMachine.CurrentMatchState is TimeSyncMatchState || matchStateMachine.CurrentMatchState is WaitForStartMatchState);
         matchEndedUI.SetActive(matchStateMachine.CurrentMatchState is EndMatchState);
+
+        if (!parentedPlayerCamera && matchStateMachine.CurrentMatchState is WaitForStartMatchState)
+        {
+            parentedPlayerCamera = true;
+            switch (matchStateMachine.LocalPlayerId)
+            { 
+                case 0:
+                    cameraRoot.transform.SetParent(player.transform);
+                    break;
+                case 1:
+                    cameraRoot.transform.SetParent(player2.transform);
+                    break;
+                case 2:
+                    cameraRoot.transform.SetParent(player3.transform);
+                    break;
+            }
+        }
+
+        if (!(matchStateMachine.CurrentMatchState is RunningMatchState))
+        {
+            return;
+        }
 
         if (movementJoyStick.JoystickActive && (Mathf.Abs(movementJoyStick.Horizontal) > 0.2f || Mathf.Abs(movementJoyStick.Vertical) > 0.2f))
         {

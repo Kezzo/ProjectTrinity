@@ -10,6 +10,9 @@ public class MatchSimulationViewUnit : MonoBehaviour
     [SerializeField]
     private Animator animator;
 
+    [SerializeField]
+    private GameObject modelRoot;
+
     private static readonly byte PositionFrameDelay = 5; // 5 == ~165ms delay
 
     public class InterpolationState
@@ -58,7 +61,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
             animator.SetBool("Running", Vector3.Distance(transform.position, targetPosition) > 0.01f);
 
             transform.position = targetPosition;
-            transform.rotation = updatedUnitState.GetUnityRotation();
+            modelRoot.transform.rotation = updatedUnitState.GetUnityRotation();
             return;
         }
 
@@ -131,7 +134,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
         if (interpolationQueue.Count > 0 && ShouldLerpToState(interpolationQueue.Peek(), currentFrame))
         {
             CurrentStateToLerpTo = interpolationQueue.Dequeue();
-            this.transform.rotation = CurrentStateToLerpTo.TargetRotation;
+            modelRoot.transform.rotation = CurrentStateToLerpTo.TargetRotation;
             AdvanceLerpToPositionState(CurrentStateToLerpTo, ref movementDistanceAvailable);
             animator.SetBool("Running", true);
             return true;
