@@ -14,6 +14,11 @@ namespace ProjectTrinity.Debugging
 
         private void OnDrawGizmos()
         {
+            if (viewUnits == null && viewUnits.Length == 0)
+            {
+                return;
+            }
+
             for (int i = 0; i < viewUnits.Length; i++)
             {
                 if (viewUnits[i].CurrentStateToLerpTo != null)
