@@ -14,7 +14,7 @@ namespace ProjectTrinity.Debugging
 
         private void OnDrawGizmos()
         {
-            if (viewUnits == null && viewUnits.Length == 0)
+            if (viewUnits == null || viewUnits.Length == 0)
             {
                 return;
             }
