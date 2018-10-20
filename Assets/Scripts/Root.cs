@@ -1,6 +1,7 @@
 ﻿using ProjectTrinity.Debugging;
 using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Root;
+using ProjectTrinity.UI;
 using TMPro;
 using UnityEngine;
 
@@ -25,10 +26,10 @@ public class Root : MonoBehaviour
     private GameObject matchEndedUI;
 
     [SerializeField]
-    private Joystick movementJoyStick;
+    private VirtualJoystick movementJoyStick;
 
     [SerializeField]
-    private Joystick aimingJoyStick;
+    private VirtualJoystick aimingJoyStick;
 
     private MatchStateMachine matchStateMachine;
 
