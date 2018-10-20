@@ -22,10 +22,12 @@ namespace ProjectTrinity.Simulation
 
         public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, Int64 matchStartTimestamp, MatchInputProvider matchInputProvider, MatchEventProvider matchEventProvider)
         {
-            localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, 0, 0, 0, 0);
             this.matchStartTimestamp = matchStartTimestamp;
             inputProvider = matchInputProvider;
             eventProvider = matchEventProvider;
+
+            localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, 0, 0, 0, 0);
+            eventProvider.OnUnitSpawn(localPlayerUnitID, true);
 
             foreach (byte matchUnitID in matchUnitIDs)
             {
@@ -35,12 +37,14 @@ namespace ProjectTrinity.Simulation
                 }
 
                 simulationUnits.Add(matchUnitID, new MatchSimulationUnit(matchUnitID, 0, 0, 0, 0));
+                eventProvider.OnUnitSpawn(matchUnitID);
             }
         }
 
         public void OnSimulationFrame(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame, List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame)
         {
             byte currentTimebasedFrame = (byte)MathHelper.Modulo((DIContainer.NetworkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
+            //DIContainer.Logger.Debug("Frame: " + currentTimebasedFrame);
 
             // sort by oldest frame to newest frame
             receivedUnitStateMessagesSinceLastFrame.Sort((message1, message2) =>
@@ -57,6 +61,7 @@ namespace ProjectTrinity.Simulation
                 {
                     unitToUpdate = new MatchSimulationUnit(unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame);
                     simulationUnits.Add(unitStateMessage.UnitId, unitToUpdate);
+                    eventProvider.OnUnitSpawn(unitStateMessage.UnitId);
                 }
 
                 bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition, 
@@ -64,8 +69,10 @@ namespace ProjectTrinity.Simulation
 
                 if (positionChanged)
                 {
-                    eventProvider.OnUnitStateUpdate(unitToUpdate, true);
+                    eventProvider.OnUnitStateUpdate(unitToUpdate, unitStateMessage.Frame);
                 }
+
+                //DIContainer.Logger.Debug("Received usm with frame: " + unitStateMessage.Frame);
             }
 
             // frame didn't change yet, should never happen in practise.
@@ -108,7 +115,7 @@ namespace ProjectTrinity.Simulation
                 }
             }
 
-            eventProvider.OnUnitStateUpdate(localPlayer, false);
+            eventProvider.OnUnitStateUpdate(localPlayer, currentTimebasedFrame);
 
             if (inputProvider.InputReceived)
             {
@@ -119,6 +126,8 @@ namespace ProjectTrinity.Simulation
 
                 DIContainer.UDPClient.SendMessage(inputMessage.GetBytes());
             }
+
+            eventProvider.OnSimulationFrame(currentTimebasedFrame);
 
             currentSimulationFrame = currentTimebasedFrame;
         }

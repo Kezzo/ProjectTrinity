@@ -32,8 +32,8 @@ namespace ProjectTrinity.Networking
 
                         byte[] messageToSend = messageSendQueue.Dequeue();
 
-                        //DIContainer.Logger.Debug(string.Format("UdpClient: Sending message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]));
                         await udpClient.SendAsync(messageToSend, messageToSend.Length, host, hostPort);
+                        //DIContainer.Logger.Debug(string.Format("UdpClient: Sent message of size: {0} with messageId: {1}", messageToSend.Length, messageToSend[0]));
                     }
                 });
             }
