@@ -5,6 +5,7 @@ public class Joystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointer
 {
     [Header("Options")]
     [Range(0f, 2f)] public float handleLimit = 1f;
+
     public JoystickMode joystickMode = JoystickMode.AllAxis;
 
     protected Vector2 inputVector = Vector2.zero;
@@ -19,6 +20,8 @@ public class Joystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointer
     public float Vertical { get { return inputVector.y; } }
     public Vector2 Direction { get { return new Vector2(Horizontal, Vertical); } }
 
+    public bool JoystickActive { get; protected set;}
+
     public virtual void OnDrag(PointerEventData eventData)
     {
 
@@ -26,12 +29,12 @@ public class Joystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointer
 
     public virtual void OnPointerDown(PointerEventData eventData)
     {
-
+        JoystickActive = true;
     }
 
     public virtual void OnPointerUp(PointerEventData eventData)
     {
-
+        JoystickActive = false;
     }
 
     protected void ClampJoystick()
