@@ -1,4 +1,5 @@
-﻿using ProjectTrinity.MatchStateMachine;
+﻿using ProjectTrinity.Debugging;
+using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Root;
 using TMPro;
 using UnityEngine;
@@ -79,7 +80,7 @@ public class Root : MonoBehaviour
             matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
         }
 
-        if(EnvironmentHelper.DebugAIEnabled)
+        if(UnitDebugAI.DebugAIEnabled)
         {
             if(Random.Range(0, 2) == 0)
             {

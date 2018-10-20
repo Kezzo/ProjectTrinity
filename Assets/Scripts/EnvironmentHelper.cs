@@ -13,14 +13,9 @@ public class EnvironmentHelper : MonoBehaviour
     private Environment environment;
     private static Environment staticEnvironment;
 
-    [SerializeField]
-    private bool enabledDebugAI;
-    public static bool DebugAIEnabled { get; private set; }
-
     private void Awake()
     {
         staticEnvironment = environment;
-        DebugAIEnabled = enabledDebugAI;
     }
 
     public static string ServerUrl 

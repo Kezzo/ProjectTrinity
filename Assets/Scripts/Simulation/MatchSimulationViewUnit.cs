@@ -10,16 +10,14 @@ public class MatchSimulationViewUnit : MonoBehaviour
     [SerializeField]
     private Animator animator;
 
-    private static readonly byte PositionFrameDelay = 10; // 4 == ~198ms
+    private static readonly byte PositionFrameDelay = 5; // 5 == ~165ms delay
 
-    private class InterpolationState
+    public class InterpolationState
     {
         public Vector3 TargetPosition;
         public Quaternion TargetRotation;
         public byte TargetFrame;
-
-        public byte StartFrame;
-
+        
         public InterpolationState(Vector3 targetPosition, Quaternion targetRotation, byte targetFrame)
         {
             TargetPosition = targetPosition;
@@ -36,10 +34,20 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     private Queue<InterpolationState> interpolationQueue = new Queue<InterpolationState>();
 
+    public InterpolationState[] CurrentInterpolationBuffer
+    {
+        get 
+        {
+            return interpolationQueue.ToArray();
+        }
+    }
+
     public bool LerpToState;
 
     private int movementChangedCounter = 0;
-    private InterpolationState currentStateToLerpTo;
+    public InterpolationState CurrentStateToLerpTo { get; private set; }
+
+    private float lastMovementSpeedModifier = 0f;
 
     public void OnUnitStateUpdate(MatchSimulationUnit updatedUnitState, byte frame)
     {
@@ -70,17 +78,34 @@ public class MatchSimulationViewUnit : MonoBehaviour
             return;
         }
 
-        if (currentStateToLerpTo != null)
-        {
-            AdvanceLerpToPositionState(currentStateToLerpTo, currentFrame);
+        int speedPartToModify = 390 / 6;
+        float queueCount = interpolationQueue.Count;
+        float frameDelay = PositionFrameDelay;
 
-            if (currentStateToLerpTo == null)
+        // quick decrease, slow increase
+        float maxSpeedThisFrame = Mathf.Min(1f, lastMovementSpeedModifier + 0.05f);
+        float minSpeedThisFrame = Mathf.Max(0f, lastMovementSpeedModifier - 0.3f);
+
+        float movementSpeedModifier = Mathf.Clamp01(Mathf.Clamp(queueCount / frameDelay, minSpeedThisFrame, maxSpeedThisFrame));
+        int movementSpeedForFrame = (int)(390 - speedPartToModify + (speedPartToModify * movementSpeedModifier));
+        float movevementDistanceAvailable = UnitValueConverter.ToUnityPosition(movementSpeedForFrame);
+
+        lastMovementSpeedModifier = movementSpeedModifier;
+
+        /*DIContainer.Logger.Debug(string.Format("Movement speed for frame: {0} Modifier: {1} QueueCount: {2} Delay: {3}",
+                                               movementSpeedForFrame, movementSpeedModifier, interpolationQueue.Count, PositionFrameDelay));*/
+
+        if (CurrentStateToLerpTo != null)
+        {
+            AdvanceLerpToPositionState(CurrentStateToLerpTo, ref movevementDistanceAvailable);
+
+            if (CurrentStateToLerpTo == null)
             {
                 // to ensure next lerp is started so wait frame that results in a stutter is generated.
-                StartLerpingIfValid(currentFrame);
+                StartLerpingIfValid(currentFrame, ref movevementDistanceAvailable);
             }
         }
-        else if (!StartLerpingIfValid(currentFrame))
+        else if (!StartLerpingIfValid(currentFrame, ref movevementDistanceAvailable))
         {
             /*StringBuilder stringBuilder = new StringBuilder();
             InterpolationState[] stateArray = interpolationQueue.ToArray();
@@ -94,21 +119,20 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
             movementChangedCounter++;
 
-            if (movementChangedCounter > 1)
+            if (movementChangedCounter > 2)
             {
                 animator.SetBool("Running", false);
             }
         }
     }
 
-    private bool StartLerpingIfValid(byte currentFrame)
+    private bool StartLerpingIfValid(byte currentFrame, ref float movementDistanceAvailable)
     {
         if (interpolationQueue.Count > 0 && ShouldLerpToState(interpolationQueue.Peek(), currentFrame))
         {
-            currentStateToLerpTo = interpolationQueue.Dequeue();
-            currentStateToLerpTo.StartFrame = currentFrame;
-            this.transform.rotation = currentStateToLerpTo.TargetRotation;
-            AdvanceLerpToPositionState(currentStateToLerpTo, currentFrame);
+            CurrentStateToLerpTo = interpolationQueue.Dequeue();
+            this.transform.rotation = CurrentStateToLerpTo.TargetRotation;
+            AdvanceLerpToPositionState(CurrentStateToLerpTo, ref movementDistanceAvailable);
             animator.SetBool("Running", true);
             return true;
         }
@@ -116,35 +140,36 @@ public class MatchSimulationViewUnit : MonoBehaviour
         return false;
     }
 
-    private void AdvanceLerpToPositionState(InterpolationState state, byte currentFrame)
+    private void AdvanceLerpToPositionState(InterpolationState state, ref float movementDistanceAvailable)
     {
         movementChangedCounter = 0;
 
-        // this is done to account for frame wrap-around
-        byte frameDiffStartTarget = MathHelper.GetFrameDiff(state.StartFrame, state.TargetFrame);
-        byte frameDiffStartCurrent = MathHelper.GetFrameDiff(state.StartFrame, currentFrame);
+        Vector3 positionDiff =  state.TargetPosition - this.transform.position;
 
-        float interpolant = Mathf.InverseLerp(0, frameDiffStartTarget, frameDiffStartCurrent);
-        Vector3 position = Vector3.Lerp(this.transform.position, state.TargetPosition, interpolant);
+        float clampedXPositionDiff = Mathf.Clamp(Mathf.Abs(positionDiff.x), 0, movementDistanceAvailable); 
+        float cappedXPositionDiff = positionDiff.x > 0 ? clampedXPositionDiff : -clampedXPositionDiff;
+
+        float clampedZPositionDiff = Mathf.Clamp(Mathf.Abs(positionDiff.z), 0, movementDistanceAvailable);
+        float cappedZPositionDiff = positionDiff.z > 0 ? clampedZPositionDiff : -clampedZPositionDiff;
+
+        Vector3 position = new Vector3(this.transform.position.x + cappedXPositionDiff, 0f, this.transform.position.z + cappedZPositionDiff);
+
+        movementDistanceAvailable -= clampedXPositionDiff > clampedZPositionDiff ? clampedXPositionDiff : clampedZPositionDiff;
 
         /*DIContainer.Logger.Debug(string.Format("AdvanceLerpToPositionState: frameDiffStartTarget: {0} frameDiffStartCurrent: {1} interpolant: {2} position: {3} CurrentFrame: {4} TargetFrame: {5}",
                                                frameDiffStartTarget, frameDiffStartCurrent, interpolant, position, currentFrame, state.TargetFrame));*/
 
         this.transform.position = position;
 
-        if (MatchSimulationUnit.IsFrameInFuture(currentFrame, state.TargetFrame) || currentFrame == state.TargetFrame || interpolant >= 1f)
+        if ((this.transform.position - state.TargetPosition).magnitude <= 0.0001f)
         {
-            // just to be sure we're on the correct position even when interpolant isn't 1 yet.
-            this.transform.position = state.TargetPosition;
-            currentStateToLerpTo = null;
-            animator.SetBool("Running", false);
+            CurrentStateToLerpTo = null;
         }
     }
 
     private bool ShouldLerpToState(InterpolationState state, byte currentFrame)
     {
         // is state in past or current frame? Should never happen.
-        // TODO: Maybe always use for movement?
         if (MatchSimulationUnit.IsFrameInFuture(currentFrame, state.TargetFrame) || currentFrame == state.TargetFrame)
         {
             return true;
