@@ -34,9 +34,9 @@ public class Root : MonoBehaviour
     private void Start()
     {
         matchStateMachine = new MatchStateMachine();
-        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(0, player.OnUnitStateUpdate);
-        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, player2.OnUnitStateUpdate);
-        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, player3.OnUnitStateUpdate);
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(0, player);
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, player2);
+        matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, player3);
     }
 
     private void FixedUpdate()

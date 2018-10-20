@@ -73,5 +73,39 @@ namespace ProjectTrinity.Helper
 
             return delta > 0 ? maxDelta : -maxDelta;
         }
+
+        public static byte GetFrameDiff(byte frame1, byte frame2)
+        {
+            byte smallerFrame = frame1 > frame2 ? frame2 : frame1;
+            byte biggerFrame = frame1 <= frame2 ? frame2 : frame1;
+            if (smallerFrame >= 0 && smallerFrame < 30 && (254 - biggerFrame) < 30)
+            {
+                return (byte) (254 - biggerFrame + smallerFrame);
+            }
+
+            return (byte)(frame1 > frame2 ? frame1 - frame2 : frame2 - frame1);
+        }
+
+        public static float GetMaxFrameTranslation(Vector3 positionChange, byte frames)
+        {
+            int xSimulationPositionChangePerFrame = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.x)) / frames;
+            int ySimulationPositionChangePerFrame = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.z)) / frames;
+
+            float xTranslationPerFrame = xSimulationPositionChangePerFrame / 400;
+            float yTranslationPerFrame = ySimulationPositionChangePerFrame / 400;
+
+            return xTranslationPerFrame > yTranslationPerFrame ? xTranslationPerFrame : yTranslationPerFrame;
+        }
+
+        public static byte GetRoundedMaxFramesForPositionChange(Vector3 positionChange)
+        {
+            int xSimulationPositionChange = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.x));
+            int ySimulationPositionChange = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.z));
+
+            byte roundedFramesNeedToReachX = (byte) Mathf.Round(xSimulationPositionChange / 400);
+            byte roundedFramesNeedToReachY = (byte) Mathf.Round(ySimulationPositionChange / 400);
+
+            return roundedFramesNeedToReachX > roundedFramesNeedToReachY ? roundedFramesNeedToReachX : roundedFramesNeedToReachY;
+        }
     }
 }

@@ -6,20 +6,40 @@ namespace ProjectTrinity.MatchStateMachine
 {
     public class MatchEventProvider
     {
-        private Dictionary<byte, Action<MatchSimulationUnit, bool>> listener = new Dictionary<byte, Action<MatchSimulationUnit, bool>>();
+        private Dictionary<byte, MatchSimulationViewUnit> viewUnits = new Dictionary<byte, MatchSimulationViewUnit>();
 
-        public void AddUnitStateUpdateListener(byte unitID, Action<MatchSimulationUnit, bool> callback)
+        public void AddUnitStateUpdateListener(byte unitID, MatchSimulationViewUnit matchViewUnit)
         {
-            listener[unitID] = callback;
+            viewUnits[unitID] = matchViewUnit;
         }
 
-        public void OnUnitStateUpdate(MatchSimulationUnit unitState, bool lerpToState = true)
-        {
-            Action<MatchSimulationUnit, bool> callback;
 
-            if (listener.TryGetValue(unitState.UnitId, out callback))
+        public void OnUnitSpawn(byte unitId, bool isLocalPlayer = false)
+        {
+            MatchSimulationViewUnit unit;
+
+            if (viewUnits.TryGetValue(unitId, out unit))
             {
-                callback(unitState, lerpToState);
+                unit.gameObject.SetActive(true);
+                unit.LerpToState = !isLocalPlayer;
+            }
+        }
+
+        public void OnUnitStateUpdate(MatchSimulationUnit unitState, byte frame)
+        {
+            MatchSimulationViewUnit unit;
+
+            if (viewUnits.TryGetValue(unitState.UnitId, out unit))
+            {
+                unit.OnUnitStateUpdate(unitState, frame);
+            }
+        }
+
+        public void OnSimulationFrame(byte frame)
+        { 
+            foreach (var viewUnit in viewUnits)
+            {
+                viewUnit.Value.UpdateToNextState(frame);
             }
         }
     }
