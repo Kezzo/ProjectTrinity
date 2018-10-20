@@ -711,6 +711,11 @@ Prefab:
       propertyPath: m_Color.g
       value: 0.6039216
       objectReference: {fileID: 0}
+    - target: {fileID: 114567654956667342, guid: cdd5474b97f1a9d40bea678ca8dec2bb,
+        type: 2}
+      propertyPath: handleLimit
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cdd5474b97f1a9d40bea678ca8dec2bb, type: 2}
   m_IsPrefabAsset: 0
@@ -1537,6 +1542,12 @@ MonoBehaviour:
     type: 2}
   m_PrefabInternal: {fileID: 1296710671}
   m_Script: {fileID: 11500000, guid: 3eb7839eff7b745dd8c44afc1dca8bd0, type: 3}
+--- !u!114 &1302966935 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114567654956667342, guid: cdd5474b97f1a9d40bea678ca8dec2bb,
+    type: 2}
+  m_PrefabInternal: {fileID: 1388565955}
+  m_Script: {fileID: 11500000, guid: 6669b2160065e50478339b2530a7a11a, type: 3}
 --- !u!1001 &1388565955
 Prefab:
   m_ObjectHideFlags: 0
@@ -1720,6 +1731,8 @@ MonoBehaviour:
   rttText: {fileID: 214976210}
   lookingForMatchUI: {fileID: 778105988}
   matchEndedUI: {fileID: 1104618625}
+  movementJoyStick: {fileID: 1418558621}
+  aimingJoyStick: {fileID: 1302966935}
 --- !u!4 &1416895458
 Transform:
   m_ObjectHideFlags: 0
@@ -1746,7 +1759,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d655bd134b0844e4c84f9ceb84273d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  environment: 1
+  environment: 0
+--- !u!114 &1418558621 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114567654956667342, guid: cdd5474b97f1a9d40bea678ca8dec2bb,
+    type: 2}
+  m_PrefabInternal: {fileID: 450383575}
+  m_Script: {fileID: 11500000, guid: 6669b2160065e50478339b2530a7a11a, type: 3}
 --- !u!1001 &1661620197
 Prefab:
   m_ObjectHideFlags: 0

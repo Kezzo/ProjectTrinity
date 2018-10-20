@@ -24,6 +24,12 @@ public class Root : MonoBehaviour
     [SerializeField]
     private GameObject matchEndedUI;
 
+    [SerializeField]
+    private Joystick movementJoyStick;
+
+    [SerializeField]
+    private Joystick aimingJoyStick;
+
     private MatchStateMachine matchStateMachine;
 
     private void Awake()
@@ -54,22 +60,41 @@ public class Root : MonoBehaviour
         lookingForMatchUI.SetActive(matchStateMachine.CurrentMatchState is TimeSyncMatchState || matchStateMachine.CurrentMatchState is WaitForStartMatchState);
         matchEndedUI.SetActive(matchStateMachine.CurrentMatchState is EndMatchState);
 
-        if (Input.GetKey(KeyCode.W))
+        if (movementJoyStick.JoystickActive && (Mathf.Abs(movementJoyStick.Horizontal) > 0.2f || Mathf.Abs(movementJoyStick.Vertical) > 0.2f))
         {
-            matchStateMachine.MatchInputProvider.AddYTranslation(1f);
+            matchStateMachine.MatchInputProvider.AddXTranslation(movementJoyStick.Horizontal);
+            matchStateMachine.MatchInputProvider.AddYTranslation(movementJoyStick.Vertical);
         } 
-        else if(Input.GetKey(KeyCode.S))
+        else if (UnitDebugAI.DebugAIEnabled)
         {
-            matchStateMachine.MatchInputProvider.AddYTranslation(-1f);
+            if (Random.Range(0, 2) == 0)
+            {
+                matchStateMachine.MatchInputProvider.AddYTranslation(Random.Range(-1f, 1f));
+            }
+            else
+            {
+                matchStateMachine.MatchInputProvider.AddXTranslation(Random.Range(-1f, 1f));
+            }
         }
+        else
+        {
+            if (Input.GetKey(KeyCode.W))
+            {
+                matchStateMachine.MatchInputProvider.AddYTranslation(1f);
+            }
+            else if (Input.GetKey(KeyCode.S))
+            {
+                matchStateMachine.MatchInputProvider.AddYTranslation(-1f);
+            }
 
-        if (Input.GetKey(KeyCode.A))
-        {
-            matchStateMachine.MatchInputProvider.AddXTranslation(-1f);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            matchStateMachine.MatchInputProvider.AddXTranslation(1f);
+            if (Input.GetKey(KeyCode.A))
+            {
+                matchStateMachine.MatchInputProvider.AddXTranslation(-1f);
+            }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                matchStateMachine.MatchInputProvider.AddXTranslation(1f);
+            }
         }
 
         if(Mathf.Abs(matchStateMachine.MatchInputProvider.XTranslation) > 0f || Mathf.Abs(matchStateMachine.MatchInputProvider.YTranslation) > 0f) {
@@ -80,16 +105,6 @@ public class Root : MonoBehaviour
             matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
         }
 
-        if(UnitDebugAI.DebugAIEnabled)
-        {
-            if(Random.Range(0, 2) == 0)
-            {
-                matchStateMachine.MatchInputProvider.AddYTranslation(Random.Range(-1f, 1f));
-            }
-            else
-            {
-                matchStateMachine.MatchInputProvider.AddXTranslation(Random.Range(-1f, 1f));
-            }
-        }
+
     }
 }
