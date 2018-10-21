@@ -12,6 +12,7 @@ namespace ProjectTrinity.Input
 
         public float AimingRotation { get; private set; }
         public bool AimingInputReceived { get; private set; }
+        public bool SpellInputReceived { get; private set; }
 
         public void AddXTranslation(float xTranslation)
         {
@@ -37,6 +38,13 @@ namespace ProjectTrinity.Input
             AimingInputReceived = true;
         }
 
+        public void AddSpellInput(float rotation)
+        {
+            Rotation = rotation;
+            AimingRotation = rotation;
+            SpellInputReceived = true;
+        }
+
         public byte GetSimulationXTranslation()
         {
             return (byte) Mathf.Lerp(0, 255, Mathf.InverseLerp(-1, 1f, XTranslation));
@@ -52,6 +60,11 @@ namespace ProjectTrinity.Input
             return (byte)Mathf.Lerp(0, 255, Mathf.InverseLerp(0, 360f, MathHelper.Modulo(Rotation, 360)));
         }
 
+        public byte GetSimulationAimingRotation()
+        {
+            return (byte)Mathf.Lerp(0, 255, Mathf.InverseLerp(0, 360f, MathHelper.Modulo(AimingRotation, 360)));
+        }
+
         // should be called in every simulation frame so inputs in next update can be registered.
         public void Reset()
         {
@@ -59,6 +72,7 @@ namespace ProjectTrinity.Input
             YTranslation = 0f;
             InputReceived = false;
             AimingInputReceived = false;
+            SpellInputReceived = false;
         }
     }
 }

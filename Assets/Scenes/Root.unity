@@ -1732,7 +1732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d655bd134b0844e4c84f9ceb84273d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  environment: 0
+  environment: 1
 --- !u!114 &1416895460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1957,6 +1957,10 @@ Prefab:
     - target: {fileID: 4775775842538076, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
       propertyPath: m_RootOrder
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1843343298316632, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bdb98e0ad0f75174fb46151c26b6e466, type: 2}

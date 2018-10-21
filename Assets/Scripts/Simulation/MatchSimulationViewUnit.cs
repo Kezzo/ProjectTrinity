@@ -31,6 +31,20 @@ public class MatchSimulationViewUnit : MonoBehaviour
         }
     }
 
+    protected class SpellActivationData
+    {
+        public float Rotation { get; private set; }
+        public byte StartFrame { get; private set; }
+        public byte ActivationFrame { get; private set; }
+
+        public SpellActivationData(float rotation, byte startFrame, byte activationFrame)
+        {
+            Rotation = rotation;
+            StartFrame = startFrame;
+            ActivationFrame = activationFrame;
+        }
+    }
+
     private Queue<InterpolationState> interpolationQueue = new Queue<InterpolationState>();
 
     public InterpolationState[] CurrentInterpolationBuffer
@@ -43,6 +57,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     private int movementChangedCounter = 0;
     public InterpolationState CurrentStateToLerpTo { get; private set; }
+    protected SpellActivationData currentSpellActivation;
 
     private float lastMovementSpeedModifier = 0f;
 
@@ -75,6 +90,11 @@ public class MatchSimulationViewUnit : MonoBehaviour
     }
 
     public virtual void OnLocalAimingUpdate(float rotation) { }
+
+    public virtual void OnSpellActivation(float rotation, byte startFrame, byte activationFrame) 
+    {
+
+    }
 
     public virtual void UpdateToNextState(byte currentFrame)
     {

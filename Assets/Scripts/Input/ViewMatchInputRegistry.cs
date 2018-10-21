@@ -14,6 +14,8 @@ namespace ProjectTrinity.Input
         private VirtualJoystick aimingJoyStick;
 
         private MatchStateMachine.MatchStateMachine matchStateMachine;
+        private bool releaseTriggersSkill;
+        private float lastAimingRotation;
 
         public void Initialize(MatchStateMachine.MatchStateMachine matchStateMachine)
         {
@@ -74,10 +76,25 @@ namespace ProjectTrinity.Input
                 matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
             }
 
-            if (aimingJoyStick.JoystickActive && (Mathf.Abs(aimingJoyStick.Horizontal) > 0.5f || Mathf.Abs(aimingJoyStick.Vertical) > 0.5f))
+            if (aimingJoyStick.JoystickActive)
             {
-                Quaternion rotation = Quaternion.LookRotation(new Vector3(aimingJoyStick.Horizontal, 0f, aimingJoyStick.Vertical), Vector3.up);
-                matchStateMachine.MatchInputProvider.AddAimingRotation(rotation.eulerAngles.y);
+                if (Mathf.Abs(aimingJoyStick.Horizontal) > 0.5f || Mathf.Abs(aimingJoyStick.Vertical) > 0.5f)
+                {
+                    Quaternion rotation = Quaternion.LookRotation(new Vector3(aimingJoyStick.Horizontal, 0f, aimingJoyStick.Vertical), Vector3.up);
+                    lastAimingRotation = rotation.eulerAngles.y;
+                    matchStateMachine.MatchInputProvider.AddAimingRotation(rotation.eulerAngles.y);
+                    releaseTriggersSkill = true;
+                }
+                else
+                {
+                    releaseTriggersSkill = false;
+                }
+            }
+            // aiming joystick was released in valid position indicating spell input.
+            else if (releaseTriggersSkill)
+            {
+                matchStateMachine.MatchInputProvider.AddSpellInput(lastAimingRotation);
+                releaseTriggersSkill = false;
             }
         }
     }

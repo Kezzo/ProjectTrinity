@@ -47,6 +47,23 @@ namespace ProjectTrinity.Simulation
             byte currentTimebasedFrame = (byte)MathHelper.Modulo((DIContainer.NetworkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
             //DIContainer.Logger.Debug("Frame: " + currentTimebasedFrame);
 
+            UpdateUnitStates(receivedUnitStateMessagesSinceLastFrame);
+
+            // frame didn't change yet, should never happen in practise.
+            if (currentSimulationFrame == currentTimebasedFrame)
+            {
+                return;
+            }
+
+            byte inputFrame = UpdateLocalPlayerState(receivedPositionConfirmationMessagesSinceLastFrame, currentTimebasedFrame);
+            SendInputMessages(inputFrame);
+
+            eventProvider.OnSimulationFrame(currentTimebasedFrame);
+            currentSimulationFrame = currentTimebasedFrame;
+        }
+
+        private void UpdateUnitStates(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame)
+        {
             // sort by oldest frame to newest frame
             receivedUnitStateMessagesSinceLastFrame.Sort((message1, message2) =>
             {
@@ -65,7 +82,7 @@ namespace ProjectTrinity.Simulation
                     eventProvider.OnUnitSpawn(unitStateMessage.UnitId);
                 }
 
-                bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition, 
+                bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition,
                                                unitStateMessage.Rotation, unitStateMessage.Frame);
 
                 if (positionChanged)
@@ -75,28 +92,27 @@ namespace ProjectTrinity.Simulation
 
                 //DIContainer.Logger.Debug("Received usm with frame: " + unitStateMessage.Frame);
             }
+        }
 
-            // frame didn't change yet, should never happen in practise.
-            if (currentSimulationFrame == currentTimebasedFrame)
-            {
-                return;
-            }
-
+        private byte UpdateLocalPlayerState(List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame, byte currentTimebasedFrame)
+        {
             // so combined translation is max 1, so diagonal movement isn't faster.
             float[] cappedTranslations = MathHelper.GetCappedTranslations(inputProvider.XTranslation, inputProvider.YTranslation);
 
             byte inputFrame = (byte)MathHelper.Modulo(currentSimulationFrame + 1, byte.MaxValue);
 
-            localPlayer.SetLocalFrameInput((int) Math.Round(playerMaxFrameSpeed * cappedTranslations[0]),
-                                           (int) Math.Round(playerMaxFrameSpeed * cappedTranslations[1]),
-                                           inputProvider.GetSimulationRotation(), inputFrame);
+            byte rotation = inputProvider.SpellInputReceived ? inputProvider.GetSimulationAimingRotation() : inputProvider.GetSimulationRotation();
+
+            localPlayer.SetLocalFrameInput((int)Math.Round(playerMaxFrameSpeed * cappedTranslations[0]),
+                                       (int)Math.Round(playerMaxFrameSpeed * cappedTranslations[1]),
+                                       rotation, inputFrame);
 
             byte frameToProcess = inputFrame;
             // this means we skipped a frame, we need to create buffer entries for all frames though
             while (frameToProcess != currentTimebasedFrame)
             {
                 frameToProcess = (byte)MathHelper.Modulo(frameToProcess + 1, byte.MaxValue);
-                localPlayer.SetLocalFrameInput(0, 0, inputProvider.GetSimulationRotation(), frameToProcess);
+                localPlayer.SetLocalFrameInput(0, 0, rotation, frameToProcess);
             }
 
             // sort by oldest frame to newest frame
@@ -118,24 +134,35 @@ namespace ProjectTrinity.Simulation
 
             eventProvider.OnUnitStateUpdate(localPlayer, currentTimebasedFrame);
 
-            if (inputProvider.AimingInputReceived)
+            if (inputProvider.SpellInputReceived)
+            {
+                byte activationFrame = (byte)MathHelper.Modulo(inputFrame + 18, byte.MaxValue);
+                eventProvider.OnSpellActivation(localPlayer.UnitId, inputProvider.AimingRotation, inputFrame, activationFrame);
+            } 
+            else if (inputProvider.AimingInputReceived)
             {
                 eventProvider.OnLocalAimingUpdate(localPlayer.UnitId, inputProvider.AimingRotation);
             }
 
+            return inputFrame;
+        }
+
+        private void SendInputMessages(byte inputFrame)
+        {
             if (inputProvider.InputReceived)
             {
-                InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(), 
+                InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(),
                                                              inputProvider.GetSimulationYTranslation(), localPlayer.Rotation, inputFrame);
-
                 DIContainer.UDPClient.SendMessage(inputMessage.GetBytes());
             }
 
+            if (inputProvider.SpellInputReceived)
+            {
+                SpellInputMessage spellInputMessage = new SpellInputMessage(localPlayer.UnitId, 0, localPlayer.Rotation, inputFrame);
+                DIContainer.UDPClient.SendMessage(spellInputMessage.GetBytes());
+            }
+
             inputProvider.Reset();
-
-            eventProvider.OnSimulationFrame(currentTimebasedFrame);
-
-            currentSimulationFrame = currentTimebasedFrame;
         }
     }
 }
