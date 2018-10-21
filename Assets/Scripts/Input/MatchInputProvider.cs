@@ -1,7 +1,7 @@
 ﻿using ProjectTrinity.Helper;
 using UnityEngine;
 
-namespace ProjectTrinity.MatchStateMachine
+namespace ProjectTrinity.Input
 {
     public class MatchInputProvider
     {

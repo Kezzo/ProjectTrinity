@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ProjectTrinity.Helper;
+using ProjectTrinity.Input;
 using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;

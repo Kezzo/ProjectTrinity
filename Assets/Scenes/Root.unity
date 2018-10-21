@@ -1678,6 +1678,7 @@ GameObject:
   - component: {fileID: 1416895458}
   - component: {fileID: 1416895457}
   - component: {fileID: 1416895459}
+  - component: {fileID: 1416895460}
   m_Layer: 0
   m_Name: Root
   m_TagString: Untagged
@@ -1702,9 +1703,8 @@ MonoBehaviour:
   rttText: {fileID: 214976210}
   lookingForMatchUI: {fileID: 778105988}
   matchEndedUI: {fileID: 1104618625}
-  movementJoyStick: {fileID: 1418558621}
-  aimingJoyStick: {fileID: 1302966935}
   cameraRoot: {fileID: 2073886581}
+  viewMatchInputRegistry: {fileID: 1416895460}
 --- !u!4 &1416895458
 Transform:
   m_ObjectHideFlags: 0
@@ -1732,7 +1732,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d655bd134b0844e4c84f9ceb84273d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  environment: 1
+  environment: 0
+--- !u!114 &1416895460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1416895456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77204d8c9c9844831bcf88c936b96c18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementJoyStick: {fileID: 1418558621}
+  aimingJoyStick: {fileID: 1302966935}
 --- !u!114 &1418558621 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 114953613769631356, guid: 0975383bba771478aa9b8adbac72f02d,

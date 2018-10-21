@@ -1,7 +1,6 @@
-﻿using ProjectTrinity.Debugging;
+﻿using ProjectTrinity.Input;
 using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Root;
-using ProjectTrinity.UI;
 using TMPro;
 using UnityEngine;
 
@@ -26,13 +25,10 @@ public class Root : MonoBehaviour
     private GameObject matchEndedUI;
 
     [SerializeField]
-    private VirtualJoystick movementJoyStick;
-
-    [SerializeField]
-    private VirtualJoystick aimingJoyStick;
-
-    [SerializeField]
     private GameObject cameraRoot;
+
+    [SerializeField]
+    private ViewMatchInputRegistry viewMatchInputRegistry;
 
     private MatchStateMachine matchStateMachine;
     private bool parentedPlayerCamera;
@@ -49,6 +45,8 @@ public class Root : MonoBehaviour
         matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(0, player);
         matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, player2);
         matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, player3);
+
+        viewMatchInputRegistry.Initialize(matchStateMachine);
     }
 
     private void FixedUpdate()
@@ -80,62 +78,6 @@ public class Root : MonoBehaviour
                     cameraRoot.transform.SetParent(player3.transform);
                     break;
             }
-        }
-
-        if (!(matchStateMachine.CurrentMatchState is RunningMatchState))
-        {
-            return;
-        }
-
-        if (movementJoyStick.JoystickActive && (Mathf.Abs(movementJoyStick.Horizontal) > 0.2f || Mathf.Abs(movementJoyStick.Vertical) > 0.2f))
-        {
-            matchStateMachine.MatchInputProvider.AddXTranslation(movementJoyStick.Horizontal);
-            matchStateMachine.MatchInputProvider.AddYTranslation(movementJoyStick.Vertical);
-        } 
-        else if (UnitDebugAI.DebugAIEnabled)
-        {
-            if (Random.Range(0, 2) == 0)
-            {
-                matchStateMachine.MatchInputProvider.AddYTranslation(Random.Range(-1f, 1f));
-            }
-            else
-            {
-                matchStateMachine.MatchInputProvider.AddXTranslation(Random.Range(-1f, 1f));
-            }
-        }
-        else
-        {
-            if (Input.GetKey(KeyCode.W))
-            {
-                matchStateMachine.MatchInputProvider.AddYTranslation(1f);
-            }
-            else if (Input.GetKey(KeyCode.S))
-            {
-                matchStateMachine.MatchInputProvider.AddYTranslation(-1f);
-            }
-
-            if (Input.GetKey(KeyCode.A))
-            {
-                matchStateMachine.MatchInputProvider.AddXTranslation(-1f);
-            }
-            else if (Input.GetKey(KeyCode.D))
-            {
-                matchStateMachine.MatchInputProvider.AddXTranslation(1f);
-            }
-        }
-
-        if(Mathf.Abs(matchStateMachine.MatchInputProvider.XTranslation) > 0f || Mathf.Abs(matchStateMachine.MatchInputProvider.YTranslation) > 0f) {
-            Quaternion rotation = Quaternion.LookRotation(
-            new Vector3(matchStateMachine.MatchInputProvider.XTranslation, 0f,
-                        matchStateMachine.MatchInputProvider.YTranslation), Vector3.up);
-
-            matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
-        }
-
-        if (aimingJoyStick.JoystickActive && (Mathf.Abs(aimingJoyStick.Horizontal) > 0.5f || Mathf.Abs(aimingJoyStick.Vertical) > 0.5f))
-        {
-            Quaternion rotation = Quaternion.LookRotation(new Vector3(aimingJoyStick.Horizontal, 0f, aimingJoyStick.Vertical), Vector3.up);
-            matchStateMachine.MatchInputProvider.AddAimingRotation(rotation.eulerAngles.y);
         }
     }
 }

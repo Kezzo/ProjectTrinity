@@ -1,4 +1,5 @@
 ﻿using System;
+using ProjectTrinity.Input;
 using ProjectTrinity.Root;
 
 namespace ProjectTrinity.MatchStateMachine
