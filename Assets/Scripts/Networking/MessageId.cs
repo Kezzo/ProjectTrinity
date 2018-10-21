@@ -21,5 +21,9 @@
         public static readonly byte MATCH_END_ACK = 11;
 
         public static readonly byte POSITION_CONFIRMATION = 12;
+
+        public static readonly byte SPELL_INPUT = 13;
+        public static readonly byte SPELL_ACTIVATION = 14;
+
     }
 }
