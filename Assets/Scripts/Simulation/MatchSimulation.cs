@@ -117,15 +117,20 @@ namespace ProjectTrinity.Simulation
 
             eventProvider.OnUnitStateUpdate(localPlayer, currentTimebasedFrame);
 
+            if (inputProvider.AimingInputReceived)
+            {
+                eventProvider.OnLocalAimingUpdate(localPlayer.UnitId, inputProvider.AimingRotation);
+            }
+
             if (inputProvider.InputReceived)
             {
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(), 
                                                              inputProvider.GetSimulationYTranslation(), localPlayer.Rotation, inputFrame);
 
-                inputProvider.Reset();
-
                 DIContainer.UDPClient.SendMessage(inputMessage.GetBytes());
             }
+
+            inputProvider.Reset();
 
             eventProvider.OnSimulationFrame(currentTimebasedFrame);
 

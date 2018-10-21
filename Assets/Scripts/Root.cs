@@ -8,13 +8,13 @@ using UnityEngine;
 public class Root : MonoBehaviour 
 {
     [SerializeField]
-    private MatchSimulationViewUnit player;
+    private GameObject player;
 
     [SerializeField]
-    private MatchSimulationViewUnit player2;
+    private GameObject player2;
 
     [SerializeField]
-    private MatchSimulationViewUnit player3;
+    private GameObject player3;
 
     [SerializeField]
     private TextMeshProUGUI rttText;
@@ -132,6 +132,10 @@ public class Root : MonoBehaviour
             matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
         }
 
-
+        if (aimingJoyStick.JoystickActive && (Mathf.Abs(aimingJoyStick.Horizontal) > 0.5f || Mathf.Abs(aimingJoyStick.Vertical) > 0.5f))
+        {
+            Quaternion rotation = Quaternion.LookRotation(new Vector3(aimingJoyStick.Horizontal, 0f, aimingJoyStick.Vertical), Vector3.up);
+            matchStateMachine.MatchInputProvider.AddAimingRotation(rotation.eulerAngles.y);
+        }
     }
 }

@@ -1,27 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ProjectTrinity.Simulation;
+using UnityEngine;
 
 namespace ProjectTrinity.MatchStateMachine
 {
     public class MatchEventProvider
     {
+        private Dictionary<byte, GameObject> viewUnitGameobjects = new Dictionary<byte, GameObject>();
         private Dictionary<byte, MatchSimulationViewUnit> viewUnits = new Dictionary<byte, MatchSimulationViewUnit>();
 
-        public void AddUnitStateUpdateListener(byte unitID, MatchSimulationViewUnit matchViewUnit)
+        public void AddUnitStateUpdateListener(byte unitID, GameObject matchViewUnitGameobject)
         {
-            viewUnits[unitID] = matchViewUnit;
+            viewUnitGameobjects[unitID] = matchViewUnitGameobject;
         }
-
 
         public void OnUnitSpawn(byte unitId, bool isLocalPlayer = false)
         {
-            MatchSimulationViewUnit unit;
+            GameObject unitGameobject;
 
-            if (viewUnits.TryGetValue(unitId, out unit))
+            if (viewUnitGameobjects.TryGetValue(unitId, out unitGameobject))
             {
-                unit.gameObject.SetActive(true);
-                unit.LerpToState = !isLocalPlayer;
+                MatchSimulationViewUnit matchSimulationViewUnit;
+
+                if (isLocalPlayer)
+                {
+                    matchSimulationViewUnit = unitGameobject.AddComponent<MatchSimulationLocalPlayerViewUnit>();
+                }
+                else
+                {
+                    matchSimulationViewUnit = unitGameobject.AddComponent<MatchSimulationViewUnit>();
+                }
+
+                unitGameobject.SetActive(true);
+
+                viewUnits[unitId] = matchSimulationViewUnit;
             }
         }
 
@@ -32,6 +44,16 @@ namespace ProjectTrinity.MatchStateMachine
             if (viewUnits.TryGetValue(unitState.UnitId, out unit))
             {
                 unit.OnUnitStateUpdate(unitState, frame);
+            }
+        }
+
+        public void OnLocalAimingUpdate(byte unitId, float rotation)
+        {
+            MatchSimulationViewUnit unit;
+
+            if (viewUnits.TryGetValue(unitId, out unit))
+            {
+                unit.OnLocalAimingUpdate(rotation);
             }
         }
 

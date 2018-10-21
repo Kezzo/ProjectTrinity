@@ -83,11 +83,11 @@ namespace ProjectTrinity.UI
 
         private void SetAlpha(float alpha)
         {
-            Color tmpBackgroundColor = backgroundImage.color;
+            Color tmpBackgroundColor = backgroundImageColor;
             tmpBackgroundColor.a = alpha;
             backgroundImage.color = tmpBackgroundColor;
 
-            Color tmpHandleColor = handleImage.color;
+            Color tmpHandleColor = handleImageColor;
             tmpHandleColor.a = alpha;
             handleImage.color = tmpHandleColor;
         }

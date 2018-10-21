@@ -1,17 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 using ProjectTrinity.Helper;
-using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
 using UnityEngine;
 
 public class MatchSimulationViewUnit : MonoBehaviour
 {
-    [SerializeField]
-    private Animator animator;
-
-    [SerializeField]
-    private GameObject modelRoot;
+    protected Animator animator;
+    protected GameObject modelRoot;
+    protected GameObject telegraphRoot;
 
     private static readonly byte PositionFrameDelay = 5; // 5 == ~165ms delay
 
@@ -45,27 +41,31 @@ public class MatchSimulationViewUnit : MonoBehaviour
         }
     }
 
-    public bool LerpToState;
-
     private int movementChangedCounter = 0;
     public InterpolationState CurrentStateToLerpTo { get; private set; }
 
     private float lastMovementSpeedModifier = 0f;
 
-    public void OnUnitStateUpdate(MatchSimulationUnit updatedUnitState, byte frame)
+    private void Awake()
     {
-        if (!LerpToState)
+        animator = GetComponent<Animator>();
+
+        foreach (Transform child in gameObject.transform)
         {
-            Vector3 targetPosition = updatedUnitState.GetUnityPosition();
-
-            animator.SetBool("Running", Vector3.Distance(transform.position, targetPosition) > 0.01f);
-
-            transform.position = targetPosition;
-            modelRoot.transform.rotation = updatedUnitState.GetUnityRotation();
-            return;
+            switch (child.tag) { 
+                case "ModelRoot":
+                    modelRoot = child.gameObject;
+                    break;
+                case "TelegraphRoot":
+                    telegraphRoot = child.gameObject;
+                    telegraphRoot.SetActive(false);
+                    break;
+            }
         }
+    }
 
-
+    public virtual void OnUnitStateUpdate(MatchSimulationUnit updatedUnitState, byte frame)
+    {
         InterpolationState stateToAdd = new InterpolationState(updatedUnitState.GetUnityPosition(), updatedUnitState.GetUnityRotation(),
                                                                (byte)MathHelper.Modulo(frame + PositionFrameDelay, byte.MaxValue));
 
@@ -74,13 +74,10 @@ public class MatchSimulationViewUnit : MonoBehaviour
         interpolationQueue.Enqueue(stateToAdd);
     }
 
-    public void UpdateToNextState(byte currentFrame)
-    {
-        if (!LerpToState)
-        {
-            return;
-        }
+    public virtual void OnLocalAimingUpdate(float rotation) { }
 
+    public virtual void UpdateToNextState(byte currentFrame)
+    {
         int speedPartToModify = 390 / 6;
         float queueCount = interpolationQueue.Count;
         float frameDelay = PositionFrameDelay;

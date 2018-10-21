@@ -10,22 +10,31 @@ namespace ProjectTrinity.MatchStateMachine
         public float Rotation { get; private set; }
         public bool InputReceived { get; private set; }
 
+        public float AimingRotation { get; private set; }
+        public bool AimingInputReceived { get; private set; }
+
         public void AddXTranslation(float xTranslation)
         {
-            this.XTranslation = Mathf.Clamp(xTranslation, -1f, 1f);
+            XTranslation = Mathf.Clamp(xTranslation, -1f, 1f);
             InputReceived = true;
         }
 
         public void AddYTranslation(float yTranslation)
         {
-            this.YTranslation = Mathf.Clamp(yTranslation, -1f, 1f);
+            YTranslation = Mathf.Clamp(yTranslation, -1f, 1f);
             InputReceived = true;
         }
 
         public void AddRotation(float rotation)
         {
-            this.Rotation = rotation;
+            Rotation = rotation;
             InputReceived = true;
+        }
+
+        public void AddAimingRotation(float rotation)
+        {
+            AimingRotation = rotation;
+            AimingInputReceived = true;
         }
 
         public byte GetSimulationXTranslation()
@@ -49,6 +58,7 @@ namespace ProjectTrinity.MatchStateMachine
             XTranslation = 0f;
             YTranslation = 0f;
             InputReceived = false;
+            AimingInputReceived = false;
         }
     }
 }
