@@ -23,7 +23,7 @@
         public static readonly byte POSITION_CONFIRMATION = 12;
 
         public static readonly byte SPELL_INPUT = 13;
-        public static readonly byte SPELL_ACTIVATION = 14;
+        public static readonly byte UNIT_SPELL_ACTIVATION = 14;
 
     }
 }
