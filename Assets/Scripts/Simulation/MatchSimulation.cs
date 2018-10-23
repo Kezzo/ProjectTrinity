@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ProjectTrinity.Helper;
 using ProjectTrinity.Input;
 using ProjectTrinity.MatchStateMachine;
+using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
 
@@ -15,17 +16,23 @@ namespace ProjectTrinity.Simulation
 
         private MatchInputProvider inputProvider;
         private MatchEventProvider eventProvider;
+        private IUdpClient udpClient;
+        private NetworkTimeService networkTimeService;
+
         private byte currentSimulationFrame;
 
         private static readonly int playerMaxFrameSpeed = 400;
 
         private Int64 matchStartTimestamp;
 
-        public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, Int64 matchStartTimestamp, MatchInputProvider matchInputProvider, MatchEventProvider matchEventProvider)
+        public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, Int64 matchStartTimestamp, MatchInputProvider matchInputProvider, 
+                               MatchEventProvider matchEventProvider, IUdpClient udpClient, NetworkTimeService networkTimeService)
         {
             this.matchStartTimestamp = matchStartTimestamp;
             inputProvider = matchInputProvider;
             eventProvider = matchEventProvider;
+            this.udpClient = udpClient;
+            this.networkTimeService = networkTimeService;
 
             localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, 0, 0, 0, 0);
             eventProvider.OnUnitSpawn(localPlayerUnitID, true);
@@ -44,7 +51,7 @@ namespace ProjectTrinity.Simulation
 
         public void OnSimulationFrame(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame, List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame)
         {
-            byte currentTimebasedFrame = (byte)MathHelper.Modulo((DIContainer.NetworkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
+            byte currentTimebasedFrame = (byte)MathHelper.Modulo((networkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
             //DIContainer.Logger.Debug("Frame: " + currentTimebasedFrame);
 
             UpdateUnitStates(receivedUnitStateMessagesSinceLastFrame);
@@ -153,13 +160,13 @@ namespace ProjectTrinity.Simulation
             {
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(),
                                                              inputProvider.GetSimulationYTranslation(), localPlayer.Rotation, inputFrame);
-                DIContainer.UDPClient.SendMessage(inputMessage.GetBytes());
+                udpClient.SendMessage(inputMessage.GetBytes());
             }
 
             if (inputProvider.SpellInputReceived)
             {
                 SpellInputMessage spellInputMessage = new SpellInputMessage(localPlayer.UnitId, 0, localPlayer.Rotation, inputFrame);
-                DIContainer.UDPClient.SendMessage(spellInputMessage.GetBytes());
+                udpClient.SendMessage(spellInputMessage.GetBytes());
             }
 
             inputProvider.Reset();

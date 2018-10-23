@@ -1,5 +1,4 @@
 ﻿using System;
-using ProjectTrinity.Root;
 
 namespace ProjectTrinity.Networking.Messages
 {
@@ -8,10 +7,10 @@ namespace ProjectTrinity.Networking.Messages
         public readonly Int64 PingTransmissionTimestamp;
         public readonly Int64 RoundTripTime;
 
-        public PongMessage(byte[] buffer)
+        public PongMessage(byte[] buffer, long currentNetworkTimestampMs)
         {
             PingTransmissionTimestamp = BitConverter.ToInt64(buffer, 1);
-            RoundTripTime = DIContainer.NetworkTimeService.NetworkTimestampMs - PingTransmissionTimestamp;
+            RoundTripTime = currentNetworkTimestampMs - PingTransmissionTimestamp;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace ProjectTrinity.MatchStateMachine
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
             this.matchStateMachine = matchStateMachine;
+            this.matchStateMachine.MatchInputProvider.Reset();
 
             // this is done to change the list we add new message to while we process a list
             // to one list will always be the one receiving message, while the other will be the one processed in that frame
@@ -29,21 +30,20 @@ namespace ProjectTrinity.MatchStateMachine
             PCMBuffer[0] = new List<PositionConfirmationMessage>();
             PCMBuffer[1] = new List<PositionConfirmationMessage>();
 
-            DIContainer.UDPClient.RegisterListener(MessageId.MATCH_END, this);
-            DIContainer.UDPClient.RegisterListener(MessageId.UNIT_STATE, this);
-            DIContainer.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
+            this.matchStateMachine.UDPClient.RegisterListener(MessageId.MATCH_END, this);
+            this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_STATE, this);
+            this.matchStateMachine.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
 
             //TODO: Add other players/units
-            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], 
-                                                  matchStateMachine.MatchStartTimestamp, matchStateMachine.MatchInputProvider, 
-                                                  matchStateMachine.MatchEventProvider);
+            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchStartTimestamp, matchStateMachine.MatchInputProvider, 
+                                                  matchStateMachine.MatchEventProvider, matchStateMachine.UDPClient, matchStateMachine.NetworkTimeService);
         }
 
         public void OnDeactivate()
         {
-            DIContainer.UDPClient.DeregisterListener(MessageId.MATCH_END, this);
-            DIContainer.UDPClient.DeregisterListener(MessageId.UNIT_STATE, this);
-            DIContainer.UDPClient.DeregisterListener(MessageId.POSITION_CONFIRMATION, this);
+            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.MATCH_END, this);
+            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_STATE, this);
+            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.POSITION_CONFIRMATION, this);
         }
 
         public void OnFixedUpdateTick()

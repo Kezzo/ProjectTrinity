@@ -1,11 +1,10 @@
-﻿using ProjectTrinity.Root;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ProjectTrinity.Helper;
 using ProjectTrinity.Networking.Messages;
 
-namespace ProjectTrinity.Networking 
-{    
+namespace ProjectTrinity.Networking
+{
     public class AckedMessageHelper : IUdpMessageListener 
     {
         private struct AckMessageAwaitData
@@ -30,14 +29,20 @@ namespace ProjectTrinity.Networking
         }
 
         private List<AckMessageAwaitData> pendingAckMessages = new List<AckMessageAwaitData>();
+        private IUdpClient udpClient;
+
+        public AckedMessageHelper(IUdpClient udpClient)
+        {
+            this.udpClient = udpClient;
+        }
 
         // An acked messages expects an ack to be sent from the server, if the ack message is not received in time the message will be sent again.
         // optimize wait time by only sending message again when waiting time > rtt
         public void SendAckedMessage(IOutgoingMessage messageToSend, byte messageAckIdToWaitFor, Action<byte[]> onAckMessageReceivedCallback)
         {
             pendingAckMessages.Add(new AckMessageAwaitData(messageAckIdToWaitFor, messageToSend, onAckMessageReceivedCallback));
-            DIContainer.UDPClient.RegisterListener(messageAckIdToWaitFor, this);
-            DIContainer.UDPClient.SendMessage(messageToSend.GetBytes());
+            udpClient.RegisterListener(messageAckIdToWaitFor, this);
+            udpClient.SendMessage(messageToSend.GetBytes());
         }
 
         public void OnMessageReceived(byte[] message)
@@ -48,7 +53,7 @@ namespace ProjectTrinity.Networking
                 {
                     AckMessageAwaitData ackedData = pendingAckMessages[i];
 
-                    DIContainer.UDPClient.DeregisterListener(pendingAckMessages[i].AckMessageId, this);
+                    udpClient.DeregisterListener(pendingAckMessages[i].AckMessageId, this);
                     pendingAckMessages.Remove(ackedData);
 
                     if (ackedData.OnAckMessageReceivedCalback != null)
@@ -67,7 +72,7 @@ namespace ProjectTrinity.Networking
             {
                 if((UtcTimestampHelper.GetCurrentUtcMsTimestamp() - pendingAckMessages[i].LastMessageToAckSendTimestamp) >= 100)
                 {
-                    DIContainer.UDPClient.SendMessage(pendingAckMessages[i].MessageToSend.GetBytes());
+                    udpClient.SendMessage(pendingAckMessages[i].MessageToSend.GetBytes());
                     pendingAckMessages[i].RefreshSendTime();
                 }
             }

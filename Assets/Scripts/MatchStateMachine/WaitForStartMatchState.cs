@@ -16,13 +16,13 @@ namespace ProjectTrinity.MatchStateMachine
 
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
-            DIContainer.UDPClient.RegisterListener(MessageId.MATCH_START, this);
             this.matchStateMachine = matchStateMachine;
+            this.matchStateMachine.UDPClient.RegisterListener(MessageId.MATCH_START, this);
         }
 
         public void OnDeactivate()
         {
-            DIContainer.UDPClient.DeregisterListener(MessageId.MATCH_START, this);
+            matchStateMachine.UDPClient.DeregisterListener(MessageId.MATCH_START, this);
         }
 
         public void OnFixedUpdateTick()
@@ -35,12 +35,12 @@ namespace ProjectTrinity.MatchStateMachine
             // send three times to increase chance of delivery, if not deliver with three tries network is too bad to play anyway.
             if(ackMessagesSent < 3) 
             {
-                DIContainer.UDPClient.SendMessage(ackMessageToSend);
+                matchStateMachine.UDPClient.SendMessage(ackMessageToSend);
                 ackMessagesSent++;
             }
 
             // match starts
-            if(DIContainer.NetworkTimeService.NetworkTimestampMs >= receivedMatchStartTimestamp) 
+            if(this.matchStateMachine.NetworkTimeService.NetworkTimestampMs >= receivedMatchStartTimestamp) 
             {
                 DIContainer.Logger.Debug("Match start wait time is over. Switching to RunningMatchState");
                 matchStateMachine.ChangeMatchState(new RunningMatchState());

@@ -8,8 +8,11 @@ namespace ProjectTrinity.MatchStateMachine
         private byte sendMatchEndAckMessages;
         private byte[] matchEndAckMessageToSend;
 
+        private MatchStateMachine matchStateMachine;
+
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
+            this.matchStateMachine = matchStateMachine;
             matchEndAckMessageToSend = new MatchEndAckMessage(matchStateMachine.LocalPlayerId).GetBytes();
         }
 
@@ -22,7 +25,7 @@ namespace ProjectTrinity.MatchStateMachine
         {
             if(sendMatchEndAckMessages < 3)
             {
-                DIContainer.UDPClient.SendMessage(matchEndAckMessageToSend);
+                matchStateMachine.UDPClient.SendMessage(matchEndAckMessageToSend);
                 sendMatchEndAckMessages++;
 
                 if (sendMatchEndAckMessages == 3)
