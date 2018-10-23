@@ -10,7 +10,7 @@ namespace ProjectTrinity.Root
         {
             get
             {
-                return udpClient != null ? udpClient : (udpClient = new UdpClient(EnvironmentHelper.ServerUrl, 2448));
+                return udpClient != null ? udpClient : (udpClient = new UdpClient(EnvironmentHelper.ServerUrl, EnvironmentHelper.Port));
             }
         }
 
