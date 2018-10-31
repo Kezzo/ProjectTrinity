@@ -1,0 +1,1 @@
+If you are in Lightweight render pipeline, Any shader in this folder will not work. This is the version 1 which is included in the project for the people who are already using v1 shaders of minimalist so that when they import the latest version, their existing works don't get screwed up. However, You are always recommended to switch to the latest version. 
