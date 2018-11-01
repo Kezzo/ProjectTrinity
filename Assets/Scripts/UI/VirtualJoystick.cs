@@ -54,6 +54,9 @@ namespace ProjectTrinity.UI
             inputVector = lastDirection.magnitude > background.sizeDelta.x / 2f ? lastDirection.normalized : lastDirection / (background.sizeDelta.x / 2f);
             handle.anchoredPosition = inputVector * background.sizeDelta.x / 2f;
 
+            // invert to support correct Unity camera front view
+            inputVector = -inputVector;
+
             if (moveWithFinger)
             {
                 background.position = eventData.position - handle.anchoredPosition;
