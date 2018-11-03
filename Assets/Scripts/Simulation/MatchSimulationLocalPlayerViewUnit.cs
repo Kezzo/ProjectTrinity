@@ -12,7 +12,7 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         animator.SetBool("Running", Vector3.Distance(transform.position, targetPosition) > 0.01f);
         transform.position = targetPosition;
 
-        if (currentSpellActivation == null)
+        if (currentAbilityActivation == null)
         {
             modelRoot.transform.rotation = updatedUnitState.GetUnityRotation();
         }
@@ -22,7 +22,7 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
 
     public override void OnLocalAimingUpdate(float rotation)
     {
-        if (currentSpellActivation != null)
+        if (currentAbilityActivation != null)
         {
             return;
         }
@@ -32,14 +32,14 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         telegraphRoot.gameObject.SetActive(true);
     }
 
-    public override void OnSpellActivation(float rotation, byte startFrame, byte activationFrame)
+    public override void OnAbilityActivation(float rotation, byte startFrame, byte activationFrame)
     {
-        if (currentSpellActivation != null)
+        if (currentAbilityActivation != null)
         {
             return;
         }
 
-        currentSpellActivation = new SpellActivationData(rotation, startFrame, activationFrame);
+        currentAbilityActivation = new AbilityActivationData(rotation, startFrame, activationFrame);
 
         telegraphRoot.transform.rotation = Quaternion.Euler(0f, rotation, 0f);
         modelRoot.transform.rotation = Quaternion.Euler(0f, rotation, 0f);
@@ -59,13 +59,13 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
             telegraphRoot.gameObject.SetActive(false);
         }
 
-        if (currentSpellActivation != null)
+        if (currentAbilityActivation != null)
         {
-            telegraphRoot.transform.rotation = Quaternion.Euler(0f, currentSpellActivation.Rotation, 0f);
-            if (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentSpellActivation.ActivationFrame) || currentFrame == currentSpellActivation.ActivationFrame)
+            telegraphRoot.transform.rotation = Quaternion.Euler(0f, currentAbilityActivation.Rotation, 0f);
+            if (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentAbilityActivation.ActivationFrame) || currentFrame == currentAbilityActivation.ActivationFrame)
             {
                 //TODO: Show telegraph 'timer'
-                currentSpellActivation = null;
+                currentAbilityActivation = null;
             }
         }
     }

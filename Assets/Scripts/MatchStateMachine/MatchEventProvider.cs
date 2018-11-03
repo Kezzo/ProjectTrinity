@@ -57,13 +57,13 @@ namespace ProjectTrinity.MatchStateMachine
             }
         }
 
-        public void OnSpellActivation(byte unitId, float rotation, byte startFrame, byte activationFrame)
+        public void OnAbilityActivation(byte unitId, float rotation, byte startFrame, byte activationFrame)
         {
             MatchSimulationViewUnit unit;
 
             if (viewUnits.TryGetValue(unitId, out unit))
             {
-                unit.OnSpellActivation(rotation, startFrame, activationFrame);
+                unit.OnAbilityActivation(rotation, startFrame, activationFrame);
             }
         }
 

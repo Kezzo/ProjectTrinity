@@ -1,23 +1,23 @@
 ﻿namespace ProjectTrinity.Networking.Messages
 {
-    public struct SpellInputMessage : IOutgoingMessage
+    public struct AbilityInputMessage : IOutgoingMessage
     {
         public readonly byte PlayerId;
-        public readonly byte SpellId;
+        public readonly byte AbilityId;
         public readonly byte Rotation;
         public readonly byte StartFrame;
 
-        public SpellInputMessage(byte unitId, byte spellId, byte rotation, byte startFrame)
+        public AbilityInputMessage(byte unitId, byte abilityId, byte rotation, byte startFrame)
         {
             PlayerId = unitId;
-            SpellId = spellId;
+            AbilityId = abilityId;
             Rotation = rotation;
             StartFrame = startFrame;
         }
 
         public byte[] GetBytes()
         {
-            return new byte[] { MessageId.SPELL_INPUT, PlayerId, SpellId, Rotation, StartFrame };
+            return new byte[] { MessageId.Ability_INPUT, PlayerId, AbilityId, Rotation, StartFrame };
         }
     }
 }

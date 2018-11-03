@@ -5,9 +5,8 @@ using ProjectTrinity.Input;
 using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
-using ProjectTrinity.Root;
 
-namespace ProjectTrinity.Simulation 
+namespace ProjectTrinity.Simulation
 {
     public class MatchSimulation
     {
@@ -108,7 +107,7 @@ namespace ProjectTrinity.Simulation
 
             byte inputFrame = (byte)MathHelper.Modulo(currentSimulationFrame + 1, byte.MaxValue);
 
-            byte rotation = inputProvider.SpellInputReceived ? inputProvider.GetSimulationAimingRotation() : inputProvider.GetSimulationRotation();
+            byte rotation = inputProvider.AbilityInputReceived ? inputProvider.GetSimulationAimingRotation() : inputProvider.GetSimulationRotation();
 
             localPlayer.SetLocalFrameInput((int)Math.Round(playerMaxFrameSpeed * cappedTranslations[0]),
                                        (int)Math.Round(playerMaxFrameSpeed * cappedTranslations[1]),
@@ -141,10 +140,10 @@ namespace ProjectTrinity.Simulation
 
             eventProvider.OnUnitStateUpdate(localPlayer, currentTimebasedFrame);
 
-            if (inputProvider.SpellInputReceived)
+            if (inputProvider.AbilityInputReceived)
             {
                 byte activationFrame = (byte)MathHelper.Modulo(inputFrame + 18, byte.MaxValue);
-                eventProvider.OnSpellActivation(localPlayer.UnitId, inputProvider.AimingRotation, inputFrame, activationFrame);
+                eventProvider.OnAbilityActivation(localPlayer.UnitId, inputProvider.AimingRotation, inputFrame, activationFrame);
             } 
             else if (inputProvider.AimingInputReceived)
             {
@@ -163,10 +162,10 @@ namespace ProjectTrinity.Simulation
                 udpClient.SendMessage(inputMessage.GetBytes());
             }
 
-            if (inputProvider.SpellInputReceived)
+            if (inputProvider.AbilityInputReceived)
             {
-                SpellInputMessage spellInputMessage = new SpellInputMessage(localPlayer.UnitId, 0, localPlayer.Rotation, inputFrame);
-                udpClient.SendMessage(spellInputMessage.GetBytes());
+                AbilityInputMessage AbilityInputMessage = new AbilityInputMessage(localPlayer.UnitId, 0, localPlayer.Rotation, inputFrame);
+                udpClient.SendMessage(AbilityInputMessage.GetBytes());
             }
 
             inputProvider.Reset();

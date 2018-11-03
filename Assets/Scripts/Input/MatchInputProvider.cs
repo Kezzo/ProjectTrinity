@@ -12,7 +12,7 @@ namespace ProjectTrinity.Input
 
         public float AimingRotation { get; private set; }
         public bool AimingInputReceived { get; private set; }
-        public bool SpellInputReceived { get; private set; }
+        public bool AbilityInputReceived { get; private set; }
 
         public void AddXTranslation(float xTranslation)
         {
@@ -38,11 +38,11 @@ namespace ProjectTrinity.Input
             AimingInputReceived = true;
         }
 
-        public void AddSpellInput(float rotation)
+        public void AddAbilityInput(float rotation)
         {
             Rotation = rotation;
             AimingRotation = rotation;
-            SpellInputReceived = true;
+            AbilityInputReceived = true;
         }
 
         public byte GetSimulationXTranslation()
@@ -72,7 +72,7 @@ namespace ProjectTrinity.Input
             YTranslation = 0f;
             InputReceived = false;
             AimingInputReceived = false;
-            SpellInputReceived = false;
+            AbilityInputReceived = false;
         }
     }
 }

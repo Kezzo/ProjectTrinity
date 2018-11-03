@@ -31,13 +31,13 @@ public class MatchSimulationViewUnit : MonoBehaviour
         }
     }
 
-    protected class SpellActivationData
+    protected class AbilityActivationData
     {
         public float Rotation { get; private set; }
         public byte StartFrame { get; private set; }
         public byte ActivationFrame { get; private set; }
 
-        public SpellActivationData(float rotation, byte startFrame, byte activationFrame)
+        public AbilityActivationData(float rotation, byte startFrame, byte activationFrame)
         {
             Rotation = rotation;
             StartFrame = startFrame;
@@ -57,7 +57,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     private int movementChangedCounter = 0;
     public InterpolationState CurrentStateToLerpTo { get; private set; }
-    protected SpellActivationData currentSpellActivation;
+    protected AbilityActivationData currentAbilityActivation;
 
     private float lastMovementSpeedModifier = 0f;
 
@@ -91,7 +91,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     public virtual void OnLocalAimingUpdate(float rotation) { }
 
-    public virtual void OnSpellActivation(float rotation, byte startFrame, byte activationFrame) 
+    public virtual void OnAbilityActivation(float rotation, byte startFrame, byte activationFrame) 
     {
 
     }

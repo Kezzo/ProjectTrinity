@@ -90,10 +90,10 @@ namespace ProjectTrinity.Input
                     releaseTriggersSkill = false;
                 }
             }
-            // aiming joystick was released in valid position indicating spell input.
+            // aiming joystick was released in valid position indicating Ability input.
             else if (releaseTriggersSkill)
             {
-                matchStateMachine.MatchInputProvider.AddSpellInput(lastAimingRotation);
+                matchStateMachine.MatchInputProvider.AddAbilityInput(lastAimingRotation);
                 releaseTriggersSkill = false;
             }
         }
