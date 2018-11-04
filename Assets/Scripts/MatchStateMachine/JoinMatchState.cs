@@ -17,12 +17,12 @@ public class JoinMatchState : IMatchState
 
     public void OnActivate(MatchStateMachine matchStateMachine)
     {
-        /*if (EnvironmentHelper.StaticEnvironment == EnvironmentHelper.Environment.LOCAL)
+        if (EnvironmentHelper.StaticEnvironment == EnvironmentHelper.Environment.LOCAL)
         {
             matchStateMachine.InitializeUdpClient("127.0.0.1", 2448);
             matchStateMachine.ChangeMatchState(new TimeSyncMatchState());
             return;
-        }*/
+        }
 
         this.matchStateMachine = matchStateMachine;
         string joinMatchPath = EnvironmentHelper.HTTPServerUrl + "/joinmatch/" + playerCount;
