@@ -33,7 +33,7 @@ namespace ProjectTrinity.Simulation
             this.udpClient = udpClient;
             this.networkTimeService = networkTimeService;
 
-            localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, 0, 0, 0, 0);
+            localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, -2800 * localPlayerUnitID, 0, 0, 0);
             eventProvider.OnUnitSpawn(localPlayerUnitID, true);
 
             foreach (byte matchUnitID in matchUnitIDs)
@@ -83,18 +83,20 @@ namespace ProjectTrinity.Simulation
             {
                 UnitStateMessage unitStateMessage = receivedUnitStateMessagesSinceLastFrame[i];
 
+                bool forceUpdate = false;
                 MatchSimulationUnit unitToUpdate;
                 if (!simulationUnits.TryGetValue(unitStateMessage.UnitId, out unitToUpdate))
                 {
                     unitToUpdate = new MatchSimulationUnit(unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame);
                     simulationUnits.Add(unitStateMessage.UnitId, unitToUpdate);
                     eventProvider.OnUnitSpawn(unitStateMessage.UnitId);
+                    forceUpdate = true;
                 }
 
                 bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition,
                                                unitStateMessage.Rotation, unitStateMessage.Frame);
 
-                if (positionChanged)
+                if (positionChanged || forceUpdate)
                 {
                     eventProvider.OnUnitStateUpdate(unitToUpdate, unitStateMessage.Frame);
                 }
