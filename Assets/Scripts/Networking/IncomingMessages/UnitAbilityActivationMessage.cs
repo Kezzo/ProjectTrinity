@@ -9,6 +9,7 @@ namespace ProjectTrinity.Networking.Messages
         public readonly byte Rotation;
         public readonly byte StartFrame;
         public readonly byte ActivationFrame;
+        public readonly byte EndFrame;
 
         public UnitAbilityActivationMessage(byte[] buffer)
         {
@@ -17,6 +18,7 @@ namespace ProjectTrinity.Networking.Messages
             Rotation = buffer[3];
             StartFrame = buffer[4];
             ActivationFrame = buffer[5];
+            EndFrame = buffer[6];
         }
     }
 }

@@ -22,8 +22,8 @@
 
         public static readonly byte POSITION_CONFIRMATION = 12;
 
-        public static readonly byte Ability_INPUT = 13;
-        public static readonly byte UNIT_Ability_ACTIVATION = 14;
+        public static readonly byte ABILITY_INPUT = 13;
+        public static readonly byte UNIT_ABILITY_ACTIVATION = 14;
 
     }
 }

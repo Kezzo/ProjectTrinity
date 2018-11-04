@@ -17,7 +17,7 @@
 
         public byte[] GetBytes()
         {
-            return new byte[] { MessageId.Ability_INPUT, PlayerId, AbilityId, Rotation, StartFrame };
+            return new byte[] { MessageId.ABILITY_INPUT, PlayerId, AbilityId, Rotation, StartFrame };
         }
     }
 }

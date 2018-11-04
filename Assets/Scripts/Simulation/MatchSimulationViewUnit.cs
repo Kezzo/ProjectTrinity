@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ProjectTrinity.Helper;
+using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
     protected GameObject modelRoot;
     protected GameObject telegraphRoot;
 
-    private static readonly byte PositionFrameDelay = 5; // 5 == ~165ms delay
+    private static readonly byte FrameDelay = 5; // 5 == ~165ms delay
 
     public class InterpolationState
     {
@@ -36,6 +37,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
         public float Rotation { get; private set; }
         public byte StartFrame { get; private set; }
         public byte ActivationFrame { get; private set; }
+        public bool Started { get; set; }
 
         public AbilityActivationData(float rotation, byte startFrame, byte activationFrame)
         {
@@ -82,7 +84,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
     public virtual void OnUnitStateUpdate(MatchSimulationUnit updatedUnitState, byte frame)
     {
         InterpolationState stateToAdd = new InterpolationState(updatedUnitState.GetUnityPosition(), updatedUnitState.GetUnityRotation(),
-                                                               (byte)MathHelper.Modulo(frame + PositionFrameDelay, byte.MaxValue));
+                                                               (byte)MathHelper.Modulo(frame + FrameDelay, byte.MaxValue));
 
         //DIContainer.Logger.Debug("OnUnitStateUpdate state: " + stateToAdd);
 
@@ -93,14 +95,22 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     public virtual void OnAbilityActivation(float rotation, byte startFrame, byte activationFrame) 
     {
+        if (currentAbilityActivation != null)
+        {
+            DIContainer.Logger.Warn("Received Ability activation while already having an ability active");
+            return;
+        }
 
+        currentAbilityActivation = new AbilityActivationData(rotation, 
+                                                             (byte)MathHelper.Modulo(startFrame + FrameDelay, byte.MaxValue),
+                                                             (byte)MathHelper.Modulo(activationFrame + FrameDelay, byte.MaxValue));
     }
 
     public virtual void UpdateToNextState(byte currentFrame)
     {
         int speedPartToModify = 390 / 6;
         float queueCount = interpolationQueue.Count;
-        float frameDelay = PositionFrameDelay;
+        float frameDelay = FrameDelay;
 
         // quick decrease, slow increase
         float maxSpeedThisFrame = Mathf.Min(1f, lastMovementSpeedModifier + 0.05f);
@@ -142,6 +152,28 @@ public class MatchSimulationViewUnit : MonoBehaviour
             if (movementChangedCounter > 2)
             {
                 animator.SetBool("Running", false);
+            }
+        }
+
+        if (currentAbilityActivation != null && 
+            (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentAbilityActivation.StartFrame) || 
+             currentFrame == currentAbilityActivation.StartFrame))
+        {
+            modelRoot.transform.rotation = Quaternion.Euler(0f, currentAbilityActivation.Rotation, 0f);
+            telegraphRoot.transform.rotation = Quaternion.Euler(0f, currentAbilityActivation.Rotation, 0f);
+
+            if (!currentAbilityActivation.Started)
+            {
+                telegraphRoot.gameObject.SetActive(true);
+                animator.SetTrigger("Attack");
+                currentAbilityActivation.Started = true;
+            }
+
+            if (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentAbilityActivation.ActivationFrame) || currentFrame == currentAbilityActivation.ActivationFrame)
+            {
+                //TODO: Show telegraph 'timer'
+                currentAbilityActivation = null;
+                telegraphRoot.gameObject.SetActive(false);
             }
         }
     }

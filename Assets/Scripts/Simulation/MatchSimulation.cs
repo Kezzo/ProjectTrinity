@@ -48,12 +48,15 @@ namespace ProjectTrinity.Simulation
             }
         }
 
-        public void OnSimulationFrame(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame, List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame)
+        public void OnSimulationFrame(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame, 
+                                      List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame,
+                                      List<UnitAbilityActivationMessage> receivedUnitAbilityMessagesSinceLastFrame)
         {
             byte currentTimebasedFrame = (byte)MathHelper.Modulo((networkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
             //DIContainer.Logger.Debug("Frame: " + currentTimebasedFrame);
 
             UpdateUnitStates(receivedUnitStateMessagesSinceLastFrame);
+            UpdateUnitAbilityActivations(receivedUnitAbilityMessagesSinceLastFrame);
 
             // frame didn't change yet, should never happen in practise.
             if (currentSimulationFrame == currentTimebasedFrame)
@@ -97,6 +100,27 @@ namespace ProjectTrinity.Simulation
                 }
 
                 //DIContainer.Logger.Debug("Received usm with frame: " + unitStateMessage.Frame);
+            }
+        }
+
+        private void UpdateUnitAbilityActivations(List<UnitAbilityActivationMessage> receivedUnitAbilityMessagesSinceLastFrame)
+        {
+            // sort by oldest frame to newest frame
+            receivedUnitAbilityMessagesSinceLastFrame.Sort((message1, message2) =>
+            {
+                return message1.StartFrame == message2.StartFrame ? 0 : MatchSimulationUnit.IsFrameInFuture(message1.StartFrame, message2.StartFrame) ? 1 : -1;
+            });
+
+            for (int i = 0; i < receivedUnitAbilityMessagesSinceLastFrame.Count; i++)
+            {
+                UnitAbilityActivationMessage unitAbilityActivationMessage = receivedUnitAbilityMessagesSinceLastFrame[i];
+
+                MatchSimulationUnit unitToUpdate;
+                if (simulationUnits.TryGetValue(unitAbilityActivationMessage.UnitId, out unitToUpdate))
+                {
+                    eventProvider.OnAbilityActivation(unitToUpdate.UnitId, UnitValueConverter.ToUnityRotation(unitAbilityActivationMessage.Rotation), 
+                                                      unitAbilityActivationMessage.StartFrame, unitAbilityActivationMessage.ActivationFrame);
+                }
             }
         }
 

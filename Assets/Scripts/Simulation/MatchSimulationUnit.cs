@@ -44,7 +44,6 @@ namespace ProjectTrinity.Simulation
 
         public Quaternion GetUnityRotation()
         {
-            DIContainer.Logger.Debug("GetUnityRotation() rotation: " + Rotation);
             return Quaternion.Euler(0f, UnitValueConverter.ToUnityRotation(Rotation), 0f);
         }
 

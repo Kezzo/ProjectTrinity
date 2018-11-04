@@ -50,6 +50,19 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
 
     public override void UpdateToNextState(byte currentFrame)
     {
+        if (currentAbilityActivation != null)
+        {
+            telegraphRoot.transform.rotation = Quaternion.Euler(0f, currentAbilityActivation.Rotation, 0f);
+            if (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentAbilityActivation.ActivationFrame) || currentFrame == currentAbilityActivation.ActivationFrame)
+            {
+                //TODO: Show telegraph 'timer'
+                telegraphRoot.gameObject.SetActive(false);
+                currentAbilityActivation = null;
+            }
+
+            return;
+        }
+
         if (receivedLocalAimingUpdate)
         {
             receivedLocalAimingUpdate = false;
@@ -57,16 +70,6 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         else 
         {
             telegraphRoot.gameObject.SetActive(false);
-        }
-
-        if (currentAbilityActivation != null)
-        {
-            telegraphRoot.transform.rotation = Quaternion.Euler(0f, currentAbilityActivation.Rotation, 0f);
-            if (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentAbilityActivation.ActivationFrame) || currentFrame == currentAbilityActivation.ActivationFrame)
-            {
-                //TODO: Show telegraph 'timer'
-                currentAbilityActivation = null;
-            }
         }
     }
 }

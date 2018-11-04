@@ -14,14 +14,15 @@ namespace ProjectTrinity.MatchStateMachine
         private int bufferCursor;
         private List<UnitStateMessage>[] unitStateMessageBuffer = new List<UnitStateMessage>[2];
         private List<PositionConfirmationMessage>[] PCMBuffer = new List<PositionConfirmationMessage>[2];
+        private List<UnitAbilityActivationMessage>[] unitAbilityMessageBuffer = new List<UnitAbilityActivationMessage>[2];
 
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
             this.matchStateMachine = matchStateMachine;
             this.matchStateMachine.MatchInputProvider.Reset();
 
-            // this is done to change the list we add new message to while we process a list
-            // to one list will always be the one receiving message, while the other will be the one processed in that frame
+            // this is done to change the list we add new messages to while we process a list
+            // so one list will always be the one receiving messages, while the other will be processed in that frame
             // we switch to the other list at the beginning of the frame
             // This also avoids having to do list copy etc. which can lead to memory fragmentation
             unitStateMessageBuffer[0] = new List<UnitStateMessage>();
@@ -30,9 +31,13 @@ namespace ProjectTrinity.MatchStateMachine
             PCMBuffer[0] = new List<PositionConfirmationMessage>();
             PCMBuffer[1] = new List<PositionConfirmationMessage>();
 
+            unitAbilityMessageBuffer[0] = new List<UnitAbilityActivationMessage>();
+            unitAbilityMessageBuffer[1] = new List<UnitAbilityActivationMessage>();
+
             this.matchStateMachine.UDPClient.RegisterListener(MessageId.MATCH_END, this);
             this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_STATE, this);
             this.matchStateMachine.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
+            this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_ABILITY_ACTIVATION, this);
 
             //TODO: Add other players/units
             matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchStartTimestamp, matchStateMachine.MatchInputProvider, 
@@ -44,6 +49,7 @@ namespace ProjectTrinity.MatchStateMachine
             this.matchStateMachine.UDPClient.DeregisterListener(MessageId.MATCH_END, this);
             this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_STATE, this);
             this.matchStateMachine.UDPClient.DeregisterListener(MessageId.POSITION_CONFIRMATION, this);
+            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_ABILITY_ACTIVATION, this);
         }
 
         public void OnFixedUpdateTick()
@@ -51,9 +57,13 @@ namespace ProjectTrinity.MatchStateMachine
             int currentBufferCursor = bufferCursor;
             bufferCursor = (bufferCursor + 1) % 2; // 0 -> 1 -> 0 -> 1
 
-            matchSimulation.OnSimulationFrame(unitStateMessageBuffer[currentBufferCursor], PCMBuffer[currentBufferCursor]);
+            matchSimulation.OnSimulationFrame(unitStateMessageBuffer[currentBufferCursor], 
+                                              PCMBuffer[currentBufferCursor], 
+                                              unitAbilityMessageBuffer[currentBufferCursor]);
+
             unitStateMessageBuffer[currentBufferCursor].Clear();
             PCMBuffer[currentBufferCursor].Clear();
+            unitAbilityMessageBuffer[currentBufferCursor].Clear();
         }
 
         public void OnMessageReceived(byte[] message)
@@ -79,6 +89,12 @@ namespace ProjectTrinity.MatchStateMachine
             {
                 PositionConfirmationMessage positionConfirmationMessage = new PositionConfirmationMessage(message);
                 PCMBuffer[bufferCursor].Add(positionConfirmationMessage);
+            }
+
+            if (message[0] == MessageId.UNIT_ABILITY_ACTIVATION)
+            {
+                UnitAbilityActivationMessage unitAbilityActivationMessage = new UnitAbilityActivationMessage(message);
+                unitAbilityMessageBuffer[bufferCursor].Add(unitAbilityActivationMessage);
             }
         }
     }
