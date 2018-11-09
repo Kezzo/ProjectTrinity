@@ -23,6 +23,8 @@ ExportedObj/
 *.svd
 *.pdb
 *.opendb
+
+Assets/ShaderForge*
 *.vscode
 *.DS_Store
 *.code-workspace

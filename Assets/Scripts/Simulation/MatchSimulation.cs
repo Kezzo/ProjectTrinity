@@ -168,7 +168,7 @@ namespace ProjectTrinity.Simulation
 
             if (inputProvider.AbilityInputReceived)
             {
-                byte activationFrame = (byte)MathHelper.Modulo(inputFrame + 18, byte.MaxValue);
+                byte activationFrame = (byte)MathHelper.Modulo(inputFrame + 10, byte.MaxValue);
                 eventProvider.OnAbilityActivation(localPlayer.UnitId, inputProvider.AimingRotation, inputFrame, activationFrame);
             } 
             else if (inputProvider.AimingInputReceived)

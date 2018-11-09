@@ -45,6 +45,7 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         modelRoot.transform.rotation = Quaternion.Euler(0f, rotation, 0f);
 
         telegraphRoot.gameObject.SetActive(true);
+        telegraphFillRoot.gameObject.SetActive(true);
         animator.SetTrigger("Attack");
     }
 
@@ -53,10 +54,12 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         if (currentAbilityActivation != null)
         {
             telegraphRoot.transform.rotation = Quaternion.Euler(0f, currentAbilityActivation.Rotation, 0f);
+            UpdateTelegraphFillState(currentFrame);
             if (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentAbilityActivation.ActivationFrame) || currentFrame == currentAbilityActivation.ActivationFrame)
             {
                 //TODO: Show telegraph 'timer'
                 telegraphRoot.gameObject.SetActive(false);
+                telegraphFillRoot.gameObject.SetActive(false);
                 currentAbilityActivation = null;
             }
 

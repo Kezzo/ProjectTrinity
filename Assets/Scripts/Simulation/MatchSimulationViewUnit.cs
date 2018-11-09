@@ -9,6 +9,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
     protected Animator animator;
     protected GameObject modelRoot;
     protected GameObject telegraphRoot;
+    protected GameObject telegraphFillRoot;
 
     private static readonly byte FrameDelay = 5; // 5 == ~165ms delay
 
@@ -76,6 +77,18 @@ public class MatchSimulationViewUnit : MonoBehaviour
                 case "TelegraphRoot":
                     telegraphRoot = child.gameObject;
                     telegraphRoot.SetActive(false);
+
+                    foreach (Transform telegraphChild in telegraphRoot.transform)
+                    {
+                        if (telegraphChild.tag == "TelegraphFillRoot") 
+                        {
+                            telegraphFillRoot = telegraphChild.gameObject;
+                            // invisble/unfilled telegraph
+                            telegraphFillRoot.transform.localScale = new Vector3(0f, 1f, 0f);
+                            telegraphFillRoot.SetActive(false);
+                        }
+                    }
+
                     break;
             }
         }
@@ -165,15 +178,21 @@ public class MatchSimulationViewUnit : MonoBehaviour
             if (!currentAbilityActivation.Started)
             {
                 telegraphRoot.gameObject.SetActive(true);
+                telegraphFillRoot.gameObject.SetActive(true);
                 animator.SetTrigger("Attack");
                 currentAbilityActivation.Started = true;
             }
 
             if (MatchSimulationUnit.IsFrameInFuture(currentFrame, currentAbilityActivation.ActivationFrame) || currentFrame == currentAbilityActivation.ActivationFrame)
             {
-                //TODO: Show telegraph 'timer'
                 currentAbilityActivation = null;
                 telegraphRoot.gameObject.SetActive(false);
+                telegraphFillRoot.gameObject.SetActive(true);
+                telegraphFillRoot.transform.localScale = new Vector3(0f, 1f, 0f);
+            }
+            else
+            {
+                UpdateTelegraphFillState(currentFrame);
             }
         }
     }
@@ -236,5 +255,17 @@ public class MatchSimulationViewUnit : MonoBehaviour
                                                shouldLerp, positionDiff, frameDiff, maxFramesForPositionChange, currentFrame, state.TargetFrame));*/
 
         return shouldLerp;
+    }
+
+    protected void UpdateTelegraphFillState(byte currentFrame)
+    {
+        // so fill telegraph is full shortly before ability is done
+        currentFrame = (byte)MathHelper.Modulo(currentFrame + 1, byte.MaxValue);
+
+        byte skillDurationInFrames = MathHelper.GetFrameDiff(currentAbilityActivation.StartFrame, currentAbilityActivation.ActivationFrame);
+        byte framesTillActivation = MathHelper.GetFrameDiff(currentFrame, currentAbilityActivation.ActivationFrame);
+        float interpolant = Mathf.InverseLerp(skillDurationInFrames, 0, framesTillActivation);
+
+        telegraphFillRoot.transform.localScale = new Vector3(interpolant, 1f, interpolant);
     }
 }
