@@ -29,7 +29,7 @@ namespace ProjectTrinity.Helper
                     case Environment.LOCAL:
                         return "http://127.0.0.1:8080";
                     case Environment.DEV:
-                        return "http://dev-trinity-web-server-alb-623006114.eu-west-1.elb.amazonaws.com:8080";
+                        return "http://dev-trinity-web-server-alb-2023057386.eu-west-1.elb.amazonaws.com";
                     default:
                         return "";
                 }
