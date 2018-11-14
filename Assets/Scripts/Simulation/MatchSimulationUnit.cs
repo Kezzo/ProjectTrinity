@@ -1,5 +1,4 @@
 ﻿using ProjectTrinity.Helper;
-using ProjectTrinity.Root;
 using UnityEngine;
 
 namespace ProjectTrinity.Simulation
@@ -10,19 +9,21 @@ namespace ProjectTrinity.Simulation
         public int XPosition { get; protected set; }
         public int YPosition { get; protected set; }
         public byte Rotation { get; protected set; }
+        public byte HealthPercent { get; set; }
 
         protected byte LastConfirmedFrame;
 
-        public MatchSimulationUnit(byte unitId, int xPosition, int yPosition, byte rotation, byte frame)
+        public MatchSimulationUnit(byte unitId, int xPosition, int yPosition, byte rotation, byte healthPercent, byte frame)
         {
             UnitId = unitId;
             XPosition = xPosition;
             YPosition = yPosition;
             Rotation = rotation;
+            HealthPercent = healthPercent;
             LastConfirmedFrame = frame;
         }
 
-        public virtual bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame) 
+        public virtual bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte healthPercent, byte frame) 
         {
             // don't update to old state. || account for frame wrap around || just accept bigger differences
             if(IsFrameInFuture(frame, LastConfirmedFrame) || (LastConfirmedFrame > frame ? LastConfirmedFrame - frame : frame - LastConfirmedFrame) >= 30)
@@ -30,6 +31,7 @@ namespace ProjectTrinity.Simulation
                 XPosition = xPosition;
                 YPosition = yPosition;
                 Rotation = rotation;
+                HealthPercent = healthPercent;
                 LastConfirmedFrame = frame;
                 return true;
             }

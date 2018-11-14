@@ -5,7 +5,7 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
 {
     private bool receivedLocalAimingUpdate;
 
-    public override void OnUnitStateUpdate(MatchSimulationUnit updatedUnitState, byte frame)
+    public override void OnPositionRotationUpdate(MatchSimulationUnit updatedUnitState, byte frame)
     {
         Vector3 targetPosition = updatedUnitState.GetUnityPosition();
 

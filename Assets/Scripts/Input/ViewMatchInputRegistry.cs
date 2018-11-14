@@ -50,20 +50,20 @@ namespace ProjectTrinity.Input
             {
                 if (UnityEngine.Input.GetKey(KeyCode.W))
                 {
-                    matchStateMachine.MatchInputProvider.AddYTranslation(1f);
+                    matchStateMachine.MatchInputProvider.AddYTranslation(-1f);
                 }
                 else if (UnityEngine.Input.GetKey(KeyCode.S))
                 {
-                    matchStateMachine.MatchInputProvider.AddYTranslation(-1f);
+                    matchStateMachine.MatchInputProvider.AddYTranslation(1f);
                 }
 
                 if (UnityEngine.Input.GetKey(KeyCode.A))
                 {
-                    matchStateMachine.MatchInputProvider.AddXTranslation(-1f);
+                    matchStateMachine.MatchInputProvider.AddXTranslation(1f);
                 }
                 else if (UnityEngine.Input.GetKey(KeyCode.D))
                 {
-                    matchStateMachine.MatchInputProvider.AddXTranslation(1f);
+                    matchStateMachine.MatchInputProvider.AddXTranslation(-1f);
                 }
             }
 

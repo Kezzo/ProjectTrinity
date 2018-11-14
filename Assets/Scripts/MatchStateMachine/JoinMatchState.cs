@@ -19,6 +19,7 @@ public class JoinMatchState : IMatchState
     {
         if (EnvironmentHelper.StaticEnvironment == EnvironmentHelper.Environment.LOCAL)
         {
+            //matchStateMachine.InitializeUdpClient("34.242.151.135", 2448);
             matchStateMachine.InitializeUdpClient("127.0.0.1", 2448);
             matchStateMachine.ChangeMatchState(new TimeSyncMatchState());
             return;

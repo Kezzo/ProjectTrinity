@@ -70,8 +70,8 @@ namespace ProjectTrinity.Simulation
         private LocalPlayerFrameState lastLocalPlayerFrameState;
         private int nextLocalPlayerFrameIndex = 0;
 
-        public MatchSimulationLocalPlayer(byte unitId, int xPosition, int yPosition, byte rotation, byte frame) 
-            : base(unitId, xPosition, yPosition, rotation, frame)
+        public MatchSimulationLocalPlayer(byte unitId, int xPosition, int yPosition, byte rotation, byte healthPercent, byte frame) 
+            : base(unitId, xPosition, yPosition, rotation, healthPercent, frame)
         {
             for (int i = 0; i < localPlayerFrameStateBuffer.Length; i++)
             {
@@ -85,7 +85,7 @@ namespace ProjectTrinity.Simulation
         }
 
         // should be called when a unit state message for the player was received.
-        public override bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte frame)
+        public override bool SetConfirmedState(int xPosition, int yPosition, byte rotation, byte healthPercent, byte frame)
         {
             bool validPosition = IsFrameInFuture(frame, LastConfirmedFrame) || (LastConfirmedFrame > frame ? LastConfirmedFrame - frame : frame - LastConfirmedFrame) >= 30;
 

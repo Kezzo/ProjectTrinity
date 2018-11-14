@@ -64,6 +64,8 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     private float lastMovementSpeedModifier = 0f;
 
+    private Healthbar healthbar;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -90,11 +92,14 @@ public class MatchSimulationViewUnit : MonoBehaviour
                     }
 
                     break;
+                case "Healthbar":
+                    healthbar = child.gameObject.GetComponent<Healthbar>();
+                    break;
             }
         }
     }
 
-    public virtual void OnUnitStateUpdate(MatchSimulationUnit updatedUnitState, byte frame)
+    public virtual void OnPositionRotationUpdate(MatchSimulationUnit updatedUnitState, byte frame)
     {
         InterpolationState stateToAdd = new InterpolationState(updatedUnitState.GetUnityPosition(), updatedUnitState.GetUnityRotation(),
                                                                (byte)MathHelper.Modulo(frame + FrameDelay, byte.MaxValue));
@@ -102,6 +107,11 @@ public class MatchSimulationViewUnit : MonoBehaviour
         //DIContainer.Logger.Debug("OnUnitStateUpdate state: " + stateToAdd);
 
         interpolationQueue.Enqueue(stateToAdd);
+    }
+
+    public void OnHealthPercentUpdate(byte healthPercent)
+    {
+        healthbar.UpdateHealthFill(Mathf.InverseLerp(0, 100, healthPercent));
     }
 
     public virtual void OnLocalAimingUpdate(float rotation) { }

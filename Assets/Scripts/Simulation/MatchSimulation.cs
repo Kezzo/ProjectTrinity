@@ -33,7 +33,7 @@ namespace ProjectTrinity.Simulation
             this.udpClient = udpClient;
             this.networkTimeService = networkTimeService;
 
-            localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, -2800 * localPlayerUnitID, 0, 0, 0);
+            localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, -2800 * localPlayerUnitID, 0, 0, 100, 0);
             eventProvider.OnUnitSpawn(localPlayerUnitID, true);
 
             foreach (byte matchUnitID in matchUnitIDs)
@@ -43,7 +43,7 @@ namespace ProjectTrinity.Simulation
                     continue;
                 }
 
-                simulationUnits.Add(matchUnitID, new MatchSimulationUnit(matchUnitID, 0, 0, 0, 0));
+                simulationUnits.Add(matchUnitID, new MatchSimulationUnit(matchUnitID, 0, 0, 0, 100, 0));
                 eventProvider.OnUnitSpawn(matchUnitID);
             }
         }
@@ -85,16 +85,28 @@ namespace ProjectTrinity.Simulation
 
                 bool forceUpdate = false;
                 MatchSimulationUnit unitToUpdate;
-                if (!simulationUnits.TryGetValue(unitStateMessage.UnitId, out unitToUpdate))
+
+                if(localPlayer.UnitId == unitStateMessage.UnitId) 
                 {
-                    unitToUpdate = new MatchSimulationUnit(unitStateMessage.UnitId, unitStateMessage.XPosition, unitStateMessage.YPosition, unitStateMessage.Rotation, unitStateMessage.Frame);
+                    // only update the health here and ignore position and rotation for the local player,
+                    // since that will be confirmed via the PositionConfirmationMessage
+                    localPlayer.HealthPercent = unitStateMessage.HealthPercent;
+                    eventProvider.OnHealthPercentUpdate(localPlayer.UnitId, unitStateMessage.HealthPercent);
+                    return;
+                }
+                else if (!simulationUnits.TryGetValue(unitStateMessage.UnitId, out unitToUpdate))
+                {
+                    unitToUpdate = new MatchSimulationUnit(unitStateMessage.UnitId, unitStateMessage.XPosition, 
+                                                           unitStateMessage.YPosition, unitStateMessage.Rotation, 
+                                                           unitStateMessage.HealthPercent, unitStateMessage.Frame);
+
                     simulationUnits.Add(unitStateMessage.UnitId, unitToUpdate);
                     eventProvider.OnUnitSpawn(unitStateMessage.UnitId);
                     forceUpdate = true;
                 }
 
                 bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition,
-                                               unitStateMessage.Rotation, unitStateMessage.Frame);
+                                               unitStateMessage.Rotation, unitStateMessage.HealthPercent, unitStateMessage.Frame);
 
                 if (positionChanged || forceUpdate)
                 {
@@ -160,7 +172,7 @@ namespace ProjectTrinity.Simulation
                 if (positionConfirmationMessage.UnitId == localPlayer.UnitId)
                 {
                     localPlayer.SetConfirmedState(positionConfirmationMessage.XPosition, positionConfirmationMessage.YPosition,
-                                              0, positionConfirmationMessage.Frame);
+                                              0, 0, positionConfirmationMessage.Frame);
                 }
             }
 

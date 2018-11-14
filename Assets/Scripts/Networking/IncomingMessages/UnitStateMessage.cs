@@ -8,6 +8,7 @@ namespace ProjectTrinity.Networking.Messages
         public readonly int XPosition;
         public readonly int YPosition;
         public readonly byte Rotation;
+        public readonly byte HealthPercent;
         public readonly byte Frame;
 
         public UnitStateMessage(byte[] buffer) 
@@ -16,7 +17,8 @@ namespace ProjectTrinity.Networking.Messages
             XPosition = BitConverter.ToInt32(buffer, 2);
             YPosition = BitConverter.ToInt32(buffer, 6);
             Rotation = buffer[10];
-            Frame = buffer[11];
+            HealthPercent = buffer[11];
+            Frame = buffer[12];
         }
     }
 }
