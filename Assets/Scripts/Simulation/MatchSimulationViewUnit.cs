@@ -213,15 +213,20 @@ public class MatchSimulationViewUnit : MonoBehaviour
         {
             CurrentStateToLerpTo = interpolationQueue.Dequeue();
             modelRoot.transform.rotation = CurrentStateToLerpTo.TargetRotation;
-            AdvanceLerpToPositionState(CurrentStateToLerpTo, ref movementDistanceAvailable);
-            animator.SetBool("Running", true);
+            float positionChanged = AdvanceLerpToPositionState(CurrentStateToLerpTo, ref movementDistanceAvailable);
+
+            if(positionChanged > 0.01f)
+            {
+                animator.SetBool("Running", true);
+            }
+
             return true;
         }
 
         return false;
     }
 
-    private void AdvanceLerpToPositionState(InterpolationState state, ref float movementDistanceAvailable)
+    private float AdvanceLerpToPositionState(InterpolationState state, ref float movementDistanceAvailable)
     {
         movementChangedCounter = 0;
 
@@ -240,12 +245,15 @@ public class MatchSimulationViewUnit : MonoBehaviour
         /*DIContainer.Logger.Debug(string.Format("AdvanceLerpToPositionState: frameDiffStartTarget: {0} frameDiffStartCurrent: {1} interpolant: {2} position: {3} CurrentFrame: {4} TargetFrame: {5}",
                                                frameDiffStartTarget, frameDiffStartCurrent, interpolant, position, currentFrame, state.TargetFrame));*/
 
+        float positionChange = (this.transform.position - position).magnitude;
         this.transform.position = position;
 
         if ((this.transform.position - state.TargetPosition).magnitude <= 0.0001f)
         {
             CurrentStateToLerpTo = null;
         }
+
+        return positionChange;
     }
 
     private bool ShouldLerpToState(InterpolationState state, byte currentFrame)
