@@ -24,7 +24,7 @@ Shader "Custom/Telegraph" {
             #define UNITY_PASS_FORWARDBASE
             #include "UnityCG.cginc"
             #pragma multi_compile_fwdbase_fullshadows
-            #pragma only_renderers d3d9 d3d11 glcore gles metal 
+            #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal 
             #pragma target 2.0
             uniform float4 _Color;
             struct VertexInput {
