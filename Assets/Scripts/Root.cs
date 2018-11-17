@@ -1,4 +1,6 @@
-﻿using ProjectTrinity.Input;
+﻿using System;
+using System.Collections.Generic;
+using ProjectTrinity.Input;
 using ProjectTrinity.MatchStateMachine;
 using TMPro;
 using UnityEngine;
@@ -7,14 +9,15 @@ namespace ProjectTrinity.Root
 {
     public class Root : MonoBehaviour
     {
-        [SerializeField]
-        private GameObject player;
+        [Serializable]
+        private class UnitGameobject
+        {
+            public byte UnitId;
+            public GameObject Gameobject;
+        }
 
         [SerializeField]
-        private GameObject player2;
-
-        [SerializeField]
-        private GameObject player3;
+        private List<UnitGameobject> unitPrefabs;
 
         [SerializeField]
         private TextMeshProUGUI rttText;
@@ -64,17 +67,14 @@ namespace ProjectTrinity.Root
             if (!parentedPlayerCamera && matchStateMachine.CurrentMatchState is WaitForStartMatchState)
             {
                 parentedPlayerCamera = true;
-                switch (matchStateMachine.LocalPlayerId)
+
+                foreach (UnitGameobject unitPrefab in unitPrefabs)
                 {
-                    case 0:
-                        cameraRoot.transform.SetParent(player.transform);
+                    if(matchStateMachine.LocalPlayerId == unitPrefab.UnitId)
+                    {
+                        cameraRoot.transform.SetParent(unitPrefab.Gameobject.transform);
                         break;
-                    case 1:
-                        cameraRoot.transform.SetParent(player2.transform);
-                        break;
-                    case 2:
-                        cameraRoot.transform.SetParent(player3.transform);
-                        break;
+                    }
                 }
             }
         }
@@ -87,9 +87,11 @@ namespace ProjectTrinity.Root
             }
 
             matchStateMachine.ChangeMatchState(new JoinMatchState(playerCount));
-            matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(0, player);
-            matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(1, player2);
-            matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(2, player3);
+
+            foreach (UnitGameobject unitPrefab in unitPrefabs)
+            {
+                matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(unitPrefab.UnitId, unitPrefab.Gameobject);
+            }
 
             viewMatchInputRegistry.Initialize(matchStateMachine);
         }

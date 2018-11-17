@@ -2972,9 +2972,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1403da1b8f8cb4ccf8965cedc838b81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1942930464}
-  player2: {fileID: 955780318}
-  player3: {fileID: 617101340}
+  unitPrefabs:
+  - UnitId: 0
+    Gameobject: {fileID: 1942930464}
+  - UnitId: 1
+    Gameobject: {fileID: 955780318}
+  - UnitId: 2
+    Gameobject: {fileID: 617101340}
   rttText: {fileID: 214976210}
   selectMatchTypeRoot: {fileID: 31259534}
   lookingForMatchUI: {fileID: 778105988}
@@ -3008,7 +3012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d655bd134b0844e4c84f9ceb84273d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  environment: 0
+  environment: 1
 --- !u!114 &1416895460
 MonoBehaviour:
   m_ObjectHideFlags: 0
