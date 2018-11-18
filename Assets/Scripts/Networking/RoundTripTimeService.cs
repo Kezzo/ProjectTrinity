@@ -1,6 +1,7 @@
 ﻿using System;
 using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
+using ProjectTrinity.Root;
 
 public class RoundTripTimeService : IUdpMessageListener
 {
@@ -25,6 +26,8 @@ public class RoundTripTimeService : IUdpMessageListener
         {
             udpClient.SendMessage(new PingMessage(currentTimestamp).GetBytes());
             lastPingTimestamp = currentTimestamp;
+
+            //DIContainer.Logger.Debug(string.Format("Send ping message. current time: {0}", currentTimestamp));
         }
     }
 
