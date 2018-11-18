@@ -91,8 +91,8 @@ namespace ProjectTrinity.Helper
             int xSimulationPositionChangePerFrame = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.x)) / frames;
             int ySimulationPositionChangePerFrame = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.z)) / frames;
 
-            float xTranslationPerFrame = xSimulationPositionChangePerFrame / 400;
-            float yTranslationPerFrame = ySimulationPositionChangePerFrame / 400;
+            float xTranslationPerFrame = xSimulationPositionChangePerFrame / 250;
+            float yTranslationPerFrame = ySimulationPositionChangePerFrame / 250;
 
             return xTranslationPerFrame > yTranslationPerFrame ? xTranslationPerFrame : yTranslationPerFrame;
         }
@@ -102,8 +102,8 @@ namespace ProjectTrinity.Helper
             int xSimulationPositionChange = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.x));
             int ySimulationPositionChange = UnitValueConverter.ToSimulationPosition(Mathf.Abs(positionChange.z));
 
-            byte roundedFramesNeedToReachX = (byte) Mathf.Round(xSimulationPositionChange / 400);
-            byte roundedFramesNeedToReachY = (byte) Mathf.Round(ySimulationPositionChange / 400);
+            byte roundedFramesNeedToReachX = (byte) Mathf.Round(xSimulationPositionChange / 250);
+            byte roundedFramesNeedToReachY = (byte) Mathf.Round(ySimulationPositionChange / 250);
 
             return roundedFramesNeedToReachX > roundedFramesNeedToReachY ? roundedFramesNeedToReachX : roundedFramesNeedToReachY;
         }

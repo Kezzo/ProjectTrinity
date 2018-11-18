@@ -20,7 +20,7 @@ namespace ProjectTrinity.Simulation
 
         private byte currentSimulationFrame;
 
-        private static readonly int playerMaxFrameSpeed = 400;
+        private static readonly int playerMaxFrameSpeed = 250;
 
         private Int64 matchStartTimestamp;
 
