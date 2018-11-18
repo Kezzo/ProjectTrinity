@@ -25,5 +25,6 @@
         public static readonly byte ABILITY_INPUT = 13;
         public static readonly byte UNIT_ABILITY_ACTIVATION = 14;
 
+        public static readonly byte UNIT_SPAWN = 15;
     }
 }

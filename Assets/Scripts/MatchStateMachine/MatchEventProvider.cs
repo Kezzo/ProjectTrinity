@@ -6,32 +6,37 @@ namespace ProjectTrinity.MatchStateMachine
 {
     public class MatchEventProvider
     {
-        private Dictionary<byte, GameObject> viewUnitGameobjects = new Dictionary<byte, GameObject>();
+        private Dictionary<byte, GameObject> viewUnitPrefabs = new Dictionary<byte, GameObject>();
         private Dictionary<byte, MatchSimulationViewUnit> viewUnits = new Dictionary<byte, MatchSimulationViewUnit>();
+        public Transform CameraRoot { get; set; }
 
-        public void AddUnitStateUpdateListener(byte unitID, GameObject matchViewUnitGameobject)
+        public void AddUnitPrefab(byte unitType, GameObject matchViewUnitGameobject)
         {
-            viewUnitGameobjects[unitID] = matchViewUnitGameobject;
+            viewUnitPrefabs[unitType] = matchViewUnitGameobject;
         }
 
-        public void OnUnitSpawn(byte unitId, bool isLocalPlayer = false)
+        public void OnUnitSpawn(byte unitId, byte unitType, MatchSimulationUnit unitState, bool isLocalPlayer = false)
         {
             GameObject unitGameobject;
 
-            if (viewUnitGameobjects.TryGetValue(unitId, out unitGameobject))
+            if (viewUnitPrefabs.TryGetValue(unitType, out unitGameobject))
             {
+                // TODO: get from pool instead
+                GameObject spawnedGameObject = MonoBehaviour.Instantiate(unitGameobject);
                 MatchSimulationViewUnit matchSimulationViewUnit;
 
                 if (isLocalPlayer)
                 {
-                    matchSimulationViewUnit = unitGameobject.AddComponent<MatchSimulationLocalPlayerViewUnit>();
+                    matchSimulationViewUnit = spawnedGameObject.AddComponent<MatchSimulationLocalPlayerViewUnit>();
+                    CameraRoot.transform.SetParent(spawnedGameObject.transform);
                 }
                 else
                 {
-                    matchSimulationViewUnit = unitGameobject.AddComponent<MatchSimulationViewUnit>();
+                    matchSimulationViewUnit = spawnedGameObject.AddComponent<MatchSimulationViewUnit>();
                 }
 
-                unitGameobject.SetActive(true);
+                spawnedGameObject.SetActive(true);
+                matchSimulationViewUnit.OnSpawn(unitState);
 
                 viewUnits[unitId] = matchSimulationViewUnit;
             }

@@ -23,38 +23,28 @@ namespace ProjectTrinity.Simulation
         private static readonly int playerMaxFrameSpeed = 250;
 
         private Int64 matchStartTimestamp;
+        private byte localPlayerUnitId;
 
-        public MatchSimulation(byte localPlayerUnitID, byte[] matchUnitIDs, Int64 matchStartTimestamp, MatchInputProvider matchInputProvider, 
+        public MatchSimulation(byte localPlayerUnitId, Int64 matchStartTimestamp, MatchInputProvider matchInputProvider, 
                                MatchEventProvider matchEventProvider, IUdpClient udpClient, NetworkTimeService networkTimeService)
         {
+            this.localPlayerUnitId = localPlayerUnitId;
             this.matchStartTimestamp = matchStartTimestamp;
             inputProvider = matchInputProvider;
             eventProvider = matchEventProvider;
             this.udpClient = udpClient;
             this.networkTimeService = networkTimeService;
-
-            localPlayer = new MatchSimulationLocalPlayer(localPlayerUnitID, -2800 * localPlayerUnitID, 0, 0, 100, 0);
-            eventProvider.OnUnitSpawn(localPlayerUnitID, true);
-
-            foreach (byte matchUnitID in matchUnitIDs)
-            {
-                if(matchUnitID == localPlayerUnitID)
-                {
-                    continue;
-                }
-
-                simulationUnits.Add(matchUnitID, new MatchSimulationUnit(matchUnitID, 0, 0, 0, 100, 0));
-                eventProvider.OnUnitSpawn(matchUnitID);
-            }
         }
 
         public void OnSimulationFrame(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame, 
                                       List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame,
-                                      List<UnitAbilityActivationMessage> receivedUnitAbilityMessagesSinceLastFrame)
+                                      List<UnitAbilityActivationMessage> receivedUnitAbilityMessagesSinceLastFrame,
+                                      List<UnitSpawnMessage> receivedUnitSpawnMessagesSinceLastFrame)
         {
             byte currentTimebasedFrame = (byte)MathHelper.Modulo((networkTimeService.NetworkTimestampMs - matchStartTimestamp) / 33, byte.MaxValue);
             //DIContainer.Logger.Debug("Frame: " + currentTimebasedFrame);
 
+            SpawnUnits(receivedUnitSpawnMessagesSinceLastFrame);
             UpdateUnitStates(receivedUnitStateMessagesSinceLastFrame);
             UpdateUnitAbilityActivations(receivedUnitAbilityMessagesSinceLastFrame);
 
@@ -71,6 +61,36 @@ namespace ProjectTrinity.Simulation
             currentSimulationFrame = currentTimebasedFrame;
         }
 
+        private void SpawnUnits(List<UnitSpawnMessage> receivedUnitSpawnMessagesSinceLastFrame)
+        {
+            foreach (UnitSpawnMessage unitSpawnMessage in receivedUnitSpawnMessagesSinceLastFrame)
+            {
+                if (simulationUnits.ContainsKey(unitSpawnMessage.UnitId) || (localPlayer != null && localPlayer.UnitId == unitSpawnMessage.UnitId))
+                {
+                    return;
+                }
+
+                if(unitSpawnMessage.UnitId == localPlayerUnitId)
+                {
+                    MatchSimulationLocalPlayer simulationLocalPlayer = new MatchSimulationLocalPlayer(unitSpawnMessage.UnitId, unitSpawnMessage.XPosition,
+                                                                    unitSpawnMessage.YPosition, unitSpawnMessage.Rotation,
+                                                                    unitSpawnMessage.HealthPercent, unitSpawnMessage.Frame);
+
+                    localPlayer = simulationLocalPlayer;
+                    eventProvider.OnUnitSpawn(unitSpawnMessage.UnitId, unitSpawnMessage.UnitType, simulationLocalPlayer, unitSpawnMessage.UnitId == localPlayerUnitId);
+                }
+                else
+                {
+                    MatchSimulationUnit simulationUnit = new MatchSimulationUnit(unitSpawnMessage.UnitId, unitSpawnMessage.XPosition,
+                                                                    unitSpawnMessage.YPosition, unitSpawnMessage.Rotation,
+                                                                    unitSpawnMessage.HealthPercent, unitSpawnMessage.Frame);
+
+                    simulationUnits.Add(unitSpawnMessage.UnitId, simulationUnit);
+                    eventProvider.OnUnitSpawn(unitSpawnMessage.UnitId, unitSpawnMessage.UnitType, simulationUnit, unitSpawnMessage.UnitId == localPlayerUnitId);
+                }
+            }
+        }
+
         private void UpdateUnitStates(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame)
         {
             // sort by oldest frame to newest frame
@@ -83,10 +103,9 @@ namespace ProjectTrinity.Simulation
             {
                 UnitStateMessage unitStateMessage = receivedUnitStateMessagesSinceLastFrame[i];
 
-                bool forceUpdate = false;
                 MatchSimulationUnit unitToUpdate;
 
-                if(localPlayer.UnitId == unitStateMessage.UnitId) 
+                if(localPlayer != null && localPlayer.UnitId == unitStateMessage.UnitId) 
                 {
                     // only update the health here and ignore position and rotation for the local player,
                     // since that will be confirmed via the PositionConfirmationMessage
@@ -96,19 +115,13 @@ namespace ProjectTrinity.Simulation
                 }
                 else if (!simulationUnits.TryGetValue(unitStateMessage.UnitId, out unitToUpdate))
                 {
-                    unitToUpdate = new MatchSimulationUnit(unitStateMessage.UnitId, unitStateMessage.XPosition, 
-                                                           unitStateMessage.YPosition, unitStateMessage.Rotation, 
-                                                           unitStateMessage.HealthPercent, unitStateMessage.Frame);
-
-                    simulationUnits.Add(unitStateMessage.UnitId, unitToUpdate);
-                    eventProvider.OnUnitSpawn(unitStateMessage.UnitId);
-                    forceUpdate = true;
+                    return;
                 }
 
                 bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition,
                                                unitStateMessage.Rotation, unitStateMessage.HealthPercent, unitStateMessage.Frame);
 
-                if (positionChanged || forceUpdate)
+                if (positionChanged)
                 {
                     eventProvider.OnUnitStateUpdate(unitToUpdate, unitStateMessage.Frame);
                 }
@@ -140,6 +153,11 @@ namespace ProjectTrinity.Simulation
 
         private byte UpdateLocalPlayerState(List<PositionConfirmationMessage> receivedPositionConfirmationMessagesSinceLastFrame, byte currentTimebasedFrame)
         {
+            if(localPlayer == null)
+            {
+                return currentTimebasedFrame;
+            }
+
             // so combined translation is max 1, so diagonal movement isn't faster.
             float[] cappedTranslations = MathHelper.GetCappedTranslations(inputProvider.XTranslation, inputProvider.YTranslation);
 
@@ -193,6 +211,11 @@ namespace ProjectTrinity.Simulation
 
         private void SendInputMessages(byte inputFrame)
         {
+            if(localPlayer == null)
+            {
+                return;
+            }
+
             if (inputProvider.InputReceived)
             {
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(),

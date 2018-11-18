@@ -15,6 +15,7 @@ namespace ProjectTrinity.MatchStateMachine
         private List<UnitStateMessage>[] unitStateMessageBuffer = new List<UnitStateMessage>[2];
         private List<PositionConfirmationMessage>[] PCMBuffer = new List<PositionConfirmationMessage>[2];
         private List<UnitAbilityActivationMessage>[] unitAbilityMessageBuffer = new List<UnitAbilityActivationMessage>[2];
+        private List<UnitSpawnMessage>[] unitSpawnMessageBuffer = new List<UnitSpawnMessage>[2];
 
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
@@ -34,13 +35,16 @@ namespace ProjectTrinity.MatchStateMachine
             unitAbilityMessageBuffer[0] = new List<UnitAbilityActivationMessage>();
             unitAbilityMessageBuffer[1] = new List<UnitAbilityActivationMessage>();
 
+            unitSpawnMessageBuffer[0] = new List<UnitSpawnMessage>();
+            unitSpawnMessageBuffer[1] = new List<UnitSpawnMessage>();
+
             this.matchStateMachine.UDPClient.RegisterListener(MessageId.MATCH_END, this);
             this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_STATE, this);
             this.matchStateMachine.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
             this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_ABILITY_ACTIVATION, this);
+            this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_SPAWN, this);
 
-            //TODO: Add other players/units
-            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, new byte[0], matchStateMachine.MatchStartTimestamp, matchStateMachine.MatchInputProvider, 
+            matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, matchStateMachine.MatchStartTimestamp, matchStateMachine.MatchInputProvider, 
                                                   matchStateMachine.MatchEventProvider, matchStateMachine.UDPClient, matchStateMachine.NetworkTimeService);
         }
 
@@ -50,6 +54,7 @@ namespace ProjectTrinity.MatchStateMachine
             this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_STATE, this);
             this.matchStateMachine.UDPClient.DeregisterListener(MessageId.POSITION_CONFIRMATION, this);
             this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_ABILITY_ACTIVATION, this);
+            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_SPAWN, this);
         }
 
         public void OnFixedUpdateTick()
@@ -59,11 +64,13 @@ namespace ProjectTrinity.MatchStateMachine
 
             matchSimulation.OnSimulationFrame(unitStateMessageBuffer[currentBufferCursor], 
                                               PCMBuffer[currentBufferCursor], 
-                                              unitAbilityMessageBuffer[currentBufferCursor]);
+                                              unitAbilityMessageBuffer[currentBufferCursor],
+                                              unitSpawnMessageBuffer[currentBufferCursor]);
 
             unitStateMessageBuffer[currentBufferCursor].Clear();
             PCMBuffer[currentBufferCursor].Clear();
             unitAbilityMessageBuffer[currentBufferCursor].Clear();
+            unitSpawnMessageBuffer[currentBufferCursor].Clear();
         }
 
         public void OnMessageReceived(byte[] message)
@@ -95,6 +102,12 @@ namespace ProjectTrinity.MatchStateMachine
             {
                 UnitAbilityActivationMessage unitAbilityActivationMessage = new UnitAbilityActivationMessage(message);
                 unitAbilityMessageBuffer[bufferCursor].Add(unitAbilityActivationMessage);
+            }
+
+            if (message[0] == MessageId.UNIT_SPAWN)
+            {
+                UnitSpawnMessage unitSpawnMessage = new UnitSpawnMessage(message);
+                unitSpawnMessageBuffer[bufferCursor].Add(unitSpawnMessage);
             }
         }
     }

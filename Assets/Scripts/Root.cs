@@ -10,14 +10,14 @@ namespace ProjectTrinity.Root
     public class Root : MonoBehaviour
     {
         [Serializable]
-        private class UnitGameobject
+        private class UnitTypePrefab
         {
-            public byte UnitId;
-            public GameObject Gameobject;
+            public byte UnitType;
+            public GameObject Prefab;
         }
 
         [SerializeField]
-        private List<UnitGameobject> unitPrefabs;
+        private List<UnitTypePrefab> unitTypePrefabs;
 
         [SerializeField]
         private TextMeshProUGUI rttText;
@@ -32,7 +32,7 @@ namespace ProjectTrinity.Root
         private GameObject matchEndedUI;
 
         [SerializeField]
-        private GameObject cameraRoot;
+        private Transform cameraRoot;
 
         [SerializeField]
         private ViewMatchInputRegistry viewMatchInputRegistry;
@@ -45,6 +45,7 @@ namespace ProjectTrinity.Root
             Application.targetFrameRate = 30;
             QualitySettings.vSyncCount = 0;
             matchStateMachine = new MatchStateMachine.MatchStateMachine();
+            matchStateMachine.MatchEventProvider.CameraRoot = cameraRoot;
         }
 
         private void FixedUpdate()
@@ -63,20 +64,6 @@ namespace ProjectTrinity.Root
                                         matchStateMachine.CurrentMatchState is WaitForStartMatchState);
 
             matchEndedUI.SetActive(matchStateMachine.CurrentMatchState is EndMatchState);
-
-            if (!parentedPlayerCamera && matchStateMachine.CurrentMatchState is WaitForStartMatchState)
-            {
-                parentedPlayerCamera = true;
-
-                foreach (UnitGameobject unitPrefab in unitPrefabs)
-                {
-                    if(matchStateMachine.LocalPlayerId == unitPrefab.UnitId)
-                    {
-                        cameraRoot.transform.SetParent(unitPrefab.Gameobject.transform);
-                        break;
-                    }
-                }
-            }
         }
 
         public void FindMatch(int playerCount)
@@ -88,9 +75,9 @@ namespace ProjectTrinity.Root
 
             matchStateMachine.ChangeMatchState(new JoinMatchState(playerCount));
 
-            foreach (UnitGameobject unitPrefab in unitPrefabs)
+            foreach (UnitTypePrefab unitPrefab in unitTypePrefabs)
             {
-                matchStateMachine.MatchEventProvider.AddUnitStateUpdateListener(unitPrefab.UnitId, unitPrefab.Gameobject);
+                matchStateMachine.MatchEventProvider.AddUnitPrefab(unitPrefab.UnitType, unitPrefab.Prefab);
             }
 
             viewMatchInputRegistry.Initialize(matchStateMachine);

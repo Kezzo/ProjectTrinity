@@ -66,7 +66,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     private Healthbar healthbar;
 
-    private void Awake()
+    private void InitializeChildComponents()
     {
         animator = GetComponent<Animator>();
 
@@ -107,6 +107,14 @@ public class MatchSimulationViewUnit : MonoBehaviour
         //DIContainer.Logger.Debug("OnUnitStateUpdate state: " + stateToAdd);
 
         interpolationQueue.Enqueue(stateToAdd);
+    }
+
+    public void OnSpawn(MatchSimulationUnit unitState)
+    {
+        InitializeChildComponents();
+        transform.position = unitState.GetUnityPosition();
+        transform.rotation = unitState.GetUnityRotation();
+        healthbar.UpdateHealthFill(Mathf.InverseLerp(0, 100, unitState.HealthPercent));
     }
 
     public void OnHealthPercentUpdate(byte healthPercent)
