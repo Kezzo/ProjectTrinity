@@ -172,7 +172,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
             movementChangedCounter++;
 
-            if (movementChangedCounter > 2)
+            if (movementChangedCounter > 2 && animator != null)
             {
                 animator.SetBool("Running", false);
             }
@@ -189,7 +189,12 @@ public class MatchSimulationViewUnit : MonoBehaviour
             {
                 telegraphRoot.gameObject.SetActive(true);
                 telegraphFillRoot.gameObject.SetActive(true);
-                animator.SetTrigger("Attack");
+
+                if(animator != null)
+                {
+                    animator.SetTrigger("Attack");
+                }
+
                 currentAbilityActivation.Started = true;
             }
 
@@ -215,7 +220,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
             modelRoot.transform.rotation = CurrentStateToLerpTo.TargetRotation;
             float positionChanged = AdvanceLerpToPositionState(CurrentStateToLerpTo, ref movementDistanceAvailable);
 
-            if(positionChanged > 0.01f)
+            if(positionChanged > 0.1f && animator != null)
             {
                 animator.SetBool("Running", true);
             }
