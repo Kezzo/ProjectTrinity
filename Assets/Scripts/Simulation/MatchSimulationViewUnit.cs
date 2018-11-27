@@ -2,6 +2,7 @@
 using ProjectTrinity.Helper;
 using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
+using ProjectTrinity.UI;
 using UnityEngine;
 
 public class MatchSimulationViewUnit : MonoBehaviour
