@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UniRx;
+using UniRx.Triggers;
 
 namespace ProjectTrinity.UI
 {
-    public class VirtualJoystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
+    public class VirtualJoystick : MonoBehaviour
     {
         [SerializeField]
         private RectTransform container;
@@ -46,42 +47,45 @@ namespace ProjectTrinity.UI
             handleImageColor = handleImage.color;
 
             SetAlpha(0.5f);
-        }
 
-        public virtual void OnDrag(PointerEventData eventData)
-        {
-            lastDirection = eventData.position - ((Vector2)background.position);
-            inputVector = lastDirection.magnitude > background.sizeDelta.x / 2f ? lastDirection.normalized : lastDirection / (background.sizeDelta.x / 2f);
-            handle.anchoredPosition = inputVector * background.sizeDelta.x / 2f;
+            this.gameObject.AddComponent<ObservableDragTrigger>()
+                .OnDragAsObservable().Subscribe((eventData) =>
+                {
+                    lastDirection = eventData.position - ((Vector2)background.position);
+                    inputVector = lastDirection.magnitude > background.sizeDelta.x / 2f ? lastDirection.normalized : lastDirection / (background.sizeDelta.x / 2f);
+                    handle.anchoredPosition = inputVector * background.sizeDelta.x / 2f;
 
-            // invert to support correct Unity camera front view
-            inputVector = -inputVector;
+                    // invert to support correct Unity camera front view
+                    inputVector = -inputVector;
 
-            if (moveWithFinger)
-            {
-                background.position = eventData.position - handle.anchoredPosition;
-            }
-        }
+                    if (moveWithFinger)
+                    {
+                        background.position = eventData.position - handle.anchoredPosition;
+                    }
+                });
 
-        public virtual void OnPointerDown(PointerEventData eventData)
-        {
-            JoystickActive = true;
+            this.gameObject.AddComponent<ObservablePointerDownTrigger>()
+                .OnPointerDownAsObservable().Subscribe((eventData) =>
+                {
+                    JoystickActive = true;
 
-            background.position = eventData.position;
-            handle.anchoredPosition = Vector2.zero;
+                    background.position = eventData.position;
+                    handle.anchoredPosition = Vector2.zero;
 
-            SetAlpha(1f);
-        }
+                    SetAlpha(1f);
+                });
 
-        public virtual void OnPointerUp(PointerEventData eventData)
-        {
-            JoystickActive = false;
+            this.gameObject.AddComponent<ObservablePointerUpTrigger>()
+                .OnPointerUpAsObservable().Subscribe((eventData) =>
+                {
+                    JoystickActive = false;
 
-            inputVector = Vector2.zero;
-            background.position = startBackgroundPosition;
-            handle.anchoredPosition = Vector2.zero;
+                    inputVector = Vector2.zero;
+                    background.position = startBackgroundPosition;
+                    handle.anchoredPosition = Vector2.zero;
 
-            SetAlpha(0.5f);
+                    SetAlpha(0.5f);
+                });
         }
 
         private void SetAlpha(float alpha)
