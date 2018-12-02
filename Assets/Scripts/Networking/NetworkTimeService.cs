@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
+using UniRx;
 
 namespace ProjectTrinity.Networking
 {
-    public class NetworkTimeService : IUdpMessageListener
+    public class NetworkTimeService
     {
         private TimeSpan offset;
         private List<TimeSpan> receivedOffSets = new List<TimeSpan>();
@@ -15,6 +16,8 @@ namespace ProjectTrinity.Networking
         private int responsesReceived;
 
         private IUdpClient udpClient;
+
+        private IDisposable messageReceiveDisposable;
 
         public DateTime NetworkDateTime
         {
@@ -46,7 +49,10 @@ namespace ProjectTrinity.Networking
             responsesReceived = 0;
 
             this.udpClient = udpClient;
-            udpClient.RegisterListener(MessageId.TIME_RESP, this);
+
+            messageReceiveDisposable = udpClient.OnMessageReceive
+                .Where(message => message[0] == MessageId.TIME_RESP)
+                .Subscribe(OnMessageReceived);
 
             SendTimeSynchMessage();
         }
@@ -57,7 +63,7 @@ namespace ProjectTrinity.Networking
             udpClient.SendMessage(timeSynchRequest.GetBytes());
         }
 
-        public void OnMessageReceived(byte[] message)
+        private void OnMessageReceived(byte[] message)
         {
             if(receivedOffSets.Count >= responsesReceived+1) 
             {
@@ -90,7 +96,7 @@ namespace ProjectTrinity.Networking
 
             if(responsesReceived >= 3 && currentOnTimeSynchedCallback != null) 
             {
-                udpClient.DeregisterListener(MessageId.TIME_RESP, this);
+                messageReceiveDisposable.Dispose();
                 DIContainer.Logger.Debug(string.Format("Server synched time is: {0} offset was: {1} ms", NetworkDateTime.ToString(), offset.TotalMilliseconds.ToString()));
                 currentOnTimeSynchedCallback();
             } 

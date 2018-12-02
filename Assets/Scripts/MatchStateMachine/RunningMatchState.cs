@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
+using UniRx;
 
 namespace ProjectTrinity.MatchStateMachine
 {
-    public class RunningMatchState : IMatchState, IUdpMessageListener
+    public class RunningMatchState : IMatchState
     {
         private MatchStateMachine matchStateMachine;
         private MatchSimulation matchSimulation;
@@ -16,6 +18,8 @@ namespace ProjectTrinity.MatchStateMachine
         private List<PositionConfirmationMessage>[] PCMBuffer = new List<PositionConfirmationMessage>[2];
         private List<UnitAbilityActivationMessage>[] unitAbilityMessageBuffer = new List<UnitAbilityActivationMessage>[2];
         private List<UnitSpawnMessage>[] unitSpawnMessageBuffer = new List<UnitSpawnMessage>[2];
+
+        private IDisposable messageReceiveDisposable;
 
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
@@ -38,11 +42,8 @@ namespace ProjectTrinity.MatchStateMachine
             unitSpawnMessageBuffer[0] = new List<UnitSpawnMessage>();
             unitSpawnMessageBuffer[1] = new List<UnitSpawnMessage>();
 
-            this.matchStateMachine.UDPClient.RegisterListener(MessageId.MATCH_END, this);
-            this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_STATE, this);
-            this.matchStateMachine.UDPClient.RegisterListener(MessageId.POSITION_CONFIRMATION, this);
-            this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_ABILITY_ACTIVATION, this);
-            this.matchStateMachine.UDPClient.RegisterListener(MessageId.UNIT_SPAWN, this);
+            messageReceiveDisposable = this.matchStateMachine.UDPClient.OnMessageReceive 
+                .Subscribe(OnMessageReceived);
 
             matchSimulation = new MatchSimulation(matchStateMachine.LocalPlayerId, matchStateMachine.MatchStartTimestamp, matchStateMachine.MatchInputProvider, 
                                                   matchStateMachine.MatchEventProvider, matchStateMachine.UDPClient, matchStateMachine.NetworkTimeService);
@@ -50,11 +51,10 @@ namespace ProjectTrinity.MatchStateMachine
 
         public void OnDeactivate()
         {
-            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.MATCH_END, this);
-            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_STATE, this);
-            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.POSITION_CONFIRMATION, this);
-            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_ABILITY_ACTIVATION, this);
-            this.matchStateMachine.UDPClient.DeregisterListener(MessageId.UNIT_SPAWN, this);
+            if(messageReceiveDisposable != null)
+            {
+                messageReceiveDisposable.Dispose();
+            }
         }
 
         public void OnFixedUpdateTick()
@@ -73,7 +73,7 @@ namespace ProjectTrinity.MatchStateMachine
             unitSpawnMessageBuffer[currentBufferCursor].Clear();
         }
 
-        public void OnMessageReceived(byte[] message)
+        private void OnMessageReceived(byte[] message)
         {
             if(message[0] == MessageId.MATCH_END) 
             {

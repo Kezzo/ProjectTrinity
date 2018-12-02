@@ -2,10 +2,11 @@
 using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
 using ProjectTrinity.Root;
+using UniRx;
 
 namespace ProjectTrinity.MatchStateMachine
 {
-    public class WaitForStartMatchState : IMatchState, IUdpMessageListener
+    public class WaitForStartMatchState : IMatchState
     {
         private Int64 receivedMatchStartTimestamp;
         private byte ackMessagesSent;
@@ -13,16 +14,22 @@ namespace ProjectTrinity.MatchStateMachine
         private byte[] ackMessageToSend;
 
         private MatchStateMachine matchStateMachine;
+        private IDisposable messageReceiveDisposable;
 
         public void OnActivate(MatchStateMachine matchStateMachine)
         {
             this.matchStateMachine = matchStateMachine;
-            this.matchStateMachine.UDPClient.RegisterListener(MessageId.MATCH_START, this);
+            messageReceiveDisposable = this.matchStateMachine.UDPClient.OnMessageReceive
+                .Where(message => message[0] == MessageId.MATCH_START)
+                .Subscribe(OnMessageReceived);
         }
 
         public void OnDeactivate()
         {
-            matchStateMachine.UDPClient.DeregisterListener(MessageId.MATCH_START, this);
+            if(messageReceiveDisposable != null)
+            {
+                messageReceiveDisposable.Dispose();
+            }
         }
 
         public void OnFixedUpdateTick()
@@ -47,13 +54,8 @@ namespace ProjectTrinity.MatchStateMachine
             }
         }
 
-        public void OnMessageReceived(byte[] message)
+        private void OnMessageReceived(byte[] message)
         {
-            if(message[0] != MessageId.MATCH_START) 
-            {
-                return;
-            }
-
             MatchStartMessage receivedMessage = new MatchStartMessage(message);
             receivedMatchStartTimestamp = receivedMessage.MatchStartTimestamp;
 

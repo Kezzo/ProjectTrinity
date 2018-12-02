@@ -1,9 +1,9 @@
 ﻿using System;
 using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
-using ProjectTrinity.Root;
+using UniRx;
 
-public class RoundTripTimeService : IUdpMessageListener
+public class RoundTripTimeService
 {
     private Int64 lastPingTimestamp;
     public Int64 LastPing { get; private set; }
@@ -15,7 +15,9 @@ public class RoundTripTimeService : IUdpMessageListener
     {
         this.udpClient = udpClient;
         this.networkTimeService = networkTimeService;
-        this.udpClient.RegisterListener(MessageId.PING_RESP, this);
+        this.udpClient.OnMessageReceive
+            .Where(message => message[0] == MessageId.PING_RESP)
+            .Subscribe(OnMessageReceived);
     }
 
     public void OnFixedUpdateTick()
@@ -31,14 +33,11 @@ public class RoundTripTimeService : IUdpMessageListener
         }
     }
 
-    public void OnMessageReceived(byte[] message)
+    private void OnMessageReceived(byte[] message)
     {
-        if (message[0] == MessageId.PING_RESP)
-        {
-            PongMessage pongMessage = new PongMessage(message, networkTimeService.NetworkTimestampMs);
-            LastPing = pongMessage.RoundTripTime;
+        PongMessage pongMessage = new PongMessage(message, networkTimeService.NetworkTimestampMs);
+        LastPing = pongMessage.RoundTripTime;
 
-            //DIContainer.Logger.Debug(string.Format("Received pong message. RTT: {0}", LastPing));
-        }
+        //DIContainer.Logger.Debug(string.Format("Received pong message. RTT: {0}", LastPing));
     }
 }
