@@ -24,7 +24,7 @@ namespace ProjectTrinity.Input
 
         private void Update()
         {
-            if (matchStateMachine == null || !(matchStateMachine.CurrentMatchState is RunningMatchState))
+            if (matchStateMachine == null || !(matchStateMachine.CurrentMatchState.Value is RunningMatchState))
             {
                 return;
             }

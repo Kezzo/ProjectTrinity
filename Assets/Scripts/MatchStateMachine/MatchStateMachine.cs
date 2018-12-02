@@ -2,12 +2,13 @@
 using ProjectTrinity.Input;
 using ProjectTrinity.Networking;
 using ProjectTrinity.Root;
+using UniRx;
 
 namespace ProjectTrinity.MatchStateMachine
 {
     public class MatchStateMachine
     {
-        public IMatchState CurrentMatchState { get; private set; }
+        public ReactiveProperty<IMatchState> CurrentMatchState { get; private set; }
         public byte LocalPlayerId { get; set; }
         public Int64 MatchStartTimestamp { get; set; }
         public MatchInputProvider MatchInputProvider { get; private set; }
@@ -22,6 +23,8 @@ namespace ProjectTrinity.MatchStateMachine
         {
             MatchInputProvider = new MatchInputProvider();
             MatchEventProvider = new MatchEventProvider();
+            CurrentMatchState = new ReactiveProperty<IMatchState>();
+
             ChangeMatchState(new IdleMatchState());
         }
 
@@ -29,18 +32,18 @@ namespace ProjectTrinity.MatchStateMachine
         {
             DIContainer.Logger.Debug(string.Format("Switching to {0}", matchState.GetType()));
 
-            if(CurrentMatchState != null)
+            if(CurrentMatchState.Value != null)
             {
-                CurrentMatchState.OnDeactivate();
+                CurrentMatchState.Value.OnDeactivate();
             }
 
-            CurrentMatchState = matchState;
-            CurrentMatchState.OnActivate(this);
+            CurrentMatchState.SetValueAndForceNotify(matchState);
+            CurrentMatchState.Value.OnActivate(this);
         }
 
         public void OnFixedUpdateTick() 
         {
-            CurrentMatchState.OnFixedUpdateTick();
+            CurrentMatchState.Value.OnFixedUpdateTick();
 
             if (AckedMessageHelper != null)
             { 

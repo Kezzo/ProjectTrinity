@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ProjectTrinity.Input;
 using ProjectTrinity.MatchStateMachine;
 using TMPro;
+using UniRx;
 using UnityEngine;
 
 namespace ProjectTrinity.Root
@@ -46,29 +47,35 @@ namespace ProjectTrinity.Root
             QualitySettings.vSyncCount = 0;
             matchStateMachine = new MatchStateMachine.MatchStateMachine();
             matchStateMachine.MatchEventProvider.CameraRoot = cameraRoot;
-        }
 
-        private void FixedUpdate()
-        {
-            matchStateMachine.OnFixedUpdateTick();
-        }
+            Observable.EveryUpdate()
+                .Subscribe(_ =>
+                {
+                    rttText.text = string.Format("RTT: {0}ms", 
+                        matchStateMachine.RoundTripTimeService != null ? matchStateMachine.RoundTripTimeService.LastPing : 0);
+                });
 
-        private void Update()
-        {
-            rttText.text = string.Format("RTT: {0}ms", matchStateMachine.RoundTripTimeService != null ? matchStateMachine.RoundTripTimeService.LastPing : 0);
+            Observable.EveryFixedUpdate()
+                .Subscribe(_ =>
+                {
+                    matchStateMachine.OnFixedUpdateTick();
+                });
 
-            selectMatchTypeRoot.SetActive(matchStateMachine.CurrentMatchState is IdleMatchState);
+            matchStateMachine.CurrentMatchState.ObserveOnMainThread().Subscribe(matchState =>
+            {
+                selectMatchTypeRoot.SetActive(matchState is IdleMatchState);
 
-            lookingForMatchUI.SetActive(matchStateMachine.CurrentMatchState is JoinMatchState ||
-                                        matchStateMachine.CurrentMatchState is TimeSyncMatchState ||
-                                        matchStateMachine.CurrentMatchState is WaitForStartMatchState);
+                lookingForMatchUI.SetActive(matchState is JoinMatchState ||
+                                            matchState is TimeSyncMatchState ||
+                                            matchState is WaitForStartMatchState);
 
-            matchEndedUI.SetActive(matchStateMachine.CurrentMatchState is EndMatchState);
+                matchEndedUI.SetActive(matchState is EndMatchState);
+            });
         }
 
         public void FindMatch(int playerCount)
         {
-            if (!(matchStateMachine.CurrentMatchState is IdleMatchState))
+            if (!(matchStateMachine.CurrentMatchState.Value is IdleMatchState))
             {
                 return;
             }
