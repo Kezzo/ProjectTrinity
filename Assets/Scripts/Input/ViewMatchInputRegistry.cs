@@ -82,7 +82,8 @@ namespace ProjectTrinity.Input
                             matchStateMachine.MatchInputProvider.YTranslation), Vector3.up);
 
                     matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
-                });
+                })
+                .AddTo(this);
 
             inputObservable
                 .Where(_ => aimingJoyStick.JoystickActive)
@@ -99,7 +100,8 @@ namespace ProjectTrinity.Input
                     {
                         releaseTriggersSkill = false;
                     }
-                });
+                })
+                .AddTo(this);
 
             inputObservable
                 .Where(_ => !aimingJoyStick.JoystickActive && releaseTriggersSkill)
@@ -107,7 +109,8 @@ namespace ProjectTrinity.Input
                 {
                     matchStateMachine.MatchInputProvider.AddAbilityInput(lastAimingRotation);
                     releaseTriggersSkill = false;
-                });
+                })
+                .AddTo(this);
         }
     }
 }
