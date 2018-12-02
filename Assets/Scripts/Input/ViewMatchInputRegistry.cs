@@ -1,6 +1,8 @@
-﻿using ProjectTrinity.Debugging;
+﻿using System;
+using ProjectTrinity.Debugging;
 using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.UI;
+using UniRx;
 using UnityEngine;
 
 namespace ProjectTrinity.Input
@@ -20,82 +22,92 @@ namespace ProjectTrinity.Input
         public void Initialize(MatchStateMachine.MatchStateMachine matchStateMachine)
         {
             this.matchStateMachine = matchStateMachine;
-        }
 
-        private void Update()
-        {
-            if (matchStateMachine == null || !(matchStateMachine.CurrentMatchState.Value is RunningMatchState))
-            {
-                return;
-            }
+            IObservable<long> inputObservable = Observable.EveryUpdate()
+                .Where(_ => matchStateMachine != null && matchStateMachine.CurrentMatchState.Value is RunningMatchState);
 
+            IObservable<long> joyStickInput = inputObservable
+                .Where(_ => movementJoyStick.JoystickActive && (Mathf.Abs(movementJoyStick.Horizontal) > 0.2f || Mathf.Abs(movementJoyStick.Vertical) > 0.2f))
+                .Do(_ =>
+                {
+                    matchStateMachine.MatchInputProvider.AddXTranslation(movementJoyStick.Horizontal);
+                    matchStateMachine.MatchInputProvider.AddYTranslation(movementJoyStick.Vertical);
+                });
 
-            if (movementJoyStick.JoystickActive && (Mathf.Abs(movementJoyStick.Horizontal) > 0.2f || Mathf.Abs(movementJoyStick.Vertical) > 0.2f))
-            {
-                matchStateMachine.MatchInputProvider.AddXTranslation(movementJoyStick.Horizontal);
-                matchStateMachine.MatchInputProvider.AddYTranslation(movementJoyStick.Vertical);
-            }
-            else if (UnitDebugAI.DebugAIEnabled)
-            {
-                if (Random.Range(0, 2) == 0)
+            IObservable<long> debugAiInput = inputObservable
+                .Where(_ => UnitDebugAI.DebugAIEnabled)
+                .Do(_ =>
                 {
-                    matchStateMachine.MatchInputProvider.AddYTranslation(Random.Range(-1f, 1f));
-                }
-                else
-                {
-                    matchStateMachine.MatchInputProvider.AddXTranslation(Random.Range(-1f, 1f));
-                }
-            }
-            else
-            {
-                if (UnityEngine.Input.GetKey(KeyCode.W))
-                {
-                    matchStateMachine.MatchInputProvider.AddYTranslation(-1f);
-                }
-                else if (UnityEngine.Input.GetKey(KeyCode.S))
-                {
-                    matchStateMachine.MatchInputProvider.AddYTranslation(1f);
-                }
+                    if (UnityEngine.Random.Range(0, 2) == 0)
+                    {
+                        matchStateMachine.MatchInputProvider.AddYTranslation(UnityEngine.Random.Range(-1f, 1f));
+                    }
+                    else
+                    {
+                        matchStateMachine.MatchInputProvider.AddXTranslation(UnityEngine.Random.Range(-1f, 1f));
+                    }
+                });
 
-                if (UnityEngine.Input.GetKey(KeyCode.A))
+            IObservable<long> keyboardInput = inputObservable
+                .Where(_ => !movementJoyStick.JoystickActive && !UnitDebugAI.DebugAIEnabled &&
+                    (UnityEngine.Input.GetKey(KeyCode.W) || UnityEngine.Input.GetKey(KeyCode.S) ||
+                    UnityEngine.Input.GetKey(KeyCode.A) || UnityEngine.Input.GetKey(KeyCode.D)))
+                .Do(_ =>
                 {
-                    matchStateMachine.MatchInputProvider.AddXTranslation(1f);
-                }
-                else if (UnityEngine.Input.GetKey(KeyCode.D))
-                {
-                    matchStateMachine.MatchInputProvider.AddXTranslation(-1f);
-                }
-            }
+                    if (UnityEngine.Input.GetKey(KeyCode.W))
+                    {
+                        matchStateMachine.MatchInputProvider.AddYTranslation(-1f);
+                    }
+                    else if (UnityEngine.Input.GetKey(KeyCode.S))
+                    {
+                        matchStateMachine.MatchInputProvider.AddYTranslation(1f);
+                    }
 
-            if (Mathf.Abs(matchStateMachine.MatchInputProvider.XTranslation) > 0f || Mathf.Abs(matchStateMachine.MatchInputProvider.YTranslation) > 0f)
-            {
-                Quaternion rotation = Quaternion.LookRotation(
-                new Vector3(matchStateMachine.MatchInputProvider.XTranslation, 0f,
+                    if (UnityEngine.Input.GetKey(KeyCode.A))
+                    {
+                        matchStateMachine.MatchInputProvider.AddXTranslation(1f);
+                    }
+                    else if (UnityEngine.Input.GetKey(KeyCode.D))
+                    {
+                        matchStateMachine.MatchInputProvider.AddXTranslation(-1f);
+                    }
+                });
+
+            // apply rotation if any input was generated
+            joyStickInput.Merge(debugAiInput, keyboardInput)
+                .Subscribe(_ =>
+                {
+                    Quaternion rotation = Quaternion.LookRotation(
+                        new Vector3(matchStateMachine.MatchInputProvider.XTranslation, 0f,
                             matchStateMachine.MatchInputProvider.YTranslation), Vector3.up);
 
-                matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
-            }
+                    matchStateMachine.MatchInputProvider.AddRotation(rotation.eulerAngles.y);
+                });
 
-            if (aimingJoyStick.JoystickActive)
-            {
-                if (Mathf.Abs(aimingJoyStick.Horizontal) > 0.5f || Mathf.Abs(aimingJoyStick.Vertical) > 0.5f)
+            inputObservable
+                .Where(_ => aimingJoyStick.JoystickActive)
+                .Subscribe(_ =>
                 {
-                    Quaternion rotation = Quaternion.LookRotation(new Vector3(aimingJoyStick.Horizontal, 0f, aimingJoyStick.Vertical), Vector3.up);
-                    lastAimingRotation = rotation.eulerAngles.y;
-                    matchStateMachine.MatchInputProvider.AddAimingRotation(rotation.eulerAngles.y);
-                    releaseTriggersSkill = true;
-                }
-                else
+                    if (Mathf.Abs(aimingJoyStick.Horizontal) > 0.5f || Mathf.Abs(aimingJoyStick.Vertical) > 0.5f)
+                    {
+                        Quaternion rotation = Quaternion.LookRotation(new Vector3(aimingJoyStick.Horizontal, 0f, aimingJoyStick.Vertical), Vector3.up);
+                        lastAimingRotation = rotation.eulerAngles.y;
+                        matchStateMachine.MatchInputProvider.AddAimingRotation(rotation.eulerAngles.y);
+                        releaseTriggersSkill = true;
+                    }
+                    else
+                    {
+                        releaseTriggersSkill = false;
+                    }
+                });
+
+            inputObservable
+                .Where(_ => !aimingJoyStick.JoystickActive && releaseTriggersSkill)
+                .Subscribe(_ =>
                 {
+                    matchStateMachine.MatchInputProvider.AddAbilityInput(lastAimingRotation);
                     releaseTriggersSkill = false;
-                }
-            }
-            // aiming joystick was released in valid position indicating Ability input.
-            else if (releaseTriggersSkill)
-            {
-                matchStateMachine.MatchInputProvider.AddAbilityInput(lastAimingRotation);
-                releaseTriggersSkill = false;
-            }
+                });
         }
     }
 }
