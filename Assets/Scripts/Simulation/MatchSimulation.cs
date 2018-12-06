@@ -117,13 +117,8 @@ namespace ProjectTrinity.Simulation
                     return;
                 }
 
-                bool positionChanged = unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition,
+                unitToUpdate.SetConfirmedState(unitStateMessage.XPosition, unitStateMessage.YPosition,
                                                unitStateMessage.Rotation, unitStateMessage.HealthPercent, unitStateMessage.Frame);
-
-                if (positionChanged)
-                {
-                    eventProvider.OnUnitStateUpdate(unitToUpdate, unitStateMessage.Frame);
-                }
 
                 //DIContainer.Logger.Debug("Received usm with frame: " + unitStateMessage.Frame);
             }
@@ -192,9 +187,7 @@ namespace ProjectTrinity.Simulation
                                               0, 0, positionConfirmationMessage.Frame);
                 }
             }
-
-            eventProvider.OnUnitStateUpdate(localPlayer, currentTimebasedFrame);
-
+            
             if (inputProvider.AbilityInputReceived)
             {
                 byte activationFrame = (byte)MathHelper.Modulo(inputFrame + 10, byte.MaxValue);
@@ -218,13 +211,13 @@ namespace ProjectTrinity.Simulation
             if (inputProvider.InputReceived)
             {
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(),
-                                                             inputProvider.GetSimulationYTranslation(), localPlayer.Rotation.Value, inputFrame);
+                                                             inputProvider.GetSimulationYTranslation(), localPlayer.MovementState.Value.Rotation, inputFrame);
                 udpClient.SendMessage(inputMessage.GetBytes());
             }
 
             if (inputProvider.AbilityInputReceived)
             {
-                AbilityInputMessage AbilityInputMessage = new AbilityInputMessage(localPlayer.UnitId, 0, localPlayer.Rotation.Value, inputFrame);
+                AbilityInputMessage AbilityInputMessage = new AbilityInputMessage(localPlayer.UnitId, 0, localPlayer.MovementState.Value.Rotation, inputFrame);
                 udpClient.SendMessage(AbilityInputMessage.GetBytes());
             }
 

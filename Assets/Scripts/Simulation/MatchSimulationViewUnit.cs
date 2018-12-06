@@ -3,6 +3,7 @@ using ProjectTrinity.Helper;
 using ProjectTrinity.Root;
 using ProjectTrinity.Simulation;
 using ProjectTrinity.UI;
+using UniRx;
 using UnityEngine;
 
 public class MatchSimulationViewUnit : MonoBehaviour
@@ -100,10 +101,10 @@ public class MatchSimulationViewUnit : MonoBehaviour
         }
     }
 
-    public virtual void OnPositionRotationUpdate(MatchSimulationUnit updatedUnitState, byte frame)
+    protected virtual void OnPositionRotationUpdate(MatchSimulationUnit.MovementProperties movementProperties)
     {
-        InterpolationState stateToAdd = new InterpolationState(updatedUnitState.GetUnityPosition(), updatedUnitState.GetUnityRotation(),
-                                                               (byte)MathHelper.Modulo(frame + FrameDelay, byte.MaxValue));
+        InterpolationState stateToAdd = new InterpolationState(movementProperties.GetUnityPosition(), movementProperties.GetUnityRotation(),
+                                                               (byte)MathHelper.Modulo(movementProperties.Frame + FrameDelay, byte.MaxValue));
 
         //DIContainer.Logger.Debug("OnUnitStateUpdate state: " + stateToAdd);
 
@@ -113,8 +114,11 @@ public class MatchSimulationViewUnit : MonoBehaviour
     public void OnSpawn(MatchSimulationUnit unitState)
     {
         InitializeChildComponents();
-        transform.position = unitState.GetUnityPosition();
-        transform.rotation = unitState.GetUnityRotation();
+        transform.position = unitState.MovementState.Value.GetUnityPosition();
+        transform.rotation = unitState.MovementState.Value.GetUnityRotation();
+
+        unitState.MovementState.Subscribe(OnPositionRotationUpdate);
+
         healthbar.Initialize(unitState);
     }
 

@@ -4,17 +4,21 @@ using UnityEngine;
 public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
 {
     private bool receivedLocalAimingUpdate;
+    private int continousPositionChangeFrames = 0;
 
-    public override void OnPositionRotationUpdate(MatchSimulationUnit updatedUnitState, byte frame)
+    protected override void OnPositionRotationUpdate(MatchSimulationUnit.MovementProperties movementProperties)
     {
-        Vector3 targetPosition = updatedUnitState.GetUnityPosition();
+        Vector3 targetPosition = movementProperties.GetUnityPosition();
 
-        animator.SetBool("Running", Vector3.Distance(transform.position, targetPosition) > 0.01f);
+        float distance = Vector3.Distance(transform.position, targetPosition);
+        continousPositionChangeFrames = Mathf.Clamp((distance > 0f ? 5 : continousPositionChangeFrames - 1), 0, 3);
+
+        animator.SetBool("Running", continousPositionChangeFrames > 0);
         transform.position = targetPosition;
 
         if (currentAbilityActivation == null)
         {
-            modelRoot.transform.rotation = updatedUnitState.GetUnityRotation();
+            modelRoot.transform.rotation = movementProperties.GetUnityRotation();
         }
 
         return;

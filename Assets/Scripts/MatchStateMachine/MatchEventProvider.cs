@@ -42,16 +42,6 @@ namespace ProjectTrinity.MatchStateMachine
             }
         }
 
-        public void OnUnitStateUpdate(MatchSimulationUnit unitState, byte frame)
-        {
-            MatchSimulationViewUnit unit;
-
-            if (viewUnits.TryGetValue(unitState.UnitId, out unit))
-            {
-                unit.OnPositionRotationUpdate(unitState, frame);
-            }
-        }
-
         public void OnLocalAimingUpdate(byte unitId, float rotation)
         {
             MatchSimulationViewUnit unit;

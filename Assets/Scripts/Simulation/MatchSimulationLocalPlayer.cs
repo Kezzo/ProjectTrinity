@@ -163,16 +163,21 @@ namespace ProjectTrinity.Simulation
 
         private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState, byte rotation)
         {
-            XPosition.Value = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
-            YPosition.Value = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+            movementState.XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
+            movementState.YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+            movementState.Rotation = (byte)MathHelper.Modulo(rotation, byte.MaxValue);
+            movementState.Frame = localPlayerFrameState.Frame;
 
-            Rotation.Value = (byte)MathHelper.Modulo(rotation, byte.MaxValue);
+            MovementState.SetValueAndForceNotify(movementState);
         }
 
         private void UpdateCurrentState(LocalPlayerFrameState localPlayerFrameState)
         {
-            XPosition.Value = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
-            YPosition.Value = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+            movementState.XPosition = localPlayerFrameState.XPositionBase + localPlayerFrameState.XPositionDelta;
+            movementState.YPosition = localPlayerFrameState.YPositionBase + localPlayerFrameState.YPositionDelta;
+            movementState.Frame = localPlayerFrameState.Frame;
+
+            MovementState.SetValueAndForceNotify(movementState);
         }
     }
 }
