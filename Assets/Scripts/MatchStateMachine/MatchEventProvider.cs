@@ -49,17 +49,6 @@ namespace ProjectTrinity.MatchStateMachine
             if (viewUnits.TryGetValue(unitState.UnitId, out unit))
             {
                 unit.OnPositionRotationUpdate(unitState, frame);
-                unit.OnHealthPercentUpdate(unitState.HealthPercent);
-            }
-        }
-
-        public void OnHealthPercentUpdate(byte unitId, byte healthPercent)
-        {
-            MatchSimulationViewUnit unit;
-
-            if (viewUnits.TryGetValue(unitId, out unit))
-            {
-                unit.OnHealthPercentUpdate(healthPercent);
             }
         }
 

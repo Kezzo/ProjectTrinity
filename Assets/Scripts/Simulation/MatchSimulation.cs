@@ -109,8 +109,7 @@ namespace ProjectTrinity.Simulation
                 {
                     // only update the health here and ignore position and rotation for the local player,
                     // since that will be confirmed via the PositionConfirmationMessage
-                    localPlayer.HealthPercent = unitStateMessage.HealthPercent;
-                    eventProvider.OnHealthPercentUpdate(localPlayer.UnitId, unitStateMessage.HealthPercent);
+                    localPlayer.HealthPercent.Value = unitStateMessage.HealthPercent;
                     return;
                 }
                 else if (!simulationUnits.TryGetValue(unitStateMessage.UnitId, out unitToUpdate))
@@ -219,13 +218,13 @@ namespace ProjectTrinity.Simulation
             if (inputProvider.InputReceived)
             {
                 InputMessage inputMessage = new InputMessage(localPlayer.UnitId, inputProvider.GetSimulationXTranslation(),
-                                                             inputProvider.GetSimulationYTranslation(), localPlayer.Rotation, inputFrame);
+                                                             inputProvider.GetSimulationYTranslation(), localPlayer.Rotation.Value, inputFrame);
                 udpClient.SendMessage(inputMessage.GetBytes());
             }
 
             if (inputProvider.AbilityInputReceived)
             {
-                AbilityInputMessage AbilityInputMessage = new AbilityInputMessage(localPlayer.UnitId, 0, localPlayer.Rotation, inputFrame);
+                AbilityInputMessage AbilityInputMessage = new AbilityInputMessage(localPlayer.UnitId, 0, localPlayer.Rotation.Value, inputFrame);
                 udpClient.SendMessage(AbilityInputMessage.GetBytes());
             }
 

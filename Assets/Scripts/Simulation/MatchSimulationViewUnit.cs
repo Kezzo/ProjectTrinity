@@ -115,12 +115,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
         InitializeChildComponents();
         transform.position = unitState.GetUnityPosition();
         transform.rotation = unitState.GetUnityRotation();
-        healthbar.UpdateHealthFill(Mathf.InverseLerp(0, 100, unitState.HealthPercent));
-    }
-
-    public void OnHealthPercentUpdate(byte healthPercent)
-    {
-        healthbar.UpdateHealthFill(Mathf.InverseLerp(0, 100, healthPercent));
+        healthbar.Initialize(unitState);
     }
 
     public virtual void OnLocalAimingUpdate(float rotation) { }
