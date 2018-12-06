@@ -1,10 +1,24 @@
 ﻿using ProjectTrinity.Simulation;
+using UniRx;
 using UnityEngine;
 
 public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
 {
     private bool receivedLocalAimingUpdate;
     private int continousPositionChangeFrames = 0;
+
+    public override void OnSpawn(MatchSimulationUnit unitState, MatchSimulation matchSimulation)
+    {
+        base.OnSpawn(unitState, matchSimulation);
+
+        MatchSimulationLocalPlayer localPlayer = unitState as MatchSimulationLocalPlayer;
+
+        if(localPlayer != null)
+        {
+            localPlayer.LocalAimingSubject
+                .Subscribe(OnLocalAimingUpdate);
+        }
+    }
 
     protected override void OnPositionRotationUpdate(MatchSimulationUnit.MovementProperties movementProperties)
     {
@@ -24,7 +38,7 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         return;
     }
 
-    public override void OnLocalAimingUpdate(float rotation)
+    private void OnLocalAimingUpdate(float rotation)
     {
         if (currentAbilityActivation != null)
         {
@@ -36,7 +50,7 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         telegraphRoot.gameObject.SetActive(true);
     }
 
-    public override void OnAbilityActivation(float rotation, byte startFrame, byte activationFrame)
+    protected override void OnAbilityActivation(float rotation, byte startFrame, byte activationFrame)
     {
         if (currentAbilityActivation != null)
         {
@@ -53,7 +67,7 @@ public class MatchSimulationLocalPlayerViewUnit : MatchSimulationViewUnit
         animator.SetTrigger("Attack");
     }
 
-    public override void UpdateToNextState(byte currentFrame)
+    protected override void UpdateToNextState(byte currentFrame)
     {
         if (currentAbilityActivation != null)
         {

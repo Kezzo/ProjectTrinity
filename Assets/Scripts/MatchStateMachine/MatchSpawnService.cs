@@ -4,10 +4,9 @@ using UnityEngine;
 
 namespace ProjectTrinity.MatchStateMachine
 {
-    public class MatchEventProvider
+    public class MatchSpawnService
     {
         private Dictionary<byte, GameObject> viewUnitPrefabs = new Dictionary<byte, GameObject>();
-        private Dictionary<byte, MatchSimulationViewUnit> viewUnits = new Dictionary<byte, MatchSimulationViewUnit>();
         public Transform CameraRoot { get; set; }
 
         public void AddUnitPrefab(byte unitType, GameObject matchViewUnitGameobject)
@@ -15,7 +14,7 @@ namespace ProjectTrinity.MatchStateMachine
             viewUnitPrefabs[unitType] = matchViewUnitGameobject;
         }
 
-        public void OnUnitSpawn(byte unitId, byte unitType, MatchSimulationUnit unitState, bool isLocalPlayer = false)
+        public void OnUnitSpawn(byte unitId, byte unitType, MatchSimulationUnit unitState, MatchSimulation matchSimulation, bool isLocalPlayer = false)
         {
             GameObject unitGameobject;
 
@@ -36,37 +35,7 @@ namespace ProjectTrinity.MatchStateMachine
                 }
 
                 spawnedGameObject.SetActive(true);
-                matchSimulationViewUnit.OnSpawn(unitState);
-
-                viewUnits[unitId] = matchSimulationViewUnit;
-            }
-        }
-
-        public void OnLocalAimingUpdate(byte unitId, float rotation)
-        {
-            MatchSimulationViewUnit unit;
-
-            if (viewUnits.TryGetValue(unitId, out unit))
-            {
-                unit.OnLocalAimingUpdate(rotation);
-            }
-        }
-
-        public void OnAbilityActivation(byte unitId, float rotation, byte startFrame, byte activationFrame)
-        {
-            MatchSimulationViewUnit unit;
-
-            if (viewUnits.TryGetValue(unitId, out unit))
-            {
-                unit.OnAbilityActivation(rotation, startFrame, activationFrame);
-            }
-        }
-
-        public void OnSimulationFrame(byte frame)
-        { 
-            foreach (var viewUnit in viewUnits)
-            {
-                viewUnit.Value.UpdateToNextState(frame);
+                matchSimulationViewUnit.OnSpawn(unitState, matchSimulation);
             }
         }
     }

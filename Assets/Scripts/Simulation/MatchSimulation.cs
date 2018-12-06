@@ -5,6 +5,7 @@ using ProjectTrinity.Input;
 using ProjectTrinity.MatchStateMachine;
 using ProjectTrinity.Networking;
 using ProjectTrinity.Networking.Messages;
+using UniRx;
 
 namespace ProjectTrinity.Simulation
 {
@@ -14,7 +15,7 @@ namespace ProjectTrinity.Simulation
         private MatchSimulationLocalPlayer localPlayer;
 
         private MatchInputProvider inputProvider;
-        private MatchEventProvider eventProvider;
+        private MatchSpawnService eventProvider;
         private IUdpClient udpClient;
         private NetworkTimeService networkTimeService;
 
@@ -25,8 +26,17 @@ namespace ProjectTrinity.Simulation
         private Int64 matchStartTimestamp;
         private byte localPlayerUnitId;
 
+        public Subject<byte> SimulationFrameSubject;
+
+        public struct AbilityActivation
+        {
+            public float Rotation;
+            public byte StartFrame;
+            public byte ActivationFrame;
+        }
+
         public MatchSimulation(byte localPlayerUnitId, Int64 matchStartTimestamp, MatchInputProvider matchInputProvider, 
-                               MatchEventProvider matchEventProvider, IUdpClient udpClient, NetworkTimeService networkTimeService)
+                               MatchSpawnService matchEventProvider, IUdpClient udpClient, NetworkTimeService networkTimeService)
         {
             this.localPlayerUnitId = localPlayerUnitId;
             this.matchStartTimestamp = matchStartTimestamp;
@@ -34,6 +44,7 @@ namespace ProjectTrinity.Simulation
             eventProvider = matchEventProvider;
             this.udpClient = udpClient;
             this.networkTimeService = networkTimeService;
+            SimulationFrameSubject = new Subject<byte>();
         }
 
         public void OnSimulationFrame(List<UnitStateMessage> receivedUnitStateMessagesSinceLastFrame, 
@@ -57,7 +68,7 @@ namespace ProjectTrinity.Simulation
             byte inputFrame = UpdateLocalPlayerState(receivedPositionConfirmationMessagesSinceLastFrame, currentTimebasedFrame);
             SendInputMessages(inputFrame);
 
-            eventProvider.OnSimulationFrame(currentTimebasedFrame);
+            SimulationFrameSubject.OnNext(currentTimebasedFrame);
             currentSimulationFrame = currentTimebasedFrame;
         }
 
@@ -77,7 +88,8 @@ namespace ProjectTrinity.Simulation
                                                                     unitSpawnMessage.HealthPercent, unitSpawnMessage.Frame);
 
                     localPlayer = simulationLocalPlayer;
-                    eventProvider.OnUnitSpawn(unitSpawnMessage.UnitId, unitSpawnMessage.UnitType, simulationLocalPlayer, unitSpawnMessage.UnitId == localPlayerUnitId);
+                    eventProvider.OnUnitSpawn(unitSpawnMessage.UnitId, unitSpawnMessage.UnitType, 
+                        simulationLocalPlayer, this, unitSpawnMessage.UnitId == localPlayerUnitId);
                 }
                 else
                 {
@@ -86,7 +98,8 @@ namespace ProjectTrinity.Simulation
                                                                     unitSpawnMessage.HealthPercent, unitSpawnMessage.Frame);
 
                     simulationUnits.Add(unitSpawnMessage.UnitId, simulationUnit);
-                    eventProvider.OnUnitSpawn(unitSpawnMessage.UnitId, unitSpawnMessage.UnitType, simulationUnit, unitSpawnMessage.UnitId == localPlayerUnitId);
+                    eventProvider.OnUnitSpawn(unitSpawnMessage.UnitId, unitSpawnMessage.UnitType, 
+                        simulationUnit, this, unitSpawnMessage.UnitId == localPlayerUnitId);
                 }
             }
         }
@@ -139,8 +152,12 @@ namespace ProjectTrinity.Simulation
                 MatchSimulationUnit unitToUpdate;
                 if (simulationUnits.TryGetValue(unitAbilityActivationMessage.UnitId, out unitToUpdate))
                 {
-                    eventProvider.OnAbilityActivation(unitToUpdate.UnitId, UnitValueConverter.ToUnityRotation(unitAbilityActivationMessage.Rotation), 
-                                                      unitAbilityActivationMessage.StartFrame, unitAbilityActivationMessage.ActivationFrame);
+                    unitToUpdate.AbilityActivationSubject.OnNext(new AbilityActivation
+                    {
+                        Rotation = UnitValueConverter.ToUnityRotation(unitAbilityActivationMessage.Rotation),
+                        StartFrame = unitAbilityActivationMessage.StartFrame,
+                        ActivationFrame = unitAbilityActivationMessage.ActivationFrame
+                    });
                 }
             }
         }
@@ -191,11 +208,17 @@ namespace ProjectTrinity.Simulation
             if (inputProvider.AbilityInputReceived)
             {
                 byte activationFrame = (byte)MathHelper.Modulo(inputFrame + 10, byte.MaxValue);
-                eventProvider.OnAbilityActivation(localPlayer.UnitId, inputProvider.AimingRotation, inputFrame, activationFrame);
+
+                localPlayer.AbilityActivationSubject.OnNext(new AbilityActivation
+                {
+                    Rotation = inputProvider.AimingRotation,
+                    StartFrame = inputFrame,
+                    ActivationFrame = activationFrame
+                });
             } 
             else if (inputProvider.AimingInputReceived)
             {
-                eventProvider.OnLocalAimingUpdate(localPlayer.UnitId, inputProvider.AimingRotation);
+                localPlayer.LocalAimingSubject.OnNext(inputProvider.AimingRotation);
             }
 
             return inputFrame;

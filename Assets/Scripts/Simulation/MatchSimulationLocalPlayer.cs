@@ -1,5 +1,6 @@
 ﻿using ProjectTrinity.Helper;
 using ProjectTrinity.Root;
+using UniRx;
 
 namespace ProjectTrinity.Simulation
 {
@@ -70,6 +71,8 @@ namespace ProjectTrinity.Simulation
         private LocalPlayerFrameState lastLocalPlayerFrameState;
         private int nextLocalPlayerFrameIndex = 0;
 
+        public Subject<float> LocalAimingSubject;
+
         public MatchSimulationLocalPlayer(byte unitId, int xPosition, int yPosition, byte rotation, byte healthPercent, byte frame) 
             : base(unitId, xPosition, yPosition, rotation, healthPercent, frame)
         {
@@ -82,6 +85,8 @@ namespace ProjectTrinity.Simulation
             lastLocalPlayerFrameState = localPlayerFrameStateBuffer[nextLocalPlayerFrameIndex];
 
             nextLocalPlayerFrameIndex = MathHelper.Modulo((nextLocalPlayerFrameIndex + 1), localPlayerFrameStateBuffer.Length);
+
+            LocalAimingSubject = new Subject<float>();
         }
 
         // should be called when a unit state message for the player was received.

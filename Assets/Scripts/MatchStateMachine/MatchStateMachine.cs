@@ -12,7 +12,7 @@ namespace ProjectTrinity.MatchStateMachine
         public byte LocalPlayerId { get; set; }
         public Int64 MatchStartTimestamp { get; set; }
         public MatchInputProvider MatchInputProvider { get; private set; }
-        public MatchEventProvider MatchEventProvider { get; private set; }
+        public MatchSpawnService MatchEventProvider { get; private set; }
         public AckedMessageHelper AckedMessageHelper { get; private set; }
         public RoundTripTimeService RoundTripTimeService { get; private set; }
         public NetworkTimeService NetworkTimeService { get; private set; }
@@ -22,7 +22,7 @@ namespace ProjectTrinity.MatchStateMachine
         public MatchStateMachine()
         {
             MatchInputProvider = new MatchInputProvider();
-            MatchEventProvider = new MatchEventProvider();
+            MatchEventProvider = new MatchSpawnService();
             CurrentMatchState = new ReactiveProperty<IMatchState>();
 
             ChangeMatchState(new IdleMatchState());

@@ -68,6 +68,26 @@ public class MatchSimulationViewUnit : MonoBehaviour
 
     private Healthbar healthbar;
 
+    public virtual void OnSpawn(MatchSimulationUnit unitState, MatchSimulation matchSimulation)
+    {
+        InitializeChildComponents();
+        transform.position = unitState.MovementState.Value.GetUnityPosition();
+        transform.rotation = unitState.MovementState.Value.GetUnityRotation();
+        
+        unitState.MovementState
+                 .Subscribe(OnPositionRotationUpdate)
+                 .AddTo(this);
+        
+        healthbar.Initialize(unitState);
+        
+        matchSimulation.SimulationFrameSubject
+                       .Subscribe(UpdateToNextState)
+                       .AddTo(this);
+        
+        unitState.AbilityActivationSubject
+                 .Subscribe(abilityActivation => OnAbilityActivation(abilityActivation.Rotation, abilityActivation.StartFrame, abilityActivation.ActivationFrame));
+    }
+
     private void InitializeChildComponents()
     {
         animator = GetComponent<Animator>();
@@ -111,22 +131,8 @@ public class MatchSimulationViewUnit : MonoBehaviour
         interpolationQueue.Enqueue(stateToAdd);
     }
 
-    public void OnSpawn(MatchSimulationUnit unitState)
-    {
-        InitializeChildComponents();
-        transform.position = unitState.MovementState.Value.GetUnityPosition();
-        transform.rotation = unitState.MovementState.Value.GetUnityRotation();
 
-        unitState.MovementState
-            .Subscribe(OnPositionRotationUpdate)
-            .AddTo(this);
-
-        healthbar.Initialize(unitState);
-    }
-
-    public virtual void OnLocalAimingUpdate(float rotation) { }
-
-    public virtual void OnAbilityActivation(float rotation, byte startFrame, byte activationFrame) 
+    protected virtual void OnAbilityActivation(float rotation, byte startFrame, byte activationFrame) 
     {
         if (currentAbilityActivation != null)
         {
@@ -139,7 +145,7 @@ public class MatchSimulationViewUnit : MonoBehaviour
                                                              (byte)MathHelper.Modulo(activationFrame + FrameDelay, byte.MaxValue));
     }
 
-    public virtual void UpdateToNextState(byte currentFrame)
+    protected virtual void UpdateToNextState(byte currentFrame)
     {
         int speedPartToModify = 390 / 6;
         float queueCount = interpolationQueue.Count;

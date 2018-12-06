@@ -1,4 +1,5 @@
 ﻿using ProjectTrinity.Helper;
+using ProjectTrinity.Networking.Messages;
 using UniRx;
 using UnityEngine;
 
@@ -32,6 +33,8 @@ namespace ProjectTrinity.Simulation
 
         public ReactiveProperty<byte> HealthPercent { get; set; }
 
+        public Subject<MatchSimulation.AbilityActivation> AbilityActivationSubject;
+
         protected byte LastConfirmedFrame;
 
         public MatchSimulationUnit(byte unitId, int xPosition, int yPosition, byte rotation, byte healthPercent, byte frame)
@@ -46,6 +49,9 @@ namespace ProjectTrinity.Simulation
             MovementState = new ReactiveProperty<MovementProperties>(movementState);
 
             HealthPercent = new ReactiveProperty<byte>(healthPercent);
+
+            AbilityActivationSubject = new Subject<MatchSimulation.AbilityActivation>();
+
             LastConfirmedFrame = frame;
         }
 
