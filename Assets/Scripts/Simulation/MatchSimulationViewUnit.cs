@@ -117,7 +117,9 @@ public class MatchSimulationViewUnit : MonoBehaviour
         transform.position = unitState.MovementState.Value.GetUnityPosition();
         transform.rotation = unitState.MovementState.Value.GetUnityRotation();
 
-        unitState.MovementState.Subscribe(OnPositionRotationUpdate);
+        unitState.MovementState
+            .Subscribe(OnPositionRotationUpdate)
+            .AddTo(this);
 
         healthbar.Initialize(unitState);
     }
